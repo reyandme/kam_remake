@@ -83,6 +83,43 @@ Follow `KM_Test_Archers_GoFar.pas`, which is the fullest example in the suite:
   exception replaces the original one and the log shows the wrong cause. Record that a step
   happened before the step that can fail, not after.
 
+### What review keeps sending back
+
+Every item below is something a reviewer here has already had to say about an AI-written test.
+They cost nothing to get right the first time.
+
+**Do not build scaffolding the test does not need.**
+
+- A helper method that wraps one expression is an overcomplication, not an abstraction. Call the
+  expression.
+- A field that holds a value only to compare it ten lines later in the same method is not state.
+  Compare it where you have it.
+- A unit level `const` block in a test is noise - inline the number. If it genuinely needs a name,
+  because it is the threshold the test is *about*, put it in the class as `private const`, the way
+  `MAX_WALK_DIST` does in `KM_Test_Archers_GoFar`.
+- Drop conditions that cannot be false. Filtering units by `UnitType = utRecruit` inside a
+  barracks says nothing, because nothing else is in there.
+
+**A test has to be worth the world it builds.**
+
+- Do not assert on a fraction of the state and describe it as the whole. A savegame is megabytes;
+  checking a dozen bytes of it and calling the test "the world came back unchanged" claims
+  something it never measured.
+- Aiming at the whole world in one test is not feasible. Pick the one behaviour the test is really
+  about, and let `TestDescription` say exactly that and no more.
+- A game test is about gameplay. If what you are checking is a serialization detail or a utility
+  function, it belongs in `Utils/UnitTests`.
+
+**Readability is a review criterion, not a preference.**
+
+- If a reviewer has to work at following the control flow, simplify it. Where the test picks the
+  moment, drive off `aTick` rather than a state machine of `Boolean` fields.
+- `unitsInside`, not `inside`. A name that needs the surrounding line to be understood is too
+  short.
+- Keep a `Format` call on one line where it fits, and put the tick at the end of the message.
+- Put a comment next to the statement it explains, inside the branch, rather than above the whole
+  block.
+
 ### Naming
 
 `KM_Test_<Area>_<Aspect>.pas` holding `TKMTest_<Area><Aspect>` - the file separates the parts with

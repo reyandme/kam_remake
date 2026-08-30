@@ -35,6 +35,27 @@ the fix, and the check to run before opening a pull request - is in `workflow.md
 - Update all affected files consistently.
 - Do not introduce new bugs while refactoring.
 
+## What review keeps sending back
+
+Collected from review notes on AI-written changes to this repository. None of these are matters of
+taste; each one has cost a review round.
+
+- **Do not comment what the code already says.** A line that restates the statement below it gets
+  deleted. Comments are for why, and for what is not visible - see `comments.md`.
+- **Do not carry unrelated changes.** A readability tidy-up noticed while fixing a bug does not
+  belong in that bug's diff, however small. It is its own change or it is nothing.
+- **Take the simpler place.** When a guard in one method and one line in a constructor solve the
+  same problem, it is the constructor. Look for the fix that removes the condition rather than
+  the one that handles it.
+- **Put the change where the responsibility is.** If an object needs to tell another object
+  something, let it tell it; do not route the news through a third party that then reaches back
+  into the first. There is usually a precedent already - find the object that does the same thing
+  and follow it.
+- **Name things so the line reads on its own**, and prefer the existing name in the codebase over
+  a new synonym.
+- **When you disagree with a review note, say so and why.** Applying half of it silently is worse
+  than either doing it or arguing against it.
+
 ## Communication
 
 - Be direct and technical in your responses.
