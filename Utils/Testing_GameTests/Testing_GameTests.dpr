@@ -26,7 +26,7 @@ uses
   KM_Test_Fight95 in 'KM_Test_Fight95.pas',
   KM_Test_Hungarian_LongWalk in 'KM_Test_Hungarian_LongWalk.pas',
   KM_Test_Hungarian_SwapPerf in 'KM_Test_Hungarian_SwapPerf.pas',
-  KM_Test_Melee_AfkBehindTrees in 'KM_Test_Melee_AfkBehindTrees.pas',
+  KM_Test_Melee_HelperStandsIdle in 'KM_Test_Melee_HelperStandsIdle.pas',
   KM_Test_Mill in 'KM_Test_Mill.pas',
   KM_Test_Recruit_EatsAndReturns in 'KM_Test_Recruit_EatsAndReturns.pas',
   KM_Test_Recruit_EquipWhileEating in 'KM_Test_Recruit_EquipWhileEating.pas',
