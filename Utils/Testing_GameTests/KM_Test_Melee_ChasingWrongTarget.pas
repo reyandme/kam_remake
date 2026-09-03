@@ -4,8 +4,6 @@ unit KM_Test_Melee_ChasingWrongTarget;
 interface
 uses
   KM_Test,
-  KM_Points,
-  KM_UnitGroupTypes,
   KM_UnitWarrior;
 
 type
@@ -23,9 +21,9 @@ type
 
 implementation
 uses
-  SysUtils,
   KM_Defaults,
-  KM_GameApp, KM_HandsCollection, KM_HandTypes, KM_Terrain;
+  KM_GameApp, KM_HandsCollection, KM_HandTypes, KM_Terrain, KM_Points,
+  KM_UnitGroupTypes;
 
 procedure TKMTest_Melee_ChasingWrongTarget.SetUp;
 begin
@@ -35,15 +33,15 @@ begin
 
   gGameApp.NewGameEmptyMap(32, 32);
 
+  DYNAMIC_TERRAIN := False;
+
   if gGameApp.Game.ActiveInterface <> nil then
     gGameApp.Game.ActiveInterface.Viewport.Zoom := 0.75;
-
-  gTerrain.SetObject(TKMPoint.New(10, 13), 8);
 
   gHands[0].HandType := hndHuman;
   gHands[1].HandType := hndHuman;
 
-  gHands[0].AddUnitGroup(utPikeman, TKMPoint.New(9, 14), dirE, 3, 3);
+  gHands[0].AddUnitGroup(utPikeman, TKMPoint.New(9, 15), dirE, 2, 2);
   gHands[1].AddUnitGroup(utMilitia, TKMPoint.New(11, 14), dirNE, 1, 1);
 
   wrongChasedUnit := gHands[1].UnitGroups[0].Members[0];
@@ -55,13 +53,21 @@ end;
 procedure TKMTest_Melee_ChasingWrongTarget.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
   if aTick = 1 then
-    gHands[0].UnitGroups[0].OrderAttackUnit(gHands[1].UnitGroups[0].Members[0], True);
+    gHands[0].UnitGroups[0].OrderWalk(TKMPoint.New(10, 15), True, wtokPlayerOrder, dirE, True);
   if aTick = 6 then
-    gHands[1].UnitGroups[0].OrderWalk(TKMPoint.New(17, 8), True, wtokPlayerOrder, dirNE, true);
+    gHands[1].UnitGroups[0].OrderWalk(TKMPoint.New(15, 10), True, wtokPlayerOrder, dirNE, True);
   if aTick = 7 then
-    gHands[1].UnitGroups[1].OrderWalk(TKMPoint.New(10, 16), True, wtokPlayerOrder, dirN, true);
+    gHands[1].UnitGroups[1].OrderWalk(TKMPoint.New(10, 16), True, wtokPlayerOrder, dirN, True);
 
+  //One pike chaised wrong militia and test should fail.
   AssertTrue((wrongChasedUnit <> nil) and not (wrongChasedUnit.IsDead or wrongChasedUnit.InFight), 'Soldiers chased wrong units.');
+
+  //All pikes are fighting 1 group of militia and all works correct.
+  if gHands[0].UnitGroups[0].InFightAllMembers then
+  begin
+    aKeepGoing := false;
+  end;
+
 end;
 
 
