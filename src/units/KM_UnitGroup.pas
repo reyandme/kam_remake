@@ -41,7 +41,7 @@ type
     fMapEdCount: Word;
     fSelectedInUI: TKMUnitWarrior; // Unit selected by the player in GUI. Should not be saved or affect game logic for MP consistency.
     fTempProtectedRanged: TList<TKMUnitWarrior>; // Ranged enemy units, that should not be pruned from fOffenders.
-    fTempProtectedGroups: TList<TKMUnitGroup>; // Members of this groups should not be pruned from fOffenders.
+    fTempProtectedGroups: TList<TKMUnitGroup>; // Members of these groups should not be pruned from fOffenders.
 
     function GetCount: Integer;
     function GetMember(aIndex: Integer): TKMUnitWarrior;
@@ -869,10 +869,10 @@ begin
     W := TKMUnitWarrior(U);
 
     if W.IsRanged then
-      fTempProtectedRanged.Add(TKMUnitWarrior(U));
+      fTempProtectedRanged.Add(W);
 
     if W.InFight and not fTempProtectedGroups.Contains(W.Group) then
-       fTempProtectedGroups.Add(W.Group);
+      fTempProtectedGroups.Add(TKMUnitGroup(W.Group));
   end;
 end;
 
