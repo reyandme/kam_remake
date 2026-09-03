@@ -13,6 +13,7 @@ type
   protected
     procedure SetUp; override;
     procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
+    procedure TearDown; override;
   public
     class function TestTags: TKMTestTagSet; override;
     class function TestDescription: string; override;
@@ -29,6 +30,7 @@ procedure TKMTest_Melee_ChasingWrongTarget.SetUp;
 begin
   inherited;
 
+  //Wrong militia unit will not go far and will stop and chased down before this time.
   fDuration := 100;
 
   gGameApp.NewGameEmptyMap(32, 32);
@@ -64,9 +66,7 @@ begin
 
   //All pikes are fighting 1 group of militia and all works correct.
   if gHands[0].UnitGroups[0].InFightAllMembers then
-  begin
-    aKeepGoing := false;
-  end;
+    aKeepGoing := False;
 
 end;
 
@@ -80,6 +80,13 @@ end;
 class function TKMTest_Melee_ChasingWrongTarget.TestDescription: string;
 begin
   Result := 'After melee group gets into fight members should help instead of chasing soldiers of different group.';
+end;
+
+
+procedure TKMTest_Melee_ChasingWrongTarget.TearDown;
+begin
+  inherited;
+  DYNAMIC_TERRAIN := True;
 end;
 
 
