@@ -40,8 +40,8 @@ type
     //don't saved:
     fMapEdCount: Word;
     fSelectedInUI: TKMUnitWarrior; // Unit selected by the player in GUI. Should not be saved or affect game logic for MP consistency.
-    fTempProtectedRanged: TList<TKMUnitWarrior>; // Ranged enemy units, that should not be pruned from fOffenders.
-    fTempProtectedGroups: TList<TKMUnitGroup>; // Members of these groups should not be pruned from fOffenders.
+    fDontPruneRanged: TList<TKMUnitWarrior>; // Ranged enemy units, that should not be pruned from fOffenders.
+    fDontPruneGroups: TList<TKMUnitGroup>; // Members of these groups should not be pruned from fOffenders.
 
     function GetCount: Integer;
     function GetMember(aIndex: Integer): TKMUnitWarrior;
@@ -87,7 +87,6 @@ type
     function GetDirection: TKMDirection;
     procedure SetSelectedInUI(aUnit: TKMUnitWarrior);
     function GetSelectedInUI: TKMUnitWarrior;
-    procedure UpdateProtectedUnitsAndGroups;
     procedure OffendersPrune;
   protected
     function GetPosition: TKMPoint; inline;
@@ -264,8 +263,8 @@ begin
   Assert(fGroupType in GROUP_TYPES_VALID, 'Can''t assign group type ' + GetEnumName(TypeInfo(TKMGroupType), Integer(fGroupType)));
   fMembers := TList<TKMUnitWarrior>.Create;
   fOffenders := TList<TKMUnitWarrior>.Create;
-  fTempProtectedRanged := TList<TKMUnitWarrior>.Create;
-  fTempProtectedGroups := TList<TKMUnitGroup>.Create;
+  fDontPruneRanged := TList<TKMUnitWarrior>.Create;
+  fDontPruneGroups := TList<TKMUnitGroup>.Create;
 
   //So when they click Halt for the first time it knows where to place them
   fOrderLoc := KMPointDir(aCreator.Position.X, aCreator.Position.Y, aCreator.Direction);
@@ -293,8 +292,8 @@ begin
   Assert(fGroupType in GROUP_TYPES_VALID, 'Can''t assign group type ' + GetEnumName(TypeInfo(TKMGroupType), Integer(fGroupType)));
   fMembers := TList<TKMUnitWarrior>.Create;
   fOffenders := TList<TKMUnitWarrior>.Create;
-  fTempProtectedRanged := TList<TKMUnitWarrior>.Create;
-  fTempProtectedGroups := TList<TKMUnitGroup>.Create;
+  fDontPruneRanged := TList<TKMUnitWarrior>.Create;
+  fDontPruneGroups := TList<TKMUnitGroup>.Create;
 
   //So when they click Halt for the first time it knows where to place them
   fOrderLoc := KMPointDir(PosX, PosY, aDir);
@@ -349,8 +348,8 @@ begin
   LoadStream.CheckMarker('UnitGroup');
   fMembers := TList<TKMUnitWarrior>.Create;
   fOffenders := TList<TKMUnitWarrior>.Create;
-  fTempProtectedRanged := TList<TKMUnitWarrior>.Create;
-  fTempProtectedGroups := TList<TKMUnitGroup>.Create;
+  fDontPruneRanged := TList<TKMUnitWarrior>.Create;
+  fDontPruneGroups := TList<TKMUnitGroup>.Create;
 
   LoadStream.Read(fGroupType, SizeOf(fGroupType));
   LoadStream.Read(newCount);
@@ -417,8 +416,8 @@ begin
   ClearOffenders;
   fOffenders.Free;
 
-  FreeAndNil(fTempProtectedRanged);
-  FreeAndNil(fTempProtectedGroups);
+  FreeAndNil(fDontPruneRanged);
+  FreeAndNil(fDontPruneGroups);
 
   ClearOrderTarget; //Free pointers
 
@@ -850,33 +849,33 @@ begin
 end;
 
 
-procedure TKMUnitGroup.UpdateProtectedUnitsAndGroups;
-var
-  I: Integer;
-  U: TKMUnit;
-  W: TKMUnitWarrior;
-begin
-  fTempProtectedRanged.Clear;
-  fTempProtectedGroups.Clear;
-
-  for I := 0 to Count - 1 do
-  begin
-    U := fMembers[i].GetAttackingUnit;
-
-    if (U = nil) or not (U is TKMUnitWarrior) then
-      continue;
-
-    W := TKMUnitWarrior(U);
-
-    if W.IsRanged then
-      fTempProtectedRanged.Add(W);
-
-    if W.InFight and not fTempProtectedGroups.Contains(W.Group) then
-      fTempProtectedGroups.Add(TKMUnitGroup(W.Group));
-  end;
-end;
-
 procedure TKMUnitGroup.OffendersPrune;
+  procedure UpdateProtectedUnitsAndGroups;
+  var
+    I: Integer;
+    U: TKMUnit;
+    W: TKMUnitWarrior;
+  begin
+    fDontPruneRanged.Clear;
+    fDontPruneGroups.Clear;
+
+    for I := 0 to Count - 1 do
+    begin
+      U := fMembers[i].GetAttackingUnit;
+
+      if (U = nil) or not (U is TKMUnitWarrior) then
+        continue;
+
+      W := TKMUnitWarrior(U);
+
+      if W.IsRanged then
+        fDontPruneRanged.Add(W);
+
+      if W.InFight and not fDontPruneGroups.Contains(W.Group) then
+        fDontPruneGroups.Add(TKMUnitGroup(W.Group));
+    end;
+  end;
+
   function ForgetOffender(aOffender: TKMUnitWarrior; aForgetOffenders: Boolean): Boolean;
   begin
     Result := False;
@@ -888,18 +887,17 @@ procedure TKMUnitGroup.OffendersPrune;
     if IsAllyTo(aOffender) then Exit(True);
 
     // Remove ranged offenders if we are in fight with melee units for melee units groups
-    if aForgetOffenders and aOffender.IsRanged and not fTempProtectedRanged.Contains(aOffender) then Exit(True);
+    if aForgetOffenders and aOffender.IsRanged and not fDontPruneRanged.Contains(aOffender) then Exit(True);
 
     // Remove melee offenders if group is not in fight with someone of this offenders group.
-    if aForgetOffenders and not aOffender.IsRanged and not fTempProtectedGroups.Contains(aOffender.Group) then Exit(True);
+    if aForgetOffenders and not aOffender.IsRanged and not fDontPruneGroups.Contains(aOffender.Group) then Exit(True);
   end;
 var
   I: Integer;
   U: TKMUnit;
-  forgetOffendersNeeded: Boolean;
 begin
   // If we are Melee and we are fighting with Melee we should forget about the Ranged offenders we have and melee groups we are not fighting with
-  forgetOffendersNeeded := False;
+  var forgetOffendersNeeded := False;
   if not IsRanged then
     for I := 0 to fOffenders.Count - 1 do
       if not fOffenders[I].IsRanged then
@@ -923,8 +921,8 @@ begin
   end;
 
   // Clear for neats
-  fTempProtectedRanged.Clear;
-  fTempProtectedGroups.Clear;
+  fDontPruneRanged.Clear;
+  fDontPruneGroups.Clear;
 end;
 
 
