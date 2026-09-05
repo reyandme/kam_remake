@@ -24,11 +24,12 @@ uses
   KM_GameApp, KM_HandsCollection, KM_HandTypes, KM_Terrain, KM_Points,
   KM_UnitGroupTypes;
 
+
 procedure TKMTest_MeleeEngagedChasingPassing_Citizen.SetUp;
 begin
   inherited;
 
-  //All pikes should be in fight at this time.
+  // All pikes should be fighting by this time
   fDuration := 100;
 
   gGameApp.NewGameEmptyMap(32, 32);
@@ -50,6 +51,13 @@ begin
 end;
 
 
+procedure TKMTest_MeleeEngagedChasingPassing_Citizen.TearDown;
+begin
+  inherited;
+  DYNAMIC_TERRAIN := True;
+end;
+
+
 procedure TKMTest_MeleeEngagedChasingPassing_Citizen.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
   if aTick = 5 then
@@ -58,10 +66,9 @@ begin
   if aTick = 12 then
     gHands[1].UnitGroups[0].OrderWalk(TKMPoint.New(10, 16), True, wtokPlayerOrder, dirN, True);
 
-  //All pikes are fighting 1 group of militia and all works correct.
+  // All pikes are fighting 1 group of militia
   if gHands[0].UnitGroups[0].InFightAllMembers then
     aKeepGoing := False;
-
 end;
 
 
@@ -74,13 +81,6 @@ end;
 class function TKMTest_MeleeEngagedChasingPassing_Citizen.TestDescription: string;
 begin
   Result := 'After melee group gets into fight, members should help instead of chasing passing by citizens.';
-end;
-
-
-procedure TKMTest_MeleeEngagedChasingPassing_Citizen.TearDown;
-begin
-  inherited;
-  DYNAMIC_TERRAIN := True;
 end;
 
 
