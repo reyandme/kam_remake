@@ -909,12 +909,12 @@ begin
     var U: TKMUnit := fOffenders[I]; // Need to pass var
     gHands.CleanUpUnitPointer(U);
     fOffenders.Delete(I);
-
-    if fOffenders.Count = 0 then
-      OrderRepeat;
   end;
 
-  // Clear for neats
+  if fOffenders.Count = 0 then
+    OrderRepeat;
+
+  // Clear for safety
   fDontPruneRanged.Clear;
   fDontPruneGroups.Clear;
 end;
