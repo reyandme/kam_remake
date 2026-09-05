@@ -42,6 +42,7 @@ type
 
   TKMTestTagSet = set of TKMTestTag;
 
+  //todo: Add trUnknown for tests that did not make any asserts
   TKMTestResult = (trSuccess, trFailed, trException);
   ETestFailed = class(Exception);
 
