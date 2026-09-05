@@ -1,15 +1,13 @@
-unit KM_Test_EngagedMeleeChasingPassing_Warrior;
-
+unit KM_Test_MeleeEngagedChasingPassing_Citizen;
 {$I KaM_Remake.inc}
 interface
 uses
   KM_Test,
+  KM_Units,
   KM_UnitWarrior;
 
 type
-  TKMTest_EngagedMeleeChasingPassing_Warrior = class(TKMTest)
-  private
-    passingUnit: TKMUnitWarrior;
+  TKMTest_MeleeEngagedChasingPassing_Citizen = class(TKMTest)
   protected
     procedure SetUp; override;
     procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
@@ -22,11 +20,11 @@ type
 
 implementation
 uses
-  KM_Defaults,
+  KM_Defaults, KM_ResTypes,
   KM_GameApp, KM_HandsCollection, KM_HandTypes, KM_Terrain, KM_Points,
   KM_UnitGroupTypes;
 
-procedure TKMTest_EngagedMeleeChasingPassing_Warrior.SetUp;
+procedure TKMTest_MeleeEngagedChasingPassing_Citizen.SetUp;
 begin
   inherited;
 
@@ -44,25 +42,21 @@ begin
   gHands[1].HandType := hndHuman;
 
   gHands[0].AddUnitGroup(utPikeman, TKMPoint.New(9, 15), dirE, 2, 2);
-  gHands[1].AddUnitGroup(utMilitia, TKMPoint.New(11, 14), dirNE, 1, 1);
-
-  passingUnit := gHands[1].UnitGroups[0].Members[0];
+  gHands[1].AddUnit(utBaker, TKMPoint.New(11, 14));
 
   gHands[1].AddUnitGroup(utMilitia, TKMPoint.New(10, 17), dirN, 3, 3);
+
+  gHands[1].AddHouse(htBakery, 16, 9, true);
 end;
 
 
-procedure TKMTest_EngagedMeleeChasingPassing_Warrior.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
+procedure TKMTest_MeleeEngagedChasingPassing_Citizen.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
-  if aTick = 1 then
+  if aTick = 5 then
     gHands[0].UnitGroups[0].OrderWalk(TKMPoint.New(10, 15), True, wtokPlayerOrder, dirE, True);
-  if aTick = 6 then
-    gHands[1].UnitGroups[0].OrderWalk(TKMPoint.New(15, 10), True, wtokPlayerOrder, dirNE, True);
-  if aTick = 7 then
-    gHands[1].UnitGroups[1].OrderWalk(TKMPoint.New(10, 16), True, wtokPlayerOrder, dirN, True);
 
-  //One pike chaised wrong militia and test should fail.
-  AssertTrue((passingUnit <> nil) and not (passingUnit.IsDead or passingUnit.InFight), 'Soldiers chased passing unit.');
+  if aTick = 12 then
+    gHands[1].UnitGroups[0].OrderWalk(TKMPoint.New(10, 16), True, wtokPlayerOrder, dirN, True);
 
   //All pikes are fighting 1 group of militia and all works correct.
   if gHands[0].UnitGroups[0].InFightAllMembers then
@@ -71,19 +65,19 @@ begin
 end;
 
 
-class function TKMTest_EngagedMeleeChasingPassing_Warrior.TestTags: TKMTestTagSet;
+class function TKMTest_MeleeEngagedChasingPassing_Citizen.TestTags: TKMTestTagSet;
 begin
   Result := [tcCombat];
 end;
 
 
-class function TKMTest_EngagedMeleeChasingPassing_Warrior.TestDescription: string;
+class function TKMTest_MeleeEngagedChasingPassing_Citizen.TestDescription: string;
 begin
-  Result := 'After melee group gets into fight, members should help instead of chasing passing by soldiers of different group.';
+  Result := 'After melee group gets into fight, members should help instead of chasing passing by citizens.';
 end;
 
 
-procedure TKMTest_EngagedMeleeChasingPassing_Warrior.TearDown;
+procedure TKMTest_MeleeEngagedChasingPassing_Citizen.TearDown;
 begin
   inherited;
   DYNAMIC_TERRAIN := True;
@@ -91,5 +85,5 @@ end;
 
 
 initialization
-  RegisterTest(TKMTest_EngagedMeleeChasingPassing_Warrior);
+  RegisterTest(TKMTest_MeleeEngagedChasingPassing_Citizen);
 end.
