@@ -35,7 +35,7 @@ KaM Remake Beta r_____ []
 + Fixed crash on equipping a warrior after a recruit died inside the Barracks
 + Fixed crash on ordering a large group to walk far across a big map
 + Fixed crash on a player reconnecting to the MP game while the Host already quit to the lobby
-+ Fixed bug when melee units chaise wrong targets while their group is in fight
++ Fixed a bug when melee units will chase passing by units while their group is in a fight
 
 Campaigns:
 + Added new campaign - "The HeritAge"
