@@ -851,32 +851,28 @@ end;
 
 procedure TKMUnitGroup.OffendersPrune;
   procedure UpdateProtectedUnitsAndGroups;
-  var
-    I: Integer;
-    U: TKMUnit;
-    W: TKMUnitWarrior;
   begin
     fDontPruneRanged.Clear;
     fDontPruneGroups.Clear;
 
-    for I := 0 to Count - 1 do
+    for var I := 0 to Count - 1 do
     begin
-      U := fMembers[i].GetAttackingUnit;
+      var enemyUnit := fMembers[I].GetAttackingUnit;
 
-      if (U = nil) or not (U is TKMUnitWarrior) then
-        continue;
+      if (enemyUnit = nil) or not (enemyUnit is TKMUnitWarrior) then
+        Continue;
 
-      W := TKMUnitWarrior(U);
+      var enemyWarrior := TKMUnitWarrior(enemyUnit);
 
-      if W.IsRanged then
-        fDontPruneRanged.Add(W);
+      if enemyWarrior.IsRanged then
+        fDontPruneRanged.Add(enemyWarrior);
 
-      if W.InFight and not fDontPruneGroups.Contains(W.Group) then
-        fDontPruneGroups.Add(TKMUnitGroup(W.Group));
+      if enemyWarrior.InFight and not fDontPruneGroups.Contains(enemyWarrior.Group) then
+        fDontPruneGroups.Add(TKMUnitGroup(enemyWarrior.Group));
     end;
   end;
 
-  function ForgetOffender(aOffender: TKMUnitWarrior; aForgetOffenders: Boolean): Boolean;
+  function ShouldForgetOffender(aOffender: TKMUnitWarrior; aForgetMinors: Boolean): Boolean;
   begin
     Result := False;
 
@@ -887,32 +883,30 @@ procedure TKMUnitGroup.OffendersPrune;
     if IsAllyTo(aOffender) then Exit(True);
 
     // Remove ranged offenders if we are in fight with melee units for melee units groups
-    if aForgetOffenders and aOffender.IsRanged and not fDontPruneRanged.Contains(aOffender) then Exit(True);
+    if aForgetMinors and aOffender.IsRanged and not fDontPruneRanged.Contains(aOffender) then Exit(True);
 
     // Remove melee offenders if group is not in fight with someone of this offenders group.
-    if aForgetOffenders and not aOffender.IsRanged and not fDontPruneGroups.Contains(aOffender.Group) then Exit(True);
+    if aForgetMinors and not aOffender.IsRanged and not fDontPruneGroups.Contains(aOffender.Group) then Exit(True);
   end;
-var
-  I: Integer;
-  U: TKMUnit;
 begin
-  // If we are Melee and we are fighting with Melee we should forget about the Ranged offenders we have and melee groups we are not fighting with
-  var forgetOffendersNeeded := False;
+  // If we are Melee and we are fighting with Melee we should forget about Ranged offenders and Melee groups we are not fighting with
+  var forgetMinorOffenders := False;
   if not IsRanged then
-    for I := 0 to fOffenders.Count - 1 do
+    for var I := 0 to fOffenders.Count - 1 do
       if not fOffenders[I].IsRanged then
       begin
-        forgetOffendersNeeded := True;
+        forgetMinorOffenders := True;
         Break;
       end;
 
-  if forgetOffendersNeeded then
+  if forgetMinorOffenders then
     UpdateProtectedUnitsAndGroups;
 
-  for I := fOffenders.Count - 1 downto 0 do
-  if ForgetOffender(fOffenders[I], forgetOffendersNeeded) then
+  // Do the pruning
+  for var I := fOffenders.Count - 1 downto 0 do
+  if ShouldForgetOffender(fOffenders[I], forgetMinorOffenders) then
   begin
-    U := fOffenders[I]; // Need to pass var
+    var U: TKMUnit := fOffenders[I]; // Need to pass var
     gHands.CleanUpUnitPointer(U);
     fOffenders.Delete(I);
 
