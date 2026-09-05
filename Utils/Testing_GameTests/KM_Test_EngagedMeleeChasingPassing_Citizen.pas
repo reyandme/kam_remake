@@ -9,8 +9,6 @@ uses
 
 type
   TKMTest_EngagedMeleeChasingPassing_Citizen = class(TKMTest)
-  private
-    passingCitizen: TKMUnit;
   protected
     procedure SetUp; override;
     procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
@@ -46,8 +44,6 @@ begin
 
   gHands[0].AddUnitGroup(utPikeman, TKMPoint.New(9, 15), dirE, 2, 2);
   gHands[1].AddUnit(utBaker, TKMPoint.New(11, 14));
-
-  passingCitizen := gHands[1].Units[0];
 
   gHands[1].AddUnitGroup(utMilitia, TKMPoint.New(10, 17), dirN, 3, 3);
 
