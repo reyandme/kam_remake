@@ -67,8 +67,13 @@ begin
     gHands[1].UnitGroups[0].OrderWalk(TKMPoint.New(10, 16), True, wtokPlayerOrder, dirN, True);
 
   // All pikes are fighting 1 group of militia
-  if gHands[0].UnitGroups[0].InFightAllMembers then
+  var allInFight := gHands[0].UnitGroups[0].InFightAllMembers;
+
+  if allInFight then
     aKeepGoing := False;
+
+  if TimeIsOut and not allInFight then
+    AssertFail('Not all warriors went into fight');
 end;
 
 

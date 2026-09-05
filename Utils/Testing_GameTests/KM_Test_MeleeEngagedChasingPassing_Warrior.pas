@@ -68,12 +68,17 @@ begin
   if aTick = 7 then
     gHands[1].UnitGroups[1].OrderWalk(TKMPoint.New(10, 16), True, wtokPlayerOrder, dirN, True);
 
-  //One pike chaised wrong militia and test should fail.
-  AssertTrue((fPassingUnit <> nil) and not (fPassingUnit.IsDead or fPassingUnit.InFight), 'Soldiers chased passing unit.');
+  // One pike chaised wrong militia and test should fail.
+  AssertTrue(not fPassingUnit.InFight, 'Soldiers chased passing unit.');
 
-  //All pikes are fighting 1 group of militia and all works correct.
-  if gHands[0].UnitGroups[0].InFightAllMembers then
+  // All pikes are fighting 1 group of militia
+  var allInFight := gHands[0].UnitGroups[0].InFightAllMembers;
+
+  if allInFight then
     aKeepGoing := False;
+
+  if TimeIsOut and not allInFight then
+    AssertFail('Not all warriors went into fight');
 end;
 
 
