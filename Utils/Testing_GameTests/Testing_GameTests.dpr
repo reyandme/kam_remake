@@ -42,7 +42,8 @@ uses
   KM_Test_Woodcutter_Plant in 'KM_Test_Woodcutter_Plant.pas',
   KM_Test_Vineyard in 'KM_Test_Vineyard.pas',
   KM_Test_Swine in 'KM_Test_Swine.pas',
-  KM_Test_Melee_ChasingWrongTarget in 'KM_Test_Melee_ChasingWrongTarget.pas';
+  KM_Test_EngagedMeleeChasingPassing_Warrior in 'KM_Test_EngagedMeleeChasingPassing_Warrior.pas',
+  KM_Test_EngagedMeleeChasingPassing_Citizen in 'KM_Test_EngagedMeleeChasingPassing_Citizen.pas';
 
 {$R *.res}
 
