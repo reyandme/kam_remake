@@ -679,6 +679,9 @@ begin
     if fCheckpoints.Count >= gGameSettings.MapEdHistoryDepth then
       fCheckpoints.Delete(0);
 
+    //todo -cPractical: There is a bug here, we assume 0 is our base checkpoint for Undo, but we delete it here
+    // Should be reproduced in GameTests first (set undo limit to 4, paint terrain, add houses, add units, undo, see how houses are also gone)
+
     // Otherwise create new one
     cp := TKMCheckpoint.FactoryCreate(aArea, aCaption);
     fCheckpoints.Add(cp);
