@@ -573,8 +573,6 @@ procedure TKMMain.DoIdle(Sender: TObject; var Done: Boolean);
 const
   MAX_TIME_BETWEEN_RENDERS = 1000; //Render at least 1 FPS
   UI_UPDATE_INTERVAL = 100;
-var
-  renderInterval, timeSinceRender, timeSinceTick, timeSinceUpdateUI: Cardinal;
 begin
   Done := False; //Repeats OnIdle asap without performing Form-specific idle code
 
@@ -593,7 +591,7 @@ begin
   Set8087CW($133F);
 
   //Priority 1. Do we need to tick?
-  timeSinceTick := TimeSince(fTickSchedule);
+  var timeSinceTick := TimeSince(fTickSchedule);
   if (timeSinceTick >= fGameTickInterval) and not ForcedRenderRequired then
   begin
     gGameApp.DoGameTick;
@@ -602,17 +600,17 @@ begin
   else
   begin
     //Priority 2. UI update and render
-    timeSinceUpdateUI := TimeSince(fUpdateStateSchedule);
+    var timeSinceUpdateUI := TimeSince(fUpdateStateSchedule);
     if timeSinceUpdateUI >= UI_UPDATE_INTERVAL then
     begin
       gGameApp.UpdateState;
       fUpdateStateSchedule := CalculateSchedule(fUpdateStateSchedule, timeSinceUpdateUI, UI_UPDATE_INTERVAL);
     end;
 
-    renderInterval := GetRenderInterval;
+    var renderInterval := GetRenderInterval;
     if renderInterval > 0 then
     begin
-      timeSinceRender := TimeSince(fRenderSchedule);
+      var timeSinceRender := TimeSince(fRenderSchedule);
       if timeSinceRender >= renderInterval then
       begin
         DoRender;
