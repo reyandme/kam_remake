@@ -146,6 +146,7 @@
         <DCCReference Include="KM_Test_Hungarian_SwapPerf.pas"/>
         <DCCReference Include="KM_Test_MeleeEngagedChasingPassing_Warrior.pas"/>
         <DCCReference Include="KM_Test_MeleeEngagedChasingPassing_Citizen.pas"/>
+        <DCCReference Include="KM_Test_MeleeEngagedJoiningFight.pas"/>
         <DCCReference Include="KM_Test_Mill.pas"/>
         <DCCReference Include="KM_Test_Recruit_EatsAndReturns.pas"/>
         <DCCReference Include="KM_Test_Recruit_EquipWhileEating.pas"/>
@@ -162,7 +163,6 @@
         <DCCReference Include="KM_Test_Woodcutter_Plant.pas"/>
         <DCCReference Include="KM_Test_Vineyard.pas"/>
         <DCCReference Include="KM_Test_Swine.pas"/>
-        <DCCReference Include="KM_Test_MeleeEngagedJoiningFight.pas"/>
         <None Include="Profiling\AQtimeModule1.aqt"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

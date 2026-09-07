@@ -28,6 +28,7 @@ uses
   KM_Test_Hungarian_SwapPerf in 'KM_Test_Hungarian_SwapPerf.pas',
   KM_Test_MeleeEngagedChasingPassing_Warrior in 'KM_Test_MeleeEngagedChasingPassing_Warrior.pas',
   KM_Test_MeleeEngagedChasingPassing_Citizen in 'KM_Test_MeleeEngagedChasingPassing_Citizen.pas',
+  KM_Test_MeleeEngagedJoiningFight in 'KM_Test_MeleeEngagedJoiningFight.pas',
   KM_Test_Mill in 'KM_Test_Mill.pas',
   KM_Test_Recruit_EatsAndReturns in 'KM_Test_Recruit_EatsAndReturns.pas',
   KM_Test_Recruit_EquipWhileEating in 'KM_Test_Recruit_EquipWhileEating.pas',
@@ -43,8 +44,7 @@ uses
   KM_Test_Woodcutter_Chop in 'KM_Test_Woodcutter_Chop.pas',
   KM_Test_Woodcutter_Plant in 'KM_Test_Woodcutter_Plant.pas',
   KM_Test_Vineyard in 'KM_Test_Vineyard.pas',
-  KM_Test_Swine in 'KM_Test_Swine.pas',
-  KM_Test_MeleeEngagedJoiningFight in 'KM_Test_MeleeEngagedJoiningFight.pas';
+  KM_Test_Swine in 'KM_Test_Swine.pas';
 
 {$R *.res}
 
