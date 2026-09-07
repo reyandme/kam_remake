@@ -18,10 +18,7 @@ type
     lbTests: TListBox;
     clbTags: TCheckListBox;
     Label2: TLabel;
-    pcMain: TPageControl;
-    tsLog: TTabSheet;
     meLog: TMemo;
-    tsRender: TTabSheet;
     pnlRender: TPanel;
     chkRender: TCheckBox;
     chkThrottleRender: TCheckBox;
@@ -31,6 +28,8 @@ type
     btnStop: TButton;
     Label3: TLabel;
     Label5: TLabel;
+    Panel1: TPanel;
+    Splitter1: TSplitter;
     procedure clbTagsClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -48,6 +47,7 @@ type
     procedure HandleProgress(const aValue: string);
     procedure EnsureResourcesLoaded(aHeadless: Boolean);
     procedure RefreshTagList;
+    procedure RenderAreaResize(aWidth, aHeight: Integer);
     procedure RunTest(aClass: TKMTestClass; aSeed: Integer);
   public
     function RunFromCmdLine: Boolean;
@@ -93,6 +93,7 @@ begin
   fRenderArea.Parent := pnlRender;
   fRenderArea.Align := alClient;
   fRenderArea.Color := clMaroon;
+  fRenderArea.OnResize := RenderAreaResize;
 
   RefreshTagList;
   RefreshTestList;
@@ -159,9 +160,20 @@ begin
 end;
 
 
+procedure TForm2.RenderAreaResize(aWidth, aHeight: Integer);
+begin
+  gGameApp.Resize(aWidth, aHeight);
+  gGameApp.Render;
+end;
+
+
 procedure TForm2.chkRenderClick(Sender: TObject);
 begin
   SKIP_RENDER := not chkRender.Checked;
+  if SKIP_RENDER then
+    pnlRender.Width := 32
+  else
+    pnlRender.Width := Max(pnlRender.Width, 480);
 end;
 
 
@@ -218,6 +230,8 @@ end;
 
 procedure TForm2.btnRunOneClick(Sender: TObject);
 begin
+  SKIP_RENDER := not chkRender.Checked;
+
   if lbTests.ItemIndex = -1 then Exit;
   var testIndex := Integer(lbTests.Items.Objects[lbTests.ItemIndex]);
   var thisTestClass := gTestList[testIndex];
@@ -242,9 +256,11 @@ end;
 
 procedure TForm2.btnRunAllClick(Sender: TObject);
 begin
+  SKIP_RENDER := not chkRender.Checked;
+
   meLog.Clear;
   meLog.Lines.Append('Running All');
-  pcMain.ActivePage := tsLog;
+  //pcMain.ActivePage := tsLog;
 
   var testsCompleted := 0;
   var TotalT := GetTickCount;

@@ -3,7 +3,7 @@ object Form2: TForm2
   Top = 289
   Caption = 'Testing_GameTests'
   ClientHeight = 633
-  ClientWidth = 1065
+  ClientWidth = 1185
   Color = clBtnFace
   DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
@@ -12,6 +12,9 @@ object Form2: TForm2
   Font.Name = 'Tahoma'
   Font.Style = []
   OnCreate = FormCreate
+  DesignSize = (
+    1185
+    633)
   TextHeight = 13
   object Label1: TLabel
     Left = 8
@@ -73,7 +76,7 @@ object Form2: TForm2
     Height = 25
     Caption = 'Run All'
     Enabled = False
-    TabOrder = 7
+    TabOrder = 6
     OnClick = btnRunAllClick
   end
   object seCycles: TSpinEdit
@@ -93,13 +96,13 @@ object Form2: TForm2
     Height = 22
     MaxValue = 10000
     MinValue = 0
-    TabOrder = 10
+    TabOrder = 9
     Value = 0
   end
   object lbTests: TListBox
     Left = 8
     Top = 24
-    Width = 185
+    Width = 225
     Height = 225
     ItemHeight = 13
     TabOrder = 2
@@ -108,51 +111,11 @@ object Form2: TForm2
   object clbTags: TCheckListBox
     Left = 8
     Top = 272
-    Width = 185
+    Width = 225
     Height = 113
-    ItemHeight = 17
-    TabOrder = 8
+    ItemHeight = 13
+    TabOrder = 7
     OnClick = clbTagsClick
-  end
-  object pcMain: TPageControl
-    Left = 200
-    Top = 8
-    Width = 857
-    Height = 617
-    ActivePage = tsLog
-    TabOrder = 3
-    object tsLog: TTabSheet
-      Caption = 'Log'
-      ImageIndex = 5
-      object meLog: TMemo
-        Left = 0
-        Top = 0
-        Width = 849
-        Height = 589
-        Align = alClient
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Courier New'
-        Font.Style = []
-        ParentFont = False
-        ScrollBars = ssBoth
-        TabOrder = 0
-      end
-    end
-    object tsRender: TTabSheet
-      Caption = 'Render'
-      ImageIndex = 4
-      object pnlRender: TPanel
-        Left = 0
-        Top = 0
-        Width = 849
-        Height = 589
-        Align = alClient
-        Caption = 'pnlRender'
-        TabOrder = 0
-      end
-    end
   end
   object chkRender: TCheckBox
     Left = 104
@@ -160,7 +123,8 @@ object Form2: TForm2
     Width = 57
     Height = 17
     Caption = 'Render'
-    TabOrder = 4
+    TabOrder = 3
+    OnClick = chkRenderClick
   end
   object chkThrottleRender: TCheckBox
     Left = 104
@@ -170,7 +134,7 @@ object Form2: TForm2
     Caption = 'Throttle FPS'
     Checked = True
     State = cbChecked
-    TabOrder = 9
+    TabOrder = 8
   end
   object seSeed: TSpinEdit
     Left = 8
@@ -179,7 +143,7 @@ object Form2: TForm2
     Height = 22
     MaxValue = 2000000000
     MinValue = 0
-    TabOrder = 5
+    TabOrder = 4
     Value = 4
   end
   object btnStop: TButton
@@ -189,7 +153,52 @@ object Form2: TForm2
     Height = 25
     Caption = 'Stop'
     Enabled = False
-    TabOrder = 6
+    TabOrder = 5
     OnClick = btnStopClick
+  end
+  object Panel1: TPanel
+    Left = 240
+    Top = 8
+    Width = 937
+    Height = 617
+    Anchors = [akLeft, akTop, akRight, akBottom]
+    Caption = 'Panel1'
+    TabOrder = 10
+    object Splitter1: TSplitter
+      Left = 481
+      Top = 1
+      Width = 4
+      Height = 615
+      ResizeStyle = rsUpdate
+      ExplicitLeft = 401
+    end
+    object pnlRender: TPanel
+      Left = 1
+      Top = 1
+      Width = 480
+      Height = 615
+      Align = alLeft
+      Caption = 'pnlRender'
+      TabOrder = 0
+    end
+    object meLog: TMemo
+      Left = 485
+      Top = 1
+      Width = 451
+      Height = 615
+      Align = alClient
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Courier New'
+      Font.Style = []
+      ParentFont = False
+      ScrollBars = ssVertical
+      TabOrder = 1
+      ExplicitLeft = -480
+      ExplicitTop = -348
+      ExplicitWidth = 929
+      ExplicitHeight = 589
+    end
   end
 end
