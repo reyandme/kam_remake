@@ -168,10 +168,13 @@ begin
 
     for var I := 0 to fDuration - 1 do
     begin
-      gGameApp.Game.UpdateGame;
+      gGameApp.DoGameTick;
 
       if (TimeGet - lastRenderTime) >= PaceRender then
       begin
+        // Update minimap for neats
+        if gGameApp.Game.ActiveInterface <> nil then
+          gGameApp.Game.ActiveInterface.Minimap.Update;
         gGameApp.Render(False);
         lastRenderTime := TimeGet;
       end;

@@ -237,7 +237,7 @@ begin
       and not fOnBeforeTick(I+1) then
       Exit;
 
-    gGameApp.Game.UpdateGame;
+    gGameApp.DoGameTick;
     gGameApp.Render(False);
 
     if Assigned(fOnTick)
