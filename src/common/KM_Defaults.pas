@@ -104,6 +104,9 @@ var
   FEAT_AI_GENERATE_INFLUENCE      :Boolean = True; // Generate influence maps for AI to plan attacks/defenses
   FEAT_SAVE_COMPRESSION           :Boolean = True; // Apply compression to savegame files, (disable to make them more readable)
   FEAT_SFX_ADJUST_SAMPLE_RATE     :Boolean = True; // Adjust SFX sample rate
+  FEAT_CACHE_PATHFINDING                       :Boolean = True; // Cache routes incase they are needed soon (Vortamic PF runs x4 faster even with lame approach)
+  FEAT_CACHE_PATHFINDING_AVOID_LOCKED          :Boolean = True; // Cache unsuccesfull tries to find route with avoid locked (as non walkable)
+  FEAT_DELIVERY_BID_CALC_USE_PATHFINDING       :Boolean = True; // Do we use simple distance on map or pathfinding for calc delivery bids cost?
 
   // Not fully implemented yet
   FEAT_CCL_WALKCONNECT        :Boolean = False;     // Use CCL instead of FloodFill for walk-connect (CCL is generaly worse. It's a bit slower, counts 1 tile areas and needs more AreaIDs to work / makes sparsed IDs)
@@ -113,10 +116,6 @@ var
   PATHFINDER_TO_USE           :Byte = 1;            // Use TKMPathfindingAStarNew
   FEAT_VIDEOS_UNDER_WINE      :Boolean = False; // Enable videos under Wine
 
-  //Cache / delivery / pathfinding
-  FEAT_CACHE_PATHFINDING                       :Boolean = True; // Cache routes incase they are needed soon (Vortamic PF runs x4 faster even with lame approach)
-  FEAT_CACHE_PATHFINDING_AVOID_LOCKED          :Boolean = True; // Cache unsuccesfull tries to find route with avoid locked (as non walkable)
-  FEAT_DELIVERY_BID_CALC_USE_PATHFINDING       :Boolean = True; // Do we use simple distance on map or pathfinding for calc delivery bids cost?
   {$IFDEF WDC} //Work only in Delphi
   CACHE_DELIVERY_BIDS: Boolean = True; //Cache delivery bids cost. Must be turned ON if we want to use pathfinding for bid calc, huge impact on performance in that case
   {$ENDIF}
