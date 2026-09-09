@@ -80,7 +80,7 @@ var
   DBG_ALLOW_DUPLICATE_APP   :Boolean = DEBUG_CFG; // We do not allow to run multiple games at once (to prevent MP cheating)
   DBG_SKIP_NETWORK_AUTH     :Boolean = DEBUG_CFG; // Skip network auth. Its equivalent to using KM_NetAuthUnsecure
   DBG_CLOSE_WITHOUT_CONFIRMATION  :Boolean = DEBUG_CFG; //Do we ask player about lost changes on game exit ?
-  RESET_DEBUG_CONTROLS  :Boolean = not DEBUG_CFG; //Reset Debug controls (F11) on game start
+  DBG_KEEP_DEBUG_CONTROLS  :Boolean = DEBUG_CFG; //Reset Debug controls (F11) on game start
   DBG_LOG_TEMP_COMMANDS :Boolean = False; // Log all GIC commands including Temp ones
   BLOCK_GAME_ON_PAUSE   :Boolean = not DEBUG_CFG; // Should we block game input, viewport scrolling etc on game pause?
   DELETE_OLD_LOGS       :Boolean = not DEBUG_CFG; // Should we delete old logs?

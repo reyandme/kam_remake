@@ -1367,7 +1367,7 @@ procedure TFormMain.ControlsReset;
   {$ENDIF}
 
 begin
-  if not RESET_DEBUG_CONTROLS then Exit;
+  if DBG_KEEP_DEBUG_CONTROLS then Exit;
 
   fUpdating := True;
   
