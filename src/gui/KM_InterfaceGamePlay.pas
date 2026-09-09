@@ -3849,10 +3849,10 @@ begin
   begin
     // Only own and ally units/houses can be selected
     if (entity.Owner <> -1) and
-      ((entity.Owner = gMySpectator.HandID)
-      or ALLOW_SELECT_ALL
-      or (entity.AllowAllyToSelect and (gMySpectator.Hand.Alliances[entity.Owner] = atAlly))
-      or (fUIMode in [umReplay, umSpectate])) then
+    ((entity.Owner = gMySpectator.HandID)
+    or DBG_ALLOW_SELECT_ALL
+    or (entity.AllowAllyToSelect and (gMySpectator.Hand.Alliances[entity.Owner] = atAlly))
+    or (fUIMode in [umReplay, umSpectate])) then
     begin
       gSystem.Cursor := kmcInfo;
       Exit;
@@ -3860,10 +3860,10 @@ begin
   end;
 
   if gMySpectator.Selected.IsGroup
-    and gMySpectator.IsSelectedMyObj
-    and (fUIMode in [umSP, umMP]) and not HasLostMPGame
-    and not gMySpectator.Hand.InCinematic
-    and (gMySpectator.FogOfWar.CheckTileRevelation(gCursor.Cell.X, gCursor.Cell.Y) > 0) then
+  and gMySpectator.IsSelectedMyObj
+  and (fUIMode in [umSP, umMP]) and not HasLostMPGame
+  and not gMySpectator.Hand.InCinematic
+  and (gMySpectator.FogOfWar.CheckTileRevelation(gCursor.Cell.X, gCursor.Cell.Y) > 0) then
   begin
     if (entity <> nil) and (gMySpectator.Hand.Alliances[entity.Owner] = atEnemy) then
       gSystem.Cursor := kmcAttack

@@ -756,7 +756,7 @@ var
 var
   setupClipXApplied: Boolean;
 begin
-  if (aText = '') or (aColor = $00000000) or SKIP_RENDER_TEXT then Exit;
+  if (aText = '') or (aColor = $00000000) or DBG_SKIP_RENDER_TEXT then Exit;
 
   SetLength(colors, 0);
 
@@ -891,7 +891,7 @@ begin
       glEnd;
   end;
 
-  if SHOW_TEXT_OUTLINES then
+  if DBG_SHOW_TEXT_OUTLINES then
   begin
     TKMRender.BindTexture(0);
     glPushMatrix;

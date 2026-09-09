@@ -1142,7 +1142,7 @@ begin
     and (fShowAIResults or gHands[aHandId].IsHuman)
     and (
       (fGameResultMsg <> grGameContinues)
-      or SHOW_ENEMIES_STATS
+      or DBG_SHOW_ENEMIES_STATS
       or gGameParams.IsReplayOrSpectate
       or (gHands[aHandId].Alliances[gMySpectator.HandID] = atAlly)
       or gMySpectator.Hand.AI.HasWon);

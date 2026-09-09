@@ -253,8 +253,8 @@ begin
   begin
     if aNewSelected.Owner <> fHandIndex then  // check if we selected our unit/ally's or enemy's
     begin
-      if ALLOW_SELECT_ALL
-        or (aNewSelected.AllowAllyToSelect and (Hand.Alliances[aNewSelected.Owner] = atAlly)) then
+      if DBG_ALLOW_SELECT_ALL
+      or (aNewSelected.AllowAllyToSelect and (Hand.Alliances[aNewSelected.Owner] = atAlly)) then
         fIsSelectedMyObj := False
       else
         aNewSelected := nil;

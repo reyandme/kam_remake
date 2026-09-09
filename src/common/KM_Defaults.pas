@@ -108,7 +108,6 @@ var
   {$IFDEF WDC} //Work only in Delphi
   CACHE_DELIVERY_BIDS: Boolean = True; //Cache delivery bids cost. Must be turned ON if we want to use pathfinding for bid calc, huge impact on performance in that case
   {$ENDIF}
-  DBG_UPDATE_DELIVERY_MODE_IMMEDIATELY: Boolean = DEBUG_CFG; // Do we update house delivery mode immediately ?
 
   //These are debug things, should be False
   {Runner}
@@ -123,13 +122,14 @@ var
   DEBUG_SPEEDUP_SPEED     :Integer = 300;   //Speed for speedup from debug menu
   DBG_LOG_DEBUG_INFO      :Boolean = False;  // Log debug info
   DBG_USE_DEBUG_SCRIPTING_EXEC    :Boolean = False; //Use slow debug executor (about 3 times slower! never use on release version). Using it we can find exact position of execution time error (row/col/pos/module)
-  USE_KMR_DIR_FOR_SETTINGS:Boolean = DEBUG_CFG; // Do we use KMR local directory for settings?
+  DBG_USE_KMR_DIR_FOR_SETTINGS:Boolean = DEBUG_CFG; // Do we use KMR local directory for settings?
   SKIP_RNG_CHECKS_FOR_SOME_GIC: Boolean = True; //Skip rng checks for Autosave and few other commands to have same AI city with predefined seed + mapconfig
-  ALLOW_SELECT_ALL        :Boolean = DEBUG_CFG; //Do we allow to select all entities (allies and enemies)
+  DBG_ALLOW_SELECT_ALL        :Boolean = DEBUG_CFG; //Do we allow to select all entities (allies and enemies)
   DBG_SHOW_EXACT_WARE_COUNT     :Boolean = DEBUG_CFG; // Do we show resource amount with K postfix (10123 -> 10k)
   DBG_SKIP_SAVE_POINTS_TO_FILE  :Boolean = False; // Skip save game savepoints (into .spt file)
   DBG_GAME_SAVE_STRIP_FOR_CRC   :Boolean = False; // Strip unsynced data from Game saves, to compare saves CRC
   DBG_ALLOW_LOAD_UNSUP_VERSION_SAVE: Boolean = DEBUG_CFG; //Allow to try load saves / replay with unsupported version
+  DBG_UPDATE_DELIVERY_MODE_IMMEDIATELY: Boolean = DEBUG_CFG; // Do we update house delivery mode immediately ?
 
   DBG_LOG_SETTINGS_SAVE_CALLSTACK     :Boolean = True; //todo: DEBUG. Remove after bugfix
   DBG_SAVE_RANDOM_CHECKS  :Boolean = False; // Save random checks data in to separate file (for debug)
@@ -139,13 +139,13 @@ var
   DBG_KILL_UNIT_BUTTON        :Boolean = DEBUG_CFG; // Show unit 'Kill' button
   DBG_SAVE_GAME_AS_TEXT       :Boolean = False; {Save game serialized}
 
-  SHOW_ENEMIES_STATS      :Boolean = False; //Do we allow to show enemies stats during the game
-  SHOW_CONTROLS_OVERLAY   :Boolean = False; //Draw colored overlays ontop of controls! always Off here
-  SHOW_CONTROLS_ID        :Boolean = False; //Draw controls ID
-  SHOW_FOCUSED_CONTROL    :Boolean = False; //Outline focused control
-  SHOW_CONTROL_OVER       :Boolean = False; //Outline control with mouse over
-  SHOW_TEXT_OUTLINES      :Boolean = False; //Display text areas outlines
-  SKIP_RENDER_TEXT        :Boolean = False; //Skip painting labels
+  DBG_SHOW_ENEMIES_STATS      :Boolean = False; //Do we allow to show enemies stats during the game
+  DBG_SHOW_CONTROLS_OVERLAY   :Boolean = False; //Draw colored overlays ontop of controls! always Off here
+  DBG_SHOW_CONTROLS_ID        :Boolean = False; //Draw controls ID
+  DBG_SHOW_FOCUSED_CONTROL    :Boolean = False; //Outline focused control
+  DBG_SHOW_CONTROL_OVER       :Boolean = False; //Outline control with mouse over
+  DBG_SHOW_TEXT_OUTLINES      :Boolean = False; //Display text areas outlines
+  DBG_SKIP_RENDER_TEXT        :Boolean = False; //Skip painting labels
   ENABLE_DESIGN_CONTORLS  :Boolean = False; //Enable special mode to allow to move/edit controls
   MODE_DESIGN_CONTROLS    :Boolean = False; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
   DBG_UI_HINT_POS         :Boolean = False; //Show coordinates near cursor, with axis

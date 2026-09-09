@@ -750,24 +750,24 @@ var
 begin
   Inc(PaintCount);
 
-  if SHOW_FOCUSED_CONTROL and (csFocus in State) then
+  if DBG_SHOW_FOCUSED_CONTROL and (csFocus in State) then
     TKMRenderUI.WriteOutline(AbsLeft-2, AbsTop-2, Width+4, Height+4, 2, $FF00D0FF);
 
-  if (SHOW_CONTROL_OVER or MODE_DESIGN_CONTROLS) and (csOver in State) then
+  if (DBG_SHOW_CONTROL_OVER or MODE_DESIGN_CONTROLS) and (csOver in State) then
     TKMRenderUI.WriteOutline(AbsLeft-2, AbsTop-2, Width+4, Height+4, 2, $FFFFD000);
 
-  if SHOW_CONTROLS_ID then
+  if DBG_SHOW_CONTROLS_ID then
   begin
-    skipText := SKIP_RENDER_TEXT; //Save value
-    SKIP_RENDER_TEXT := False; // Force Render debug data
+    skipText := DBG_SKIP_RENDER_TEXT; //Save value
+    DBG_SKIP_RENDER_TEXT := False; // Force Render debug data
     TKMRenderUI.WriteText(AbsLeft+1, AbsTop, fWidth, IntToStr(fID), TKMFont(DEBUG_TEXT_FONT_ID), taLeft);
-    SKIP_RENDER_TEXT := skipText; // Restore value
+    DBG_SKIP_RENDER_TEXT := skipText; // Restore value
   end;
 
   if DebugHighlight then
     TKMRenderUI.WriteOutline(AbsLeft-2, AbsTop-2, Width+4, Height+4, 2, icRed);
 
-  if not SHOW_CONTROLS_OVERLAY then Exit;
+  if not DBG_SHOW_CONTROLS_OVERLAY then Exit;
 
   sColor := $00000000;
 

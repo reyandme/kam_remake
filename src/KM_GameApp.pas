@@ -470,7 +470,7 @@ begin
   begin
     fOnStatusBarUpdate(spCursorCoord, Format('Cursor: %d:%d', [X, Y]));
     fOnStatusBarUpdate(spTile, Format('Tile: %.1f:%.1f [%d:%d]', [gCursor.Float.X, gCursor.Float.Y, gCursor.Cell.X, gCursor.Cell.Y]));
-    if SHOW_CONTROLS_ID then
+    if DBG_SHOW_CONTROLS_ID then
     begin
       if gGame <> nil then
         ctrl := gGame.ActiveInterface.MyControls.HitControl(X,Y, True)

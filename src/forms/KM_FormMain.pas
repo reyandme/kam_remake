@@ -1686,12 +1686,12 @@ begin
   end;
 
   //UI
-  SHOW_CONTROLS_OVERLAY := chkUIControlsBounds.Checked;
-  SHOW_TEXT_OUTLINES := chkUITextBounds.Checked;
-  SHOW_CONTROLS_ID := chkUIControlsID.Checked;
-  SHOW_FOCUSED_CONTROL := chkUIFocusedControl.Checked;
-  SHOW_CONTROL_OVER := chkUIControlOver.Checked;
-  SKIP_RENDER_TEXT := chkSkipRenderText.Checked;
+  DBG_SHOW_CONTROLS_OVERLAY := chkUIControlsBounds.Checked;
+  DBG_SHOW_TEXT_OUTLINES := chkUITextBounds.Checked;
+  DBG_SHOW_CONTROLS_ID := chkUIControlsID.Checked;
+  DBG_SHOW_FOCUSED_CONTROL := chkUIFocusedControl.Checked;
+  DBG_SHOW_CONTROL_OVER := chkUIControlOver.Checked;
+  DBG_SKIP_RENDER_TEXT := chkSkipRenderText.Checked;
   DBG_UI_HINT_POS := chkCursorCoordinates.Checked;
 
   {$IFDEF WDC} // one day update .lfm for lazarus...

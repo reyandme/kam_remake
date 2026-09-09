@@ -218,7 +218,7 @@ end;
 //  else
 //  begin
 //    Label_Hint.Caption := TKMControl(Sender).Hint;
-//    if SHOW_CONTROLS_ID then
+//    if DBG_SHOW_CONTROLS_ID then
 //      Label_Hint.Caption := Label_Hint.Caption + ' ' + TKMControl(Sender).GetIDsStr;
 //
 //    txtSize := gRes.Fonts[Label_Hint.Font].GetTextSize(Label_Hint.Caption);
