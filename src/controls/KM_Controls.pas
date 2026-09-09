@@ -486,7 +486,7 @@ procedure TKMControl.DebugKeyDown(Key: Word; Shift: TShiftState);
 var
   amt: Byte;
 begin
-  if MODE_DESIGN_CONTROLS then
+  if DBG_MODE_DESIGN_CONTROLS then
   begin
     amt := 1;
     if ssShift in Shift then amt := 10;
@@ -518,7 +518,7 @@ begin
 //  keyPress.Kind := kpkDown;
 //  fKeyPressList.Add(keyPress);
 
-  Result := MODE_DESIGN_CONTROLS;
+  Result := DBG_MODE_DESIGN_CONTROLS;
 
   if Assigned(fOnKeyDown) then
     Result := fOnKeyDown(Self, Key, Shift);
@@ -753,7 +753,7 @@ begin
   if DBG_SHOW_FOCUSED_CONTROL and (csFocus in State) then
     TKMRenderUI.WriteOutline(AbsLeft-2, AbsTop-2, Width+4, Height+4, 2, $FF00D0FF);
 
-  if (DBG_SHOW_CONTROL_OVER or MODE_DESIGN_CONTROLS) and (csOver in State) then
+  if (DBG_SHOW_CONTROL_OVER or DBG_MODE_DESIGN_CONTROLS) and (csOver in State) then
     TKMRenderUI.WriteOutline(AbsLeft-2, AbsTop-2, Width+4, Height+4, 2, $FFFFD000);
 
   if DBG_SHOW_CONTROLS_ID then
@@ -1944,7 +1944,7 @@ begin
     Result := control <> nil; // means we find someone, who handle that event
   end;
 
-  if MODE_DESIGN_CONTROLS and (CtrlOver <> nil) then
+  if DBG_MODE_DESIGN_CONTROLS and (CtrlOver <> nil) then
     CtrlOver.DebugKeyDown(Key, Shift);
 end;
 
@@ -2090,7 +2090,7 @@ begin
 
   fMasterPanel.Paint;
 
-  if MODE_DESIGN_CONTROLS and (CtrlOver <> nil) then
+  if DBG_MODE_DESIGN_CONTROLS and (CtrlOver <> nil) then
   begin
     if GetKeyState(VK_CONTROL) < 0 then
       str := Format('%d:%d/%d:%d', [CtrlOver.AbsLeft, CtrlOver.AbsTop, CtrlOver.Width, CtrlOver.Height])

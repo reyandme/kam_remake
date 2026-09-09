@@ -145,8 +145,7 @@ var
   DBG_SHOW_CONTROL_OVER             :Boolean = False; //Outline control with mouse over
   DBG_SHOW_TEXT_OUTLINES            :Boolean = False; //Display text areas outlines
   DBG_SKIP_RENDER_TEXT              :Boolean = False; //Skip painting labels
-  ENABLE_DESIGN_CONTORLS            :Boolean = False; //Enable special mode to allow to move/edit controls
-  MODE_DESIGN_CONTROLS              :Boolean = False; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
+  DBG_MODE_DESIGN_CONTROLS          :Boolean = False; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
   DBG_UI_HINT_POS                   :Boolean = False; //Show coordinates near cursor, with axis
 
   OVERLAY_RESOLUTIONS               :Boolean = False; //Render constraining frame
