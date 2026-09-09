@@ -183,7 +183,7 @@ procedure TKMScriptErrorHandler.HandleScriptErrorString(aType: TKMScriptErrorTyp
     //Log to map specific log file
     if fScriptLogFile <> '' then
     begin
-      if DEBUG_SCRIPTING_EXEC or (fLogLinesCnt < fLogLinesCntMax) then
+      if DBG_USE_DEBUG_SCRIPTING_EXEC or (fLogLinesCnt < fLogLinesCntMax) then
       begin
         gLog.AddTime('Script: [gametime ' + TickToTimeStr(gGameParams.Tick) + '.' + IntToStr(gGameParams.Tick mod 10)  + '] ' + aLogErrorMsg); //log the error to global game log
         AssignFile(fl, fScriptLogFile);

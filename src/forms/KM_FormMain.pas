@@ -1440,7 +1440,7 @@ begin
     chkInterpolatedRender.SetCheckedWithoutClick(gGameSettings.GFX.InterpolatedRender);
     chkInterpolatedAnims. SetCheckedWithoutClick(gGameSettings.GFX.InterpolatedAnimations);
     chkLoadUnsupSaves.    SetCheckedWithoutClick(DBG_ALLOW_LOAD_UNSUP_VERSION_SAVE);
-    chkDebugScripting.    SetCheckedWithoutClick(DEBUG_SCRIPTING_EXEC);
+    chkDebugScripting.    SetCheckedWithoutClick(DBG_USE_DEBUG_SCRIPTING_EXEC);
     chkPaintSounds.       SetCheckedWithoutClick(DISPLAY_SOUNDS);
     chkViewportPos.       SetCheckedWithoutClick(SHOW_VIEWPORT_POS);
     chkSkipRender.        SetCheckedWithoutClick(SKIP_RENDER);
@@ -1618,7 +1618,7 @@ begin
     SHOW_VERTEX_UNIT := chkVertexUnit.Checked;
     SHOW_TERRAIN_HEIGHT := chkHeight.Checked;
     SHOW_TERRAIN_OVERLAYS := chkShowTerrainOverlays.Checked;
-    DEBUG_SCRIPTING_EXEC := chkDebugScripting.Checked;
+    DBG_USE_DEBUG_SCRIPTING_EXEC := chkDebugScripting.Checked;
     DBG_LOG_TEMP_COMMANDS := not chkLogSkipTempCmd.Checked; // Could be inverted in UI too, but another time
 
     SHOW_GIP := chkGIP.Checked;

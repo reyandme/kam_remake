@@ -923,7 +923,7 @@ procedure TKMHouse.SetNewDeliveryMode(aValue: TKMDeliveryMode);
 begin
   fNewDeliveryMode := aValue;
 
-  if UPDATE_DELIVERY_MODE_IMMEDIATELY then
+  if DBG_UPDATE_DELIVERY_MODE_IMMEDIATELY then
     fUpdateDeliveryModeOnTick := fTick
   else
     fUpdateDeliveryModeOnTick := fTick + UPDATE_DELIVERY_MODE_DELAY;

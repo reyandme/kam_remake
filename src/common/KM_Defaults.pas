@@ -121,7 +121,7 @@ var
   {$IFDEF WDC} //Work only in Delphi
   CACHE_DELIVERY_BIDS: Boolean = True; //Cache delivery bids cost. Must be turned ON if we want to use pathfinding for bid calc, huge impact on performance in that case
   {$ENDIF}
-  UPDATE_DELIVERY_MODE_IMMEDIATELY: Boolean = DEBUG_CFG; // Do we update house delivery mode immediately ?
+  DBG_UPDATE_DELIVERY_MODE_IMMEDIATELY: Boolean = DEBUG_CFG; // Do we update house delivery mode immediately ?
 
   //These are debug things, should be False
   {Runner}
@@ -135,7 +135,7 @@ var
   {User interface options}
   DEBUG_SPEEDUP_SPEED     :Integer = 300;   //Speed for speedup from debug menu
   DBG_LOG_DEBUG_INFO      :Boolean = False;  // Log debug info
-  DEBUG_SCRIPTING_EXEC    :Boolean = False; //Use slow debug executor (about 3 times slower! never use on release version). Using it we can find exact position of execution time error (row/col/pos/module)
+  DBG_USE_DEBUG_SCRIPTING_EXEC    :Boolean = False; //Use slow debug executor (about 3 times slower! never use on release version). Using it we can find exact position of execution time error (row/col/pos/module)
   USE_KMR_DIR_FOR_SETTINGS:Boolean = DEBUG_CFG; // Do we use KMR local directory for settings?
   SKIP_RNG_CHECKS_FOR_SOME_GIC: Boolean = True; //Skip rng checks for Autosave and few other commands to have same AI city with predefined seed + mapconfig
   ALLOW_SELECT_ALL        :Boolean = DEBUG_CFG; //Do we allow to select all entities (allies and enemies)

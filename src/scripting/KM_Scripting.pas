@@ -212,7 +212,7 @@ begin
   inherited Create;
 
   // Create an instance of the script executer
-  if DEBUG_SCRIPTING_EXEC then
+  if DBG_USE_DEBUG_SCRIPTING_EXEC then
     fExec := TPSDebugExec.Create //Use slow debug executor (about 3 times slower! never use on release version)
   else
     fExec := TPSExec.Create;
