@@ -890,7 +890,7 @@ end;
 
 function TKMGameInputProcess.CommandCanBeLogged(const aCommandType: TKMGameInputCommandType): Boolean;
 begin
-  Result := not DBG_SKIP_LOG_TEMP_COMMANDS or not (aCommandType in [gicTempAddScout, gicTempRevealMap, gicTempVictory, gicTempDefeat, gicTempDoNothing]);
+  Result := DBG_LOG_TEMP_COMMANDS or not (aCommandType in [gicTempAddScout, gicTempRevealMap, gicTempVictory, gicTempDefeat, gicTempDoNothing]);
 end;
 
 
@@ -903,7 +903,7 @@ end;
 procedure TKMGameInputProcess.TakeCommand(const aCommand: TKMGameInputCommand);
 begin
   if gGame.IsStarted
-    and (gGameParams.Tick > 0) then //We could get some commands even before 1st game update (on tick 0)
+  and (gGameParams.Tick > 0) then //We could get some commands even before 1st game update (on tick 0)
     DoTakeCommand(aCommand)
   else
     fPlannedCommands.Add(aCommand);
