@@ -83,7 +83,7 @@ var
   DBG_KEEP_DEBUG_CONTROLS  :Boolean = DEBUG_CFG; //Reset Debug controls (F11) on game start
   DBG_LOG_TEMP_COMMANDS :Boolean = False; // Log all GIC commands including Temp ones
   BLOCK_GAME_ON_PAUSE   :Boolean = not DEBUG_CFG; // Should we block game input, viewport scrolling etc on game pause?
-  DELETE_OLD_LOGS       :Boolean = not DEBUG_CFG; // Should we delete old logs?
+  DBG_KEEP_OLD_LOGS       :Boolean = DEBUG_CFG; // Should we delete old logs?
 
   // Gameplay features (aka "feature flags")
   // Implemented. Once the feature is implemented and adopted by the players the flag is safe to remove

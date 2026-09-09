@@ -315,7 +315,7 @@ end;
 procedure TKMLog.DeleteOldLogs(aDeleteWhenOlderThanDays: Integer);
 begin
   if Self = nil then Exit;
-  if not DELETE_OLD_LOGS then Exit;
+  if DBG_KEEP_OLD_LOGS then Exit;
 
   // No need to remember the instance, it's set to FreeOnTerminate
   TKMOldLogsDeleter.Create(ExtractFilePath(fLogPath), aDeleteWhenOlderThanDays);
