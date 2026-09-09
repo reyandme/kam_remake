@@ -54,11 +54,13 @@ implementation
 
 const
   LibNormaliz = 'Normaliz.dll';
+
+var  { V9.5 can not assign constants } // Copied from Overbyte 9.70
   _IsNormalizedString : function (NormForm: TNormForm; lpString: LPCWSTR;
     cwLength: Integer): BOOL; stdcall = nil;
   _NormalizeString : function(NormForm: TNormForm; lpSrcString: LPCWSTR;
     cwSrcLength: Integer; lpDstString: LPWSTR; cwDstLength: Integer): Integer; stdcall = nil;
-var
+
   hNormaliz: THandle = 0;
 
 function LoadNormalizeLib: Boolean;
