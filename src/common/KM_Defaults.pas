@@ -86,7 +86,7 @@ var
   DO_NETWORK_AUTH       :Boolean = not DEBUG_CFG; //Do network auth. If no its equivalent to use KM_NetAuthUnsecure
   QUERY_ON_FORM_CLOSE   :Boolean = not DEBUG_CFG; //Do we ask player about lost changes on game exit ?
   RESET_DEBUG_CONTROLS  :Boolean = not DEBUG_CFG; //Reset Debug controls (F11) on game start
-  SKIP_LOG_TEMP_COMMANDS:Boolean = True;
+  DBG_SKIP_LOG_TEMP_COMMANDS:Boolean = True;
   BLOCK_GAME_ON_PAUSE   :Boolean = not DEBUG_CFG; // Should we block game input, viewport scrolling etc on game pause?
   DELETE_OLD_LOGS       :Boolean = not DEBUG_CFG; // Should we delete old logs?
 

@@ -890,7 +890,7 @@ end;
 
 function TKMGameInputProcess.CommandCanBeLogged(const aCommandType: TKMGameInputCommandType): Boolean;
 begin
-  Result := not SKIP_LOG_TEMP_COMMANDS or not (aCommandType in [gicTempAddScout, gicTempRevealMap, gicTempVictory, gicTempDefeat, gicTempDoNothing]);
+  Result := not DBG_SKIP_LOG_TEMP_COMMANDS or not (aCommandType in [gicTempAddScout, gicTempRevealMap, gicTempVictory, gicTempDefeat, gicTempDoNothing]);
 end;
 
 

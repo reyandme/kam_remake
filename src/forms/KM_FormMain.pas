@@ -1619,7 +1619,7 @@ begin
     SHOW_TERRAIN_HEIGHT := chkHeight.Checked;
     SHOW_TERRAIN_OVERLAYS := chkShowTerrainOverlays.Checked;
     DEBUG_SCRIPTING_EXEC := chkDebugScripting.Checked;
-    SKIP_LOG_TEMP_COMMANDS := chkLogSkipTempCmd.Checked;
+    DBG_SKIP_LOG_TEMP_COMMANDS := chkLogSkipTempCmd.Checked;
 
     SHOW_GIP := chkGIP.Checked;
     SHOW_GIP_AS_BYTES := chkGipAsBytes.Checked;
