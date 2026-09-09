@@ -104,13 +104,16 @@ type
     procedure UpdateNodeCount;
     procedure DrawFlagNumber(aIndexMap: Integer);
     procedure DrawNodeNumber(aIndexNode: Integer);
-
   end;
+
+const
+  TEMPLATE_LIBX_FILE_TEXT = 'text.%s.libx';
 
 var
   Form1: TForm1;
   C: TKMCampaign;
   Locale: String;
+
 implementation
 {$R *.dfm}
 uses

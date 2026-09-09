@@ -4,6 +4,10 @@ interface
 
 // Global constants
 const
+  GAME_TITLE            = 'Knights and Merchants Remake';
+  SETTINGS_FILE         = 'KaM Remake Settings.xml';
+  SERVER_SETTINGS_FILE  = 'KaM Remake Server Settings.ini';
+  DEFAULT_LOCALE: AnsiString = 'eng';
   MAX_MAP_SIZE          = 256;
   MIN_MAP_SIZE          = 32;
   CELL_SIZE_PX          = 40;           // Single cell size in pixels (width)
@@ -12,6 +16,7 @@ const
   MAPED_TOOLBAR_WIDTH   = 284;          // Toolbar width in map editor
   TERRAIN_PACE          = 200;          // Each tile gets updated once per ** ticks (100 by default), Warning, it affects field/tree growth rate
   FOW_PACE              = 10;           // Each tile gets updated once per ** ticks (10 by default)
+  DEFAULT_WATER_LIGHT_MULTIPLIER = 1.3; // Default multiplier for terrain water light
 
   MIN_FPS_CAP           = 10;           // Minimum FPS Cap - limit fps
   DEF_FPS_CAP           = 60;           // Default FPS Cap
@@ -21,6 +26,14 @@ const
   MENU_DESIGN_Y         = 768;          // Thats the size menu was designed for. All elements are placed in this size
   RESOLUTION_WIDTH_MIN  = 1024;         // Lowest supported resolution X
   RESOLUTION_HEIGHT_MIN = 720;          // Lowest supported resolution Y
+
+  MP_NICKNAME_LENGTH_MAX = 16;
+  LOGS_DELETE_WHEN_OLDER_THAN = 14; // In days
+
+  // Max number of ticks, played on 1 game update.
+  // We must limit number of ticks per update to be able to leave update cycle fast (when turn off ultra fast speedup, f.e.)
+  // Also there is a technical limit, of how many ticks we can calculate per update
+  MAX_TICKS_PER_GAME_UPDATE = 100;
 
   // It would be nice to have the declaration as:
   // GAME_REVISION_NUM = {$I KM_Revision.inc}
@@ -49,24 +62,6 @@ var
   NET_PROTOCOL_REVISON: AnsiString; // "r12345"                             Clients of this version may connect to the dedicated server
 
 const
-  GAME_TITLE            = 'Knights and Merchants Remake';
-  SETTINGS_FILE         = 'KaM Remake Settings.xml';
-  SERVER_SETTINGS_FILE  = 'KaM Remake Server Settings.ini';
-  DEFAULT_LOCALE: AnsiString = 'eng';
-
-  MP_NICKNAME_LENGTH_MAX = 16;
-
-  LOGS_DELETE_WHEN_OLDER_THAN = 14; // In days
-
-  TEMPLATE_LIBX_FILE_TEXT = 'text.%s.libx';
-
-  DEFAULT_WATER_LIGHT_MULTIPLIER = 1.3; // Default multiplier for terrain water light
-
-  // Max number of ticks, played on 1 game update.
-  // We must limit number of ticks per update to be able to leave update cycle fast (when turn off ultra fast speedup, f.e.)
-  // Also there is a technical limit, of how many ticks we can calculate per update
-  MAX_TICKS_PER_GAME_UPDATE = 100;
-
 {$IFDEF DEBUG}
   DEBUG_CFG = True; //Debug preset for most usable debug options. ON for Debug build configuration
 {$ELSE}
