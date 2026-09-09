@@ -169,7 +169,7 @@ begin
   fPreviousTick := TimeGet;
   SetDefaultMessageTypes;
 
-  if DEBUG_LOGS then
+  if DBG_LOG_DEBUG_INFO then
     Include(MessageTypes, lmtDebug);
 
   CS := TCriticalSection.Create;
