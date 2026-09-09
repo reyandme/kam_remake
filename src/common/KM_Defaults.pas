@@ -130,9 +130,9 @@ var
   DBG_ALLOW_LOAD_UNSUP_VERSION_SAVE :Boolean = DEBUG_CFG; //Allow to try load saves / replay with unsupported version
   DBG_UPDATE_DELIVERY_MODE_IMMEDIATELY: Boolean = DEBUG_CFG; // Do we update house delivery mode immediately ?
 
-  DBG_LOG_SETTINGS_SAVE_CALLSTACK   :Boolean = True; //todo: DEBUG. Remove after bugfix
+  DBG_LOG_SETTINGS_SAVE_CALLSTACK   :Boolean = False; //
   DBG_SAVE_RANDOM_CHECKS            :Boolean = False; // Save random checks data in to separate file (for debug)
-  DBG_NET_RANDOM_CHECK_EVERY_TICK   :Boolean = True; //todo: DEBUG. Remove in release, no need to check on every tick in release version
+  DBG_NET_RANDOM_CHECK_EVERY_TICK   :Boolean = False; // Remove in release, no need to check on every tick in release version
 
   DBG_KILL_GROUP_BUTTON             :Boolean = DEBUG_CFG; // The button to kill group
   DBG_KILL_UNIT_BUTTON              :Boolean = DEBUG_CFG; // Show unit 'Kill' button
