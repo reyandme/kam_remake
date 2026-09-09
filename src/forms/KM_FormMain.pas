@@ -2186,7 +2186,7 @@ var
 begin
   fDevSettings.Save;
 
-  if not QUERY_ON_FORM_CLOSE then
+  if DBG_CLOSE_WITHOUT_CONFIRMATION then
   begin
     CanClose := True;
     Exit;
