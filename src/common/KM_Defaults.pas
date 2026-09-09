@@ -202,7 +202,7 @@ var
   DISPLAY_SOUNDS                    :Boolean = False; //Display sounds on map
   RENDER_3D                         :Boolean = False; //Experimental 3D render
   LINEAR_FILTER_SPRITES             :Boolean = False; //To check pixel sampling alignment issues (bouncing) at 100% zoom
-  HOUSE_BUILDING_STEP               :Single = 0;
+  DBG_HOUSE_BUILDING_STEP           :Single = 0;
   WATER_LIGHT_MULTIPLIER            :Single = DEFAULT_WATER_LIGHT_MULTIPLIER; //Terrain light multiplier
   OVERLAY_NAVMESH                   :Boolean = False; //Show navmesh
   OVERLAY_HIGHLIGHT_POLY            :Integer = 0;     //Highlight plygon in navmesh

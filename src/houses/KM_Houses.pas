@@ -2412,7 +2412,7 @@ begin
                 end;
     else        begin
                   //Incase we need to render house at desired step in debug mode
-                  if HOUSE_BUILDING_STEP = 0 then
+                  if DBG_HOUSE_BUILDING_STEP = 0 then
                   begin
                     if fIsOnSnow then
                       gRenderPool.AddHouse(fType, fPosition, 1, 1, fSnowStep)
@@ -2424,9 +2424,9 @@ begin
                   end
                   else
                     gRenderPool.AddHouse(fType, fPosition,
-                      Min(HOUSE_BUILDING_STEP * 3, 1),
-                      EnsureRange(HOUSE_BUILDING_STEP * 3 - 1, 0, 1),
-                      Max(HOUSE_BUILDING_STEP * 3 - 2, 0));
+                      Min(DBG_HOUSE_BUILDING_STEP * 3, 1),
+                      EnsureRange(DBG_HOUSE_BUILDING_STEP * 3 - 1, 0, 1),
+                      Max(DBG_HOUSE_BUILDING_STEP * 3 - 2, 0));
                 end;
   end;
 

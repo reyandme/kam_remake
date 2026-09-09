@@ -1715,7 +1715,7 @@ begin
       gRenderPool.SetRotation(-tbAngleX.Position, -tbAngleZ.Position, -tbAngleY.Position);
       gMain.Render;
     end;
-    HOUSE_BUILDING_STEP := tbBuildingStep.Position / tbBuildingStep.Max;
+    DBG_HOUSE_BUILDING_STEP := tbBuildingStep.Position / tbBuildingStep.Max;
 
     WATER_LIGHT_MULTIPLIER := tbWaterLight.Position / 100;
     lblWaterLight.Caption := 'Water light x' + ReplaceStr(FormatFloat('0.##', WATER_LIGHT_MULTIPLIER), ',', '.');
