@@ -405,7 +405,7 @@ type
     procedure StoreCommand(const aCommand: TKMGameInputCommand);
     procedure ExecGameAlertBeaconCmd(const aCommand: TKMGameInputCommand);
 
-    function DoSkipLogCommand(const aCommandType: TKMGameInputCommandType): Boolean;
+    function CommandCanBeLogged(const aCommandType: TKMGameInputCommandType): Boolean;
     function QueueToString: String;
 
     function IsLastTickValueCorrect(aLastTickValue: Cardinal): Boolean;
@@ -888,9 +888,9 @@ begin
 end;
 
 
-function TKMGameInputProcess.DoSkipLogCommand(const aCommandType: TKMGameInputCommandType): Boolean;
+function TKMGameInputProcess.CommandCanBeLogged(const aCommandType: TKMGameInputCommandType): Boolean;
 begin
-  Result := SKIP_LOG_TEMP_COMMANDS and (aCommandType in [gicTempAddScout, gicTempRevealMap, gicTempVictory, gicTempDefeat, gicTempDoNothing]);
+  Result := not SKIP_LOG_TEMP_COMMANDS or not (aCommandType in [gicTempAddScout, gicTempRevealMap, gicTempVictory, gicTempDefeat, gicTempDoNothing]);
 end;
 
 
@@ -994,7 +994,7 @@ begin
     if not (aCommand.CommandType in ALLOWED_IN_CINEMATIC) and P.InCinematic then
       Exit;
 
-    if gLog.CanLogCommands() and not DoSkipLogCommand(aCommand.CommandType) then
+    if gLog.CanLogCommands() and CommandCanBeLogged(aCommand.CommandType) then
       gLog.LogCommands(Format('Tick: %6d Exec command: %s', [gGameParams.Tick, GIPCommandToString(aCommand)]));
 
     try
@@ -1634,7 +1634,7 @@ begin
   K := 0;
   for I := maxIndex downto 1 do
   begin
-    if not DoSkipLogCommand(fQueue[I].Command.CmdType) then
+    if CommandCanBeLogged(fQueue[I].Command.CmdType) then
     begin
       Inc(K);
       Result := Result + StoredGIPCommandToString(fQueue[I]) + '|';
