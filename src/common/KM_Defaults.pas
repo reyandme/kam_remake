@@ -39,8 +39,8 @@ const
     {$IFDEF DBG_PERFLOG} + ' [PERFLOG]' {$ENDIF}
     ;
 
-  GAME_VERSION_PREFIX   = ''; // Custom prefix for the test builds
-  GAME_VERSION_POSTFIX2 = ''; // Custom postfix for the test builds
+  GAME_VERSION_PREFIX   = ''; // Custom prefix for the test builds. Filled in initialization section
+  GAME_VERSION_POSTFIX2 = ''; // Custom postfix for the test builds. Filled in initialization section
 
 var
   // Game revision is set in initialisation block
