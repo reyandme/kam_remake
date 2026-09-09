@@ -118,13 +118,15 @@ end;
 
 procedure TKMHandEntity.SetAllowAllyToSelect(aAllow: Boolean);
 begin
+  // Overriden in UnitGroup
   fAllowAllyToSelect := aAllow;
 end;
 
 
 function TKMHandEntity.GetAllowAllyToSelect: Boolean;
 begin
-  Result := ALLOW_SELECT_ALLIES and fAllowAllyToSelect;
+  // Overriden in UnitGroup
+  Result := fAllowAllyToSelect;
 end;
 
 

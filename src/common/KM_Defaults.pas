@@ -139,7 +139,6 @@ var
   DEBUG_SCRIPTING_EXEC    :Boolean = False; //Use slow debug executor (about 3 times slower! never use on release version). Using it we can find exact position of execution time error (row/col/pos/module)
   USE_KMR_DIR_FOR_SETTINGS:Boolean = DEBUG_CFG; // Do we use KMR local directory for settings?
   SKIP_RNG_CHECKS_FOR_SOME_GIC: Boolean = True; //Skip rng checks for Autosave and few other commands to have same AI city with predefined seed + mapconfig
-  ALLOW_SELECT_ALLIES     :Boolean = True;  //Do we allow to select ally units or groups
   ALLOW_SELECT_ALL        :Boolean = DEBUG_CFG; //Do we allow to select all entities (allies and enemies)
   DBG_SHOW_EXACT_WARE_COUNT     :Boolean = DEBUG_CFG; // Do we show resource amount with K postfix (10123 -> 10k)
   DBG_SKIP_SAVE_POINTS_TO_FILE  :Boolean = False; // Skip save game savepoints (into .spt file)
