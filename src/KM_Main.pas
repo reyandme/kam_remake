@@ -739,7 +739,7 @@ function TKMMain.LockMutex: Boolean;
 begin
   Result := True;
   {$IFDEF MSWindows}
-    if not BLOCK_DUPLICATE_APP then Exit;
+    if DBG_ALLOW_DUPLICATE_APP then Exit;
 
     fMutex := CreateMutex(nil, True, PChar(KAM_MUTEX));
 
@@ -758,7 +758,7 @@ end;
 procedure TKMMain.UnlockMutex;
 begin
   {$IFDEF MSWindows}
-    if not BLOCK_DUPLICATE_APP then Exit;
+    if DBG_ALLOW_DUPLICATE_APP then Exit;
     if fMutex = 0 then Exit; //Didn't have a mutex lock
     CloseHandle(fMutex);
     fMutex := 0;
