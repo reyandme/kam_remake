@@ -100,11 +100,11 @@ var
 begin
   inherited;
 
-  if CACHE_PATHFINDING then
+  if FEAT_CACHE_PATHFINDING then
     for I := 0 to PATH_CACHE_MAX - 1 do
       fCache[I].Route := TKMPointList.Create;
 
-  if CACHE_PATHFINDING_AVOID_LOCKED then
+  if FEAT_CACHE_PATHFINDING_AVOID_LOCKED then
     for I := 0 to PATH_CACHE_NO_ROUTES_AVOID_LOCKED_MAX - 1 do
       fCacheAvoidLocked[I].TimeToLive := 0;
 end;
@@ -114,7 +114,7 @@ destructor TKMPathFinding.Destroy;
 var
   I: Integer;
 begin
-  if CACHE_PATHFINDING then
+  if FEAT_CACHE_PATHFINDING then
     for I := 0 to PATH_CACHE_MAX - 1 do
       FreeAndNil(fCache[I].Route);
 
@@ -149,28 +149,29 @@ begin
       fDestination := pdHouse;
 
     //Check
-    if CACHE_PATHFINDING_AVOID_LOCKED
-      and (aAvoidLocked = palAvoidAsUnwalkable)
-      and CacheHasNoRouteAvoidLocked then
+    if FEAT_CACHE_PATHFINDING_AVOID_LOCKED
+    and (aAvoidLocked = palAvoidAsUnwalkable)
+    and CacheHasNoRouteAvoidLocked then
     begin
       NodeList.Clear; //No route available
       Exit;
     end;
 
     //Try to find similar route in cache and reuse it
-    if CACHE_PATHFINDING
-      and (fLocA.GetLengthDiag(fLocB) - fDistance > PATH_CACHE_MIN_DIST_TO_USE) // Don't use PF_Cache for very close destinations
-      and TryRouteFromCache(NodeList) then
+    if FEAT_CACHE_PATHFINDING
+    and (fLocA.GetLengthDiag(fLocB) - fDistance > PATH_CACHE_MIN_DIST_TO_USE) // Don't use PF_Cache for very close destinations
+    and TryRouteFromCache(NodeList) then
       Result := True
     else
     if MakeRoute then
     begin
       ReturnRoute(NodeList);
       Result := True;
-    end else begin
+    end else
+    begin
       NodeList.Clear;
-      if CACHE_PATHFINDING_AVOID_LOCKED
-        and (aAvoidLocked = palAvoidAsUnwalkable) then
+      if FEAT_CACHE_PATHFINDING_AVOID_LOCKED
+      and (aAvoidLocked = palAvoidAsUnwalkable) then
         AddNoRouteAvoidLockedToCache;
     end;
   finally
@@ -494,7 +495,7 @@ var
 begin
   SaveStream.PlaceMarker('PathFinding');
 
-  if CACHE_PATHFINDING then
+  if FEAT_CACHE_PATHFINDING then
     for I := 0 to PATH_CACHE_MAX - 1 do
     begin
       SaveStream.Write(fCache[I].Weight);
@@ -503,7 +504,7 @@ begin
     end;
 
   SaveStream.PlaceMarker('PathFinding_CacheAvoidLocked');
-  if CACHE_PATHFINDING_AVOID_LOCKED then
+  if FEAT_CACHE_PATHFINDING_AVOID_LOCKED then
     for I := 0 to PATH_CACHE_NO_ROUTES_AVOID_LOCKED_MAX - 1 do
     begin
       SaveStream.Write(fCacheAvoidLocked[I].Pass, SizeOf(fCacheAvoidLocked[I].Pass));
@@ -520,7 +521,7 @@ var
 begin
   LoadStream.CheckMarker('PathFinding');
 
-  if CACHE_PATHFINDING then
+  if FEAT_CACHE_PATHFINDING then
     for I := 0 to PATH_CACHE_MAX - 1 do
     begin
       LoadStream.Read(fCache[I].Weight);
@@ -529,7 +530,7 @@ begin
     end;
 
   LoadStream.CheckMarker('PathFinding_CacheAvoidLocked');
-  if CACHE_PATHFINDING_AVOID_LOCKED then
+  if FEAT_CACHE_PATHFINDING_AVOID_LOCKED then
     for I := 0 to PATH_CACHE_NO_ROUTES_AVOID_LOCKED_MAX - 1 do
     begin
       LoadStream.Read(fCacheAvoidLocked[I].Pass, SizeOf(fCacheAvoidLocked[I].Pass));
@@ -548,11 +549,11 @@ begin
   gPerfLogs.SectionEnter(psPathfinding);
   {$ENDIF}
   try
-    if CACHE_PATHFINDING then
+    if FEAT_CACHE_PATHFINDING then
       for I := 0 to PATH_CACHE_MAX - 1 do
         fCache[I].Weight := Max(fCache[I].Weight - 1, 0);
 
-    if CACHE_PATHFINDING_AVOID_LOCKED then
+    if FEAT_CACHE_PATHFINDING_AVOID_LOCKED then
       for I := 0 to PATH_CACHE_NO_ROUTES_AVOID_LOCKED_MAX - 1 do
         fCacheAvoidLocked[I].TimeToLive := Max(fCacheAvoidLocked[I].TimeToLive - 1, 0);
   finally

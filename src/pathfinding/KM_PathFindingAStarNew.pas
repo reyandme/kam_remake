@@ -189,7 +189,7 @@ begin
   NodeList.Inverse;
 
   //Cache long paths
-  if CACHE_PATHFINDING and (NodeList.Count > PATH_CACHE_NODES_MIN_CNT) then
+  if FEAT_CACHE_PATHFINDING and (NodeList.Count > PATH_CACHE_NODES_MIN_CNT) then
     AddToCache(NodeList);
 end;
 

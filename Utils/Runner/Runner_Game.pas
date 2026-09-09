@@ -2211,7 +2211,7 @@ begin
 
   //Intended to be run multiple of 4 times to compare different PF algorithms
 //  PathFinderToUse := (aRun mod 4) div 2; //01230123 > 00110011
-//  CACHE_PATHFINDING := Boolean(aRun mod 2);  //0101
+//  FEAT_CACHE_PATHFINDING := Boolean(aRun mod 2);  //0101
 
   gGameApp.NewGameSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\Maps\Vortamic\Vortamic.dat', 'Across the Desert');
 

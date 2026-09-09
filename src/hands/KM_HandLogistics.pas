@@ -2756,7 +2756,7 @@ begin
     fRemoveKeysList := TList<TKMDeliveryRouteBidKey>.Create;
   end;
 
-  if DELIVERY_BID_CALC_USE_PATHFINDING then
+  if FEAT_DELIVERY_BID_CALC_USE_PATHFINDING then
     fNodeList := TKMPointList.Create;
   {$ENDIF}
 end;
@@ -2771,7 +2771,7 @@ begin
     fRemoveKeysList.Free;
   end;
 
-  if DELIVERY_BID_CALC_USE_PATHFINDING then
+  if FEAT_DELIVERY_BID_CALC_USE_PATHFINDING then
     fNodeList.Free;
   {$ENDIF}
 
@@ -2786,7 +2786,7 @@ begin
   distance := EvaluateFast(aFromPos, aToPos);
   Result := True;
 
-  if DELIVERY_BID_CALC_USE_PATHFINDING and (distance < BID_CALC_MAX_DIST_FOR_PATHF) then
+  if FEAT_DELIVERY_BID_CALC_USE_PATHFINDING and (distance < BID_CALC_MAX_DIST_FOR_PATHF) then
   begin
     fNodeList.Clear;
 
