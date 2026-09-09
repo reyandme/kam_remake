@@ -1586,9 +1586,9 @@ begin
     DO_DEBUG_TER_RENDER := chkDebugTerrainRender.Checked;
     gbRenderTerrain.Enabled := DO_DEBUG_TER_RENDER;
 
-    SKIP_TER_RENDER_ANIMS  := DO_DEBUG_TER_RENDER and not chkTerrainRenderAnim.Checked;
-    SKIP_TER_RENDER_LIGHT  := DO_DEBUG_TER_RENDER and not chkTerrainRenderLight.Checked;
-    SKIP_TER_RENDER_SHADOW := DO_DEBUG_TER_RENDER and not chkTerrainRenderShadow.Checked;
+    DBG_SKIP_TERRAIN_RENDER_ANIMS  := DO_DEBUG_TER_RENDER and not chkTerrainRenderAnim.Checked;
+    DBG_SKIP_TERRAIN_RENDER_LIGHT  := DO_DEBUG_TER_RENDER and not chkTerrainRenderLight.Checked;
+    DBG_SKIP_TERRAIN_RENDER_SHADOW := DO_DEBUG_TER_RENDER and not chkTerrainRenderShadow.Checked;
 
     for I := 0 to gbRenderTerrain.ControlCount - 1 do
       gbRenderTerrain.Controls[I].Enabled := DO_DEBUG_TER_RENDER;

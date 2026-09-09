@@ -736,7 +736,7 @@ var
   animID: Word;
   tile: TKMTileParams;
 begin
-  if SKIP_TER_RENDER_ANIMS then Exit;
+  if DBG_SKIP_TERRAIN_RENDER_ANIMS then Exit;
 
   {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psFrameWater);
@@ -908,7 +908,7 @@ var
   sizeX, sizeY: Word;
   tX, tY: Word;
 begin
-  if SKIP_TER_RENDER_LIGHT then Exit;
+  if DBG_SKIP_TERRAIN_RENDER_LIGHT then Exit;
 
   {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psFrameLighting);
@@ -980,7 +980,7 @@ var
   sizeX, sizeY: Word;
   tX, tY: Word;
 begin
-  if SKIP_TER_RENDER_SHADOW then Exit;
+  if DBG_SKIP_TERRAIN_RENDER_SHADOW then Exit;
 
   {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psFrameShadows);
