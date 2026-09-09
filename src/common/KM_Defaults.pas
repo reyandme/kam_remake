@@ -251,7 +251,7 @@ var
   DBG_SLOW_ASYNC_RES_LOADER         :Boolean = False; //Emulate slow async resource loader (slow res load in async thread)
   DO_PERF_LOGGING                   :Boolean = False; //Write each ticks time to log (DEPRECATED PERF_LOGGER)
   MP_RESULTS_IN_SP                  :Boolean = False; //Display each players stats in SP
-  SHOW_DEBUG_OVERLAY_BEVEL          :Boolean = True;  //Show debug text overlay Bevel (for better text readability)
+  DBG_HIDE_DEBUG_OVERLAY_BEVEL      :Boolean = False; // Hide debug text overlay Bevel (for better game visibility)
   SHOW_LOG_IN_GUI                   :Boolean = False; //Show log in GUI
   UPDATE_LOG_FOR_GUI                :Boolean = False; //Update log to be shown in GUI
   DEBUG_TEXT_FONT_ID                :Integer = 7;     //Debug font ID (7 is fntMonospaced)

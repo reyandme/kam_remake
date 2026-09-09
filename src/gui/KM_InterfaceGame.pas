@@ -340,7 +340,7 @@ begin
   Bevel_DebugInfo.Width := IfThen(textSize.X <= 1, 0, textSize.X + BEVEL_PAD);
   Bevel_DebugInfo.Height := IfThen(textSize.Y <= 1, 0, textSize.Y + BEVEL_PAD);
 
-  Bevel_DebugInfo.Visible := SHOW_DEBUG_OVERLAY_BEVEL and (Trim(S) <> '') ;
+  Bevel_DebugInfo.Visible := not DBG_HIDE_DEBUG_OVERLAY_BEVEL and (Trim(S) <> '');
 end;
 
 

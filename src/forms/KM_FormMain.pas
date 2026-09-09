@@ -1446,7 +1446,7 @@ begin
     chkSkipRender.        SetCheckedWithoutClick(SKIP_RENDER);
     chkSkipSound.         SetCheckedWithoutClick(SKIP_SOUND);
     chkShowGameTick.      SetCheckedWithoutClick(SHOW_GAME_TICK);
-    chkBevel.             SetCheckedWithoutClick(SHOW_DEBUG_OVERLAY_BEVEL);
+    chkBevel.             SetCheckedWithoutClick(not DBG_HIDE_DEBUG_OVERLAY_BEVEL);
     rgDebugFont.ItemIndex := DEBUG_TEXT_FONT_ID;
     {$ENDIF}
 
@@ -1777,7 +1777,7 @@ begin
   //Misc
   if allowDebugChange then
   begin
-    SHOW_DEBUG_OVERLAY_BEVEL := chkBevel.Checked;
+    DBG_HIDE_DEBUG_OVERLAY_BEVEL := not chkBevel.Checked;
     DEBUG_TEXT_FONT_ID := rgDebugFont.ItemIndex;
   end;
 
