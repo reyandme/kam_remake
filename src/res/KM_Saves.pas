@@ -211,7 +211,7 @@ begin
   end;
 
   if not ((fSaveError.ErrorType = sietNone)
-      or (ALLOW_LOAD_UNSUP_VERSION_SAVE and (fSaveError.ErrorType = sietUnsupportedVersion))) then
+      or (DBG_ALLOW_LOAD_UNSUP_VERSION_SAVE and (fSaveError.ErrorType = sietUnsupportedVersion))) then
     fGameInfo.Title := fSaveError.ErrorString;
 
   headerStream.Free;
@@ -311,7 +311,7 @@ end;
 
 function TKMSaveInfo.IsValid(aStrict: Boolean): Boolean;
 begin
-  if not ALLOW_LOAD_UNSUP_VERSION_SAVE then
+  if not DBG_ALLOW_LOAD_UNSUP_VERSION_SAVE then
     aStrict := True;
   Result := FileExists(fPath + fFileName + EXT_SAVE_MAIN_DOT)
             and ((fSaveError.ErrorType = sietNone)

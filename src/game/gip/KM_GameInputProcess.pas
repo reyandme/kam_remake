@@ -1484,8 +1484,7 @@ var
 begin
   LoadStream.ReadA(fileVersion);
   //We could allow to load unsupported version files
-  Assert(ALLOW_LOAD_UNSUP_VERSION_SAVE or (fileVersion = GAME_REVISION),
-         'Old or unexpected replay file. ' + UnicodeString(GAME_REVISION) + ' is required.');
+  Assert(DBG_ALLOW_LOAD_UNSUP_VERSION_SAVE or (fileVersion = GAME_REVISION), 'Old or unexpected replay file. ' + UnicodeString(GAME_REVISION) + ' is required.');
 
   LoadStream.Read(fCount);
   SetLength(fQueue, fCount + 1);

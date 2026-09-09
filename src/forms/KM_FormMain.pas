@@ -1439,7 +1439,7 @@ begin
     chkSnowHouses.        SetCheckedWithoutClick(gGameSettings.GFX.AllowSnowHouses); // Snow houses checkbox could be updated before game
     chkInterpolatedRender.SetCheckedWithoutClick(gGameSettings.GFX.InterpolatedRender);
     chkInterpolatedAnims. SetCheckedWithoutClick(gGameSettings.GFX.InterpolatedAnimations);
-    chkLoadUnsupSaves.    SetCheckedWithoutClick(ALLOW_LOAD_UNSUP_VERSION_SAVE);
+    chkLoadUnsupSaves.    SetCheckedWithoutClick(DBG_ALLOW_LOAD_UNSUP_VERSION_SAVE);
     chkDebugScripting.    SetCheckedWithoutClick(DEBUG_SCRIPTING_EXEC);
     chkPaintSounds.       SetCheckedWithoutClick(DISPLAY_SOUNDS);
     chkViewportPos.       SetCheckedWithoutClick(SHOW_VIEWPORT_POS);
@@ -1699,7 +1699,7 @@ begin
   gGameSettings.GFX.InterpolatedRender := chkInterpolatedRender.Checked;
   gGameSettings.GFX.InterpolatedAnimations := chkInterpolatedAnims.Checked;
 
-  ALLOW_LOAD_UNSUP_VERSION_SAVE := chkLoadUnsupSaves.Checked;
+  DBG_ALLOW_LOAD_UNSUP_VERSION_SAVE := chkLoadUnsupSaves.Checked;
   {$ENDIF}
 
   //Graphics
