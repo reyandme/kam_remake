@@ -356,7 +356,7 @@ end;
 
 function TKMGameParams.AllowPointerOperations: Boolean;
 begin
-  Result := IsSingleplayerGame or IsMapEditor or not BlockPointerOperations {or SKIP_POINTER_REF_CHECK};
+  Result := IsSingleplayerGame or IsMapEditor or not BlockPointerOperations;
 end;
 
 

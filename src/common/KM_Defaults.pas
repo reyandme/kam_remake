@@ -162,7 +162,6 @@ var
   SKIP_SOUND              :Boolean = False; //Skip all the sounds in favor of faster logic
   SKIP_LOADING_CURSOR     :Boolean = False; //Skip loading and setting cursor
   SKIP_SETTINGS_SAVE      :Boolean = False; //Skip save main/game settings into the ini file
-//  SKIP_POINTER_REF_CHECK  :Boolean = False; //Skip Pointer reference check (gGame.AllowGetPointer)
   DBG_AGGRESSIVE_REPLAYS      :Boolean = False; //Write a command gicTempDoNothing every tick in order to find exactly when a replay mismatch occurs
   SHOW_GAME_TICK          :Boolean = DEBUG_CFG; //Show game tick next to game time
   SHOW_FPS                :Boolean = False; //Show FPS
