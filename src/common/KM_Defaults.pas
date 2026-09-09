@@ -78,7 +78,7 @@ var
   CAP_MAX_FPS           :Boolean = True;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
   CRASH_ON_REPLAY       :Boolean = True;  //Crash as soon as replay consistency fails (random numbers mismatch)
   DBG_ALLOW_DUPLICATE_APP   :Boolean = DEBUG_CFG; // We do not allow to run multiple games at once (to prevent MP cheating)
-  DO_NETWORK_AUTH       :Boolean = not DEBUG_CFG; //Do network auth. If no its equivalent to use KM_NetAuthUnsecure
+  DBG_SKIP_NETWORK_AUTH     :Boolean = DEBUG_CFG; // Skip network auth. Its equivalent to using KM_NetAuthUnsecure
   QUERY_ON_FORM_CLOSE   :Boolean = not DEBUG_CFG; //Do we ask player about lost changes on game exit ?
   RESET_DEBUG_CONTROLS  :Boolean = not DEBUG_CFG; //Reset Debug controls (F11) on game start
   DBG_LOG_TEMP_COMMANDS :Boolean = False; // Log all GIC commands including Temp ones
