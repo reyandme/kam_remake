@@ -1582,7 +1582,7 @@ var
 begin
   Result := 0;
 
-  if WARFARE_ORDER_SEQUENTIAL then
+  if FEAT_WARFARE_ORDER_SEQUENTIAL then
     for I := 0 to 3 do
     begin
       resI := ((fLastOrderProduced + I) mod 4) + 1; //1..4
@@ -1600,7 +1600,7 @@ begin
       end;
     end;
 
-//  if WARFARE_ORDER_PROPORTIONAL then
+//  if FEAT_WARFARE_ORDER_PROPORTIONAL then
 //  begin
 //    //See the ratio between items that were made (since last order amount change)
 //    TotalLeft := fWareOrder[1] + fWareOrder[2] + fWareOrder[3] + fWareOrder[4];

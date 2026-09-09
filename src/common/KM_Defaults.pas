@@ -104,25 +104,24 @@ var
   FEAT_AI_GENERATE_INFLUENCE      :Boolean = True; // Generate influence maps for AI to plan attacks/defenses
   FEAT_SAVE_COMPRESSION           :Boolean = True; // Apply compression to savegame files, (disable to make them more readable)
   FEAT_SFX_ADJUST_SAMPLE_RATE     :Boolean = True; // Adjust SFX sample rate
-  FEAT_CACHE_PATHFINDING                       :Boolean = True; // Cache routes incase they are needed soon (Vortamic PF runs x4 faster even with lame approach)
-  FEAT_CACHE_PATHFINDING_AVOID_LOCKED          :Boolean = True; // Cache unsuccesfull tries to find route with avoid locked (as non walkable)
-  FEAT_DELIVERY_BID_CALC_USE_PATHFINDING       :Boolean = True; // Do we use simple distance on map or pathfinding for calc delivery bids cost?
+  FEAT_CACHE_PATHFINDING                  :Boolean = True; // Cache routes incase they are needed soon (Vortamic PF runs x4 faster even with lame approach)
+  FEAT_CACHE_PATHFINDING_AVOID_LOCKED     :Boolean = True; // Cache unsuccesfull tries to find route with avoid locked (as non walkable)
+  FEAT_DELIVERY_BID_CALC_USE_PATHFINDING  :Boolean = True; // Do we use simple distance on map or pathfinding for calc delivery bids cost?
+  FEAT_WARFARE_ORDER_SEQUENTIAL           :Boolean = True; // Pick weapon orders like KaM did
 
   // Not fully implemented yet
-  FEAT_CCL_WALKCONNECT        :Boolean = False;     // Use CCL instead of FloodFill for walk-connect (CCL is generaly worse. It's a bit slower, counts 1 tile areas and needs more AreaIDs to work / makes sparsed IDs)
-  FEAT_DYNAMIC_FOG_OF_WAR     :Boolean = False;     // Whenever dynamic fog of war is enabled or not
-  CHECK_8087CW                :Boolean = False;     // Check that 8087CW (FPU flags) are set correctly each frame, in case some lib/API changed them
-  FEAT_SCROLL_ACCEL           :Boolean = False;     // Acceleration for viewport scrolling
-  PATHFINDER_TO_USE           :Byte = 1;            // Use TKMPathfindingAStarNew
-  FEAT_VIDEOS_UNDER_WINE      :Boolean = False; // Enable videos under Wine
+  FEAT_CCL_WALKCONNECT            :Boolean = False;     // Use CCL instead of FloodFill for walk-connect (CCL is generaly worse. It's a bit slower, counts 1 tile areas and needs more AreaIDs to work / makes sparsed IDs)
+  FEAT_DYNAMIC_FOG_OF_WAR         :Boolean = False;     // Whenever dynamic fog of war is enabled or not
+  CHECK_8087CW                    :Boolean = False;     // Check that 8087CW (FPU flags) are set correctly each frame, in case some lib/API changed them
+  FEAT_SCROLL_ACCEL               :Boolean = False;     // Acceleration for viewport scrolling
+  PATHFINDER_TO_USE               :Byte = 1;            // Use TKMPathfindingAStarNew
+  FEAT_VIDEOS_UNDER_WINE          :Boolean = False; // Enable videos under Wine
+  FEAT_WARFARE_ORDER_PROPORTIONAL :Boolean = False; //New proportional approach (looks like a bad idea)
 
   {$IFDEF WDC} //Work only in Delphi
   CACHE_DELIVERY_BIDS: Boolean = True; //Cache delivery bids cost. Must be turned ON if we want to use pathfinding for bid calc, huge impact on performance in that case
   {$ENDIF}
   UPDATE_DELIVERY_MODE_IMMEDIATELY: Boolean = DEBUG_CFG; // Do we update house delivery mode immediately ?
-
-  WARFARE_ORDER_SEQUENTIAL    :Boolean = True; //Pick weapon orders like KaM did
-  WARFARE_ORDER_PROPORTIONAL  :Boolean = False; //New proportional way (looks like a bad idea)
 
   //These are debug things, should be False
   {Runner}
