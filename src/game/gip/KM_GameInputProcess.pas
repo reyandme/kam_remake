@@ -1556,7 +1556,7 @@ begin
   // Random check is made only for the last stored command
   //----------------------------------------------------------
   //Skip random check generation. We do not want KaMRandom to be called here
-  if SKIP_RNG_CHECKS_FOR_SOME_GIC and (aCommand.CommandType in SKIP_RANDOM_CHECKS_FOR) then
+  if aCommand.CommandType in SKIP_RANDOM_CHECKS_FOR then
     fQueue[fCount].Rand := 0
   else
     //This will be our check to ensure everything is consistent
