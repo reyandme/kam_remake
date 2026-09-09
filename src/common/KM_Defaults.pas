@@ -71,19 +71,19 @@ const
 var
   // These should be True (we can occasionally turn them Off to speed up the debug)
   // We keep them as `var` to keep compiler happy (otherwise it sees a lot of "unused var usage" around)
-  CALC_EXPECTED_TICK    :Boolean = not DEBUG_CFG;  //Do we calculate expected tick and try to be in-time (send as many tick as needed to get to expected tick)
+  DBG_SIMPLE_TICK_RATE    :Boolean = DEBUG_CFG;  //Do we calculate expected tick and try to be in-time (send as many tick as needed to get to expected tick)
   DYNAMIC_TERRAIN       :Boolean = True;  //Update terrain each tick to grow things
   CHEATS_SP_ENABLED     :Boolean = True;  //Enable cheats in game (add_resource, instant_win, etc)
   FREE_POINTERS         :Boolean = True;  //If True, units/houses will be freed and removed from the list once they are no longer needed
   CAP_MAX_FPS           :Boolean = True;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
   CRASH_ON_REPLAY       :Boolean = True;  //Crash as soon as replay consistency fails (random numbers mismatch)
-  DBG_ALLOW_DUPLICATE_APP   :Boolean = DEBUG_CFG; // We do not allow to run multiple games at once (to prevent MP cheating)
-  DBG_SKIP_NETWORK_AUTH     :Boolean = DEBUG_CFG; // Skip network auth. Its equivalent to using KM_NetAuthUnsecure
+  DBG_ALLOW_DUPLICATE_APP         :Boolean = DEBUG_CFG; // We do not allow to run multiple games at once (to prevent MP cheating)
+  DBG_SKIP_NETWORK_AUTH           :Boolean = DEBUG_CFG; // Skip network auth. Its equivalent to using KM_NetAuthUnsecure
   DBG_CLOSE_WITHOUT_CONFIRMATION  :Boolean = DEBUG_CFG; //Do we ask player about lost changes on game exit ?
-  DBG_KEEP_DEBUG_CONTROLS  :Boolean = DEBUG_CFG; //Reset Debug controls (F11) on game start
-  DBG_LOG_TEMP_COMMANDS :Boolean = False; // Log all GIC commands including Temp ones
-  DBG_LIVE_GAME_ON_PAUSE   :Boolean = DEBUG_CFG; // Should we block game input, viewport scrolling etc on game pause?
-  DBG_KEEP_OLD_LOGS       :Boolean = DEBUG_CFG; // Should we delete old logs?
+  DBG_KEEP_DEBUG_CONTROLS         :Boolean = DEBUG_CFG; //Reset Debug controls (F11) on game start
+  DBG_LOG_TEMP_COMMANDS           :Boolean = False; // Log all GIC commands including Temp ones
+  DBG_LIVE_GAME_ON_PAUSE          :Boolean = DEBUG_CFG; // Should we block game input, viewport scrolling etc on game pause?
+  DBG_KEEP_OLD_LOGS               :Boolean = DEBUG_CFG; // Should we delete old logs?
 
   // Gameplay features (aka "feature flags")
   // Implemented. Once the feature is implemented and adopted by the players the flag is safe to remove

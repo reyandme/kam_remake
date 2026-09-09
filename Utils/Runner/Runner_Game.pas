@@ -1100,7 +1100,7 @@ begin
 //  LOG_GAME_TICK := True;
 
 //  LOG_GAME_TICK := True;
-  CALC_EXPECTED_TICK := False;
+  DBG_SIMPLE_TICK_RATE := True;
   CRASH_ON_REPLAY := False;
   DBG_SAVE_GAME_AS_TEXT := True;
   ALLOW_SAVE_IN_REPLAY := True;
@@ -1804,7 +1804,7 @@ begin
 
 //  LOG_GAME_TICK := True;
 
-  CALC_EXPECTED_TICK := False;
+  DBG_SIMPLE_TICK_RATE := True;
   CRASH_ON_REPLAY := False;
   DBG_SAVE_GAME_AS_TEXT := True;
   ALLOW_SAVE_IN_REPLAY := True;
