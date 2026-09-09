@@ -82,7 +82,7 @@ var
   DBG_CLOSE_WITHOUT_CONFIRMATION  :Boolean = DEBUG_CFG; //Do we ask player about lost changes on game exit ?
   DBG_KEEP_DEBUG_CONTROLS  :Boolean = DEBUG_CFG; //Reset Debug controls (F11) on game start
   DBG_LOG_TEMP_COMMANDS :Boolean = False; // Log all GIC commands including Temp ones
-  BLOCK_GAME_ON_PAUSE   :Boolean = not DEBUG_CFG; // Should we block game input, viewport scrolling etc on game pause?
+  DBG_LIVE_GAME_ON_PAUSE   :Boolean = DEBUG_CFG; // Should we block game input, viewport scrolling etc on game pause?
   DBG_KEEP_OLD_LOGS       :Boolean = DEBUG_CFG; // Should we delete old logs?
 
   // Gameplay features (aka "feature flags")

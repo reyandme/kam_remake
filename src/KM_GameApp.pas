@@ -1433,7 +1433,7 @@ begin
       gMusic.PlayNextTrack; //Feed new music track
 
     //StatusBar
-    if (gGame <> nil) and not (gGame.IsPaused and BLOCK_GAME_ON_PAUSE) and Assigned(fOnStatusBarUpdate) then
+    if (gGame <> nil) and not (gGame.IsPaused and not DBG_LIVE_GAME_ON_PAUSE) and Assigned(fOnStatusBarUpdate) then
       fOnStatusBarUpdate(spTime, 'Time: ' + TimeToString(gGame.MissionTime));
   end;
 

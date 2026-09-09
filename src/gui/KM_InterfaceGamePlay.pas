@@ -2581,9 +2581,9 @@ begin
   fViewport.ReleaseScrollKeys;
   gGame.IsPaused := aValue;
   UpdateReplayButtons;
-  Panel_Pause.Visible := aValue and BLOCK_GAME_ON_PAUSE;
+  Panel_Pause.Visible := aValue and not DBG_LIVE_GAME_ON_PAUSE;
 
-  if not BLOCK_GAME_ON_PAUSE and (fUIMode in [umSP, umMP, umSpectate]) then
+  if DBG_LIVE_GAME_ON_PAUSE and (fUIMode in [umSP, umMP, umSpectate]) then
     Panel_PauseDebug.Visible := aValue;
 end;
 
@@ -3106,7 +3106,7 @@ var
 begin
   Result := False;
 
-  if not BLOCK_GAME_ON_PAUSE then Exit;
+  if DBG_LIVE_GAME_ON_PAUSE then Exit;
 
   if aKeyFunc = kfNone then
     Exit(True);
@@ -3133,7 +3133,7 @@ var
 begin
   Result := False;
 
-  if not BLOCK_GAME_ON_PAUSE then Exit;
+  if DBG_LIVE_GAME_ON_PAUSE then Exit;
 
   keyAreas := [faCommon, faGame];
 
@@ -3641,7 +3641,7 @@ begin
 
   fMyControls.MouseDown(X, Y, Shift, Button);
 
-  if (gGame.IsPaused and (fUIMode in [umSP, umMP]) and BLOCK_GAME_ON_PAUSE) or (fMyControls.CtrlOver <> nil)
+  if (gGame.IsPaused and (fUIMode in [umSP, umMP]) and not DBG_LIVE_GAME_ON_PAUSE) or (fMyControls.CtrlOver <> nil)
   or gMySpectator.Hand.InCinematic then
     Exit;
 
@@ -3768,7 +3768,7 @@ begin
   else
     ResetHint; // Clear shown hint
 
-  if gGame.IsPaused and (fUIMode in [umSP, umMP]) and BLOCK_GAME_ON_PAUSE then Exit;
+  if gGame.IsPaused and (fUIMode in [umSP, umMP]) and not DBG_LIVE_GAME_ON_PAUSE then Exit;
 
   if fSelectingTroopDirection then
   begin
@@ -3910,7 +3910,7 @@ begin
     Exit;
   end;
 
-  if gGame.IsPaused and (fUIMode in [umSP, umMP]) and BLOCK_GAME_ON_PAUSE then Exit;
+  if gGame.IsPaused and (fUIMode in [umSP, umMP]) and not DBG_LIVE_GAME_ON_PAUSE then Exit;
 
   P := gCursor.Cell; // It's used in many places here
 
@@ -4381,7 +4381,7 @@ function TKMGamePlayInterface.IsDragScrollingAllowed: Boolean;
 begin
   inherited;
 
-  Result := not (gGame.IsPaused and (fUIMode in [umSP, umMP]) and BLOCK_GAME_ON_PAUSE)
+  Result := not (gGame.IsPaused and (fUIMode in [umSP, umMP]) and not DBG_LIVE_GAME_ON_PAUSE)
             and (fMyControls.CtrlOver = nil)
             and not gMySpectator.Hand.InCinematic;
 end;
