@@ -4197,8 +4197,7 @@ begin
     if not CheckPassability(T, aPass) then Continue;
     if walkConnectID <> Land^[T.Y,T.X].WalkConnect[wcWalk] then Continue;
 
-    // Allow position we are currently on, but not ones with other units
-    if not HasUnit(T) or KMSamePoint(T, aOriginLoc) then
+    if not HasUnit(T) then
       Exit(T);
   end;
 
