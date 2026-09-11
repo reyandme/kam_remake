@@ -23,7 +23,7 @@
 
 ## Technology
 
-- Main language: Delphi (10 through 13) / Lazarus (FPC). Object Pascal.
+- Main language: Delphi (11 to 13) / Lazarus (FPC). Object Pascal.
 - Target platform for main game: 32-bit Windows.
 - Target platform for auxiliary tools (e.g. Dedicated Server): Linux x86, Linux x64, Windows.
 - Graphics & Rendering: OpenGL with custom engine.

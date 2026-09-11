@@ -31,6 +31,8 @@ Tools for running automated game scenarios and balance analysis.
 Dedicated projects for verifying code correctness.
 - **Unit Tests:** `UnitTests` (DUnit-based unit tests for common utilities, classes, and core systems).
 
+How to write and run either of the two test projects is covered in `testing.md`.
+
 ### 4. Server and multiplayer infrastructure
 Tools for managing the online experience and hosting games.
 - **Hosting:** `DedicatedServer` (Target: Windows, Linux x86 and Linux x64).
