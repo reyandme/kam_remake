@@ -29,6 +29,7 @@ uses
   KM_Test_MeleeEngagedChasingPassing_Warrior in 'KM_Test_MeleeEngagedChasingPassing_Warrior.pas',
   KM_Test_MeleeEngagedChasingPassing_Citizen in 'KM_Test_MeleeEngagedChasingPassing_Citizen.pas',
   KM_Test_MeleeEngagedJoiningFight in 'KM_Test_MeleeEngagedJoiningFight.pas',
+  KM_Test_MeleeMilitiaSwarmsKnights in 'KM_Test_MeleeMilitiaSwarmsKnights.pas',
   KM_Test_Mill in 'KM_Test_Mill.pas',
   KM_Test_Recruit_EatsAndReturns in 'KM_Test_Recruit_EatsAndReturns.pas',
   KM_Test_Recruit_EquipWhileEating in 'KM_Test_Recruit_EquipWhileEating.pas',
