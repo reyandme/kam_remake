@@ -4188,14 +4188,17 @@ begin
   // As we Cannot reach our destination we are "low priority" so do not choose a tile with another unit on it (don't bump important units)
   for var I := 0 to TEST_DEPTH do
   begin
-    var P := GetPositionFromIndex(aTargetLoc, I);
-    if not TileInMapCoords(P) then Continue;
+    var newTile := GetPositionFromIndex(aTargetLoc, I);
 
-    if CheckPassability(P, aPass)
-    and (walkConnectID = Land^[P.Y,P.X].WalkConnect[wcType])
-    and (not HasUnit(P) or KMSamePoint(P, aOriginLoc)) // Allow position we are currently on, but not ones with other units
-    then
-      Exit(P);
+    if not TileInMapCoords(newTile) then Continue;
+
+    if not CheckPassability(newTile, aPass) then Continue;
+
+    if walkConnectID <> Land^[newTile.Y,newTile.X].WalkConnect[wcType] then Continue;
+
+    // Allow position without other units or the one we are currently on
+    if not HasUnit(newTile) or KMSamePoint(newTile, aOriginLoc) then
+      Exit(newTile);
   end;
 
   // If we don't find one, return existing Loc
