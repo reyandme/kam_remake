@@ -36,6 +36,7 @@ KaM Remake Beta r_____ []
 + Fixed crash on ordering a large group to walk far across a big map
 + Fixed crash on a player reconnecting to the MP game while the Host already quit to the lobby
 + Fixed a bug when melee units will chase passing by units while their group is in a fight
++ Fixed a bug when melee units would not join fight because of trees inbetween them and the enemy
 
 Campaigns:
 + Added new campaign - "The HeritAge"

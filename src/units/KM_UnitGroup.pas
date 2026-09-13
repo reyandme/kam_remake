@@ -975,7 +975,10 @@ begin
         if offender = nil then
           offender := fOffenders[KaMRandom(fOffenders.Count{$IFDEF DBG_RNG_SPY}, 'TKMUnitGroup.CheckForFight'{$ENDIF})];
 
-        fMembers[I].OrderWalk(offender.PositionNext, False);
+        // Walk to offenders tile, fight will ensue
+        // This will also take care of trees (and other fight blockers) inbetween us
+        fMembers[I].OrderWalk(offender.PositionNext, True);
+
         // Set warrior attacking some offender, to avoid switching to another offender
         fMembers[I].SetAttackingUnit(offender);
       end;
