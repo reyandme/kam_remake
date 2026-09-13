@@ -41,6 +41,7 @@ begin
 
   gHands[0].HandType := hndHuman;
   gHands[1].HandType := hndHuman;
+  gHands[1].FlagColor := MP_PLAYER_COLORS[13];
 
   //First line.
   gHands[0].AddUnitGroup(utKnight, TKMPoint.New(9, 13), dirE, 1, 1);
