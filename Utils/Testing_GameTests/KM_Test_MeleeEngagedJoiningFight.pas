@@ -44,47 +44,85 @@ begin
   gHands[1].FlagColor := MP_PLAYER_COLORS[13];
 
   //First line.
+  // SE should go left
+  // 0 | 1
+  // --t--
+  //   | 1
   gHands[0].AddUnitGroup(utKnight, TKMPoint.New(9, 13), dirE, 1, 1);
   gHands[1].AddUnitGroup(utKnight, TKMPoint.New(10, 13), dirW, 2, 2);
   gTerrain.SetObject(TKMPoint.New(10, 14), 94);
 
+  // SE should go up
+  // 0 |
+  // --t--
+  // 1 | 1
   gHands[0].AddUnitGroup(utKnight, TKMPoint.New(13, 13), dirS, 1, 1);
   gHands[1].AddUnitGroup(utKnight, TKMPoint.New(14, 14), dirN, 2, 2);
   gTerrain.SetObject(TKMPoint.New(14, 14), 94);
 
+  //SW should go right
+  // 1 | 0
+  // --t--
+  // 1 |
   gHands[0].AddUnitGroup(utKnight, TKMPoint.New(18, 13), dirW, 1, 1);
   gHands[1].AddUnitGroup(utKnight, TKMPoint.New(17, 14), dirE, 2, 2);
   gTerrain.SetObject(TKMPoint.New(18, 14), 94);
 
+  //SW should go up
+  //   | 0
+  // --t--
+  // 1 | 1
   gHands[0].AddUnitGroup(utKnight, TKMPoint.New(22, 13), dirS, 1, 1);
   gHands[1].AddUnitGroup(utKnight, TKMPoint.New(22, 14), dirN, 2, 2);
   gTerrain.SetObject(TKMPoint.New(22, 14), 94);
 
   //Second line.
+  // NE should go down
+  // 1 | 1
+  // --t--
+  // 0 |
   gHands[0].AddUnitGroup(utKnight, TKMPoint.New(9, 18), dirN, 1, 1);
   gHands[1].AddUnitGroup(utKnight, TKMPoint.New(9, 17), dirS, 2, 2);
   gTerrain.SetObject(TKMPoint.New(10, 18), 94);
 
+  // NE should go left
+  //   | 1
+  // --t--
+  // 0 | 1
   gHands[0].AddUnitGroup(utKnight, TKMPoint.New(13, 18), dirE, 1, 1);
   gHands[1].AddUnitGroup(utKnight, TKMPoint.New(14, 17), dirW, 2, 2);
   gTerrain.SetObject(TKMPoint.New(14, 18), 94);
 
+  // NW should go down
+  // 1 | 1
+  // --t--
+  //   | 0
   gHands[0].AddUnitGroup(utKnight, TKMPoint.New(18, 18), dirN, 1, 1);
   gHands[1].AddUnitGroup(utKnight, TKMPoint.New(17, 17), dirS, 2, 2);
   gTerrain.SetObject(TKMPoint.New(18, 18), 94);
 
+  // NW should go right
+  // 1 |
+  // --t--
+  // 1 | 0
   gHands[0].AddUnitGroup(utKnight, TKMPoint.New(22, 18), dirW, 1, 1);
   gHands[1].AddUnitGroup(utKnight, TKMPoint.New(21, 18), dirE, 2, 2);
   gTerrain.SetObject(TKMPoint.New(22, 18), 94);
 
   //Third line.
+  // SE should go left
+  // b | b
+  // --+--
+  // 0 | 1
+  // --t--
+  //   | 1
   gTerrain.SetObject(TKMPoint.New(9, 20), 8);
   gTerrain.SetObject(TKMPoint.New(10, 20), 8);
   gHands[0].AddUnitGroup(utKnight, TKMPoint.New(9, 21), dirE, 1, 1);
   gHands[1].AddUnitGroup(utKnight, TKMPoint.New(10, 21), dirW, 2, 2);
   gTerrain.SetObject(TKMPoint.New(10, 22), 94);
 
-
+  //
   gTerrain.SetObject(TKMPoint.New(14, 20), 8);
   gTerrain.SetObject(TKMPoint.New(15, 20), 8);
   gTerrain.SetObject(TKMPoint.New(16, 20), 8);
@@ -101,7 +139,7 @@ begin
   gHands[1].AddUnitGroup(utKnight, TKMPoint.New(15, 22), dirE, 2, 2);
   gTerrain.SetObject(TKMPoint.New(16, 22), 94);
 
-
+  //
   gTerrain.SetObject(TKMPoint.New(21, 20), 8);
   gTerrain.SetObject(TKMPoint.New(22, 20), 8);
   gTerrain.SetObject(TKMPoint.New(23, 20), 8);
@@ -111,7 +149,6 @@ begin
   gHands[0].AddUnitGroup(utKnight, TKMPoint.New(23, 21), dirS, 1, 1);
   gHands[1].AddUnitGroup(utKnight, TKMPoint.New(23, 22), dirN, 2, 2);
   gTerrain.SetObject(TKMPoint.New(23, 22), 94);
-
 end;
 
 
@@ -126,18 +163,10 @@ procedure TKMTest_MeleeEngagedJoiningFight.DoTick(aTick: Cardinal; var aKeepGoin
 begin
   if TimeIsOut then
   begin
-    var allInFight := true;
-
+    var allInFight := True;
     for var I := 0 to gHands[1].Units.Count - 1 do
-    begin
-      var W := TKMUnitWarrior(gHands[1].Units[I]);
-
-      if (W <> nil) and not W.InFight then
-      begin
-        allInFight := false;
-        break;
-      end;
-    end;
+      if not TKMUnitWarrior(gHands[1].Units[I]).InFight then
+        allInFight := False;
 
     AssertTrue(allInFight, 'Not all soldiers started fighting.')
   end;
