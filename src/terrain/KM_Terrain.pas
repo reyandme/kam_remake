@@ -4171,41 +4171,35 @@ end;
 function TKMTerrain.GetClosestTile(const aTargetLoc, aOriginLoc: TKMPoint; aPass: TKMTerrainPassability; aAcceptTargetLoc: Boolean): TKMPoint;
 const
   TEST_DEPTH = 255;
-var
-  I, walkConnectID: Integer;
-  P: TKMPoint;
-  T: TKMPoint;
-  wcType: TKMWalkConnect;
 begin
+  var wcType := wcWalk; // wcWalk is default
   case aPass of
     tpWalkRoad: wcType := wcRoad;
     tpFish:     wcType := wcFish;
-    else         wcType := wcWalk; //CanWalk is default
   end;
 
-  walkConnectID := Land^[aOriginLoc.Y,aOriginLoc.X].WalkConnect[wcType]; //Store WalkConnect ID of origin
+  var walkConnectID := Land^[aOriginLoc.Y,aOriginLoc.X].WalkConnect[wcType]; //Store WalkConnect ID of origin
 
-  //If target is accessable then use it
+  // If target is accessable then use it
   if aAcceptTargetLoc and CheckPassability(aTargetLoc, aPass) and (walkConnectID = Land^[aTargetLoc.Y,aTargetLoc.X].WalkConnect[wcType]) then
+    Exit(aTargetLoc);
+
+  // If target is not accessable then choose a tile near to the target that is accessable
+  // As we Cannot reach our destination we are "low priority" so do not choose a tile with another unit on it (don't bump important units)
+  for var I := 0 to TEST_DEPTH do
   begin
-    Result := aTargetLoc;
-    exit;
-  end;
+    var P := GetPositionFromIndex(aTargetLoc, I);
+    if not TileInMapCoords(P) then Continue;
 
-  //If target is not accessable then choose a tile near to the target that is accessable
-  //As we Cannot reach our destination we are "low priority" so do not choose a tile with another unit on it (don't bump important units)
-  for I := 0 to TEST_DEPTH do begin
-    P := GetPositionFromIndex(aTargetLoc, I);
-    if not TileInMapCoords(P.X,P.Y) then Continue;
-    T := KMPoint(P.X,P.Y);
-    if CheckPassability(T, aPass)
-      and (walkConnectID = Land^[T.Y,T.X].WalkConnect[wcType])
-      and (not HasUnit(T) or KMSamePoint(T,aOriginLoc)) //Allow position we are currently on, but not ones with other units
+    if CheckPassability(P, aPass)
+    and (walkConnectID = Land^[P.Y,P.X].WalkConnect[wcType])
+    and (not HasUnit(P) or KMSamePoint(P, aOriginLoc)) // Allow position we are currently on, but not ones with other units
     then
-      Exit(T); //Assign if all test are passed
+      Exit(P);
   end;
 
-  Result := aOriginLoc; //If we don't find one, return existing Loc
+  // If we don't find one, return existing Loc
+  Result := aOriginLoc;
 end;
 
 
