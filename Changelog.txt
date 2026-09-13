@@ -49,6 +49,10 @@ Maps:
 + Added "Trespassers"
 + Updates to "Wild Grasslands" (1.12), "Vörös Arany" (f2603), "Temple of Koczis" (0.36)
 + Minor fix to "Rich Land" description
++ Added multiplayer maps: "Breakthrough", "Frosty Freshness", "Stone to the Head", "Witch Hunters"
++ Added single player maps: "Isles of Sydrian", "Tyrant's Miniature Garden"
++ Updated "Shores in Flames", "Return of the King"
+
 
 KaM Remake Beta r16020 [2025.12.26]
 ------------------------------
