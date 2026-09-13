@@ -75,14 +75,14 @@
 {.$DEFINE DBG_SKIP_SECURE_AUTH}
 
 // Enable perflog (should be disabled for release / release candidate versions)
-{$DEFINE DBG_PERFLOG}
+{.$DEFINE DBG_PERFLOG}
 
 // Enable asynchronous game resource loading
 {$IFNDEF NO_ASYNC_LOAD}
   {$DEFINE LOAD_GAME_RES_ASYNC}
 {$ENDIF}
 
-{$DEFINE DBG_RNG_SPY}
+{.$DEFINE DBG_RNG_SPY}
 
 // Enable some debug features
 {.$DEFINE DEBUG}
