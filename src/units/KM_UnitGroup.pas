@@ -851,24 +851,25 @@ end;
 
 procedure TKMUnitGroup.OffendersPrune;
   procedure UpdateProtectedUnitsAndGroups;
+  var
+    enemyUnit: TKMUnit;
   begin
     fDontPruneRanged.Clear;
     fDontPruneGroups.Clear;
 
     for var I := 0 to Count - 1 do
     begin
-      var enemyUnit := fMembers[I].GetAttackingUnit;
-
-      if (enemyUnit = nil) or not (enemyUnit is TKMUnitWarrior) then
-        Continue;
-
-      var enemyWarrior := TKMUnitWarrior(enemyUnit);
+      //Check unit we are hitting.
+      if (fMembers[I].InFightAgaist(enemyUnit, false)) then
+      begin
+        var enemyWarrior := TKMUnitWarrior(enemyUnit);
 
       if enemyWarrior.IsRanged then
         fDontPruneRanged.Add(enemyWarrior);
 
-      if enemyWarrior.InFight and not fDontPruneGroups.Contains(enemyWarrior.Group) then
+      if not fDontPruneGroups.Contains(enemyWarrior.Group) then
         fDontPruneGroups.Add(TKMUnitGroup(enemyWarrior.Group));
+      end;
     end;
   end;
 
