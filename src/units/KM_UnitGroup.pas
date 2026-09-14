@@ -859,7 +859,6 @@ procedure TKMUnitGroup.OffendersPrune;
 
     for var I := 0 to Count - 1 do
     begin
-      //Check unit we are hitting.
       if (fMembers[I].InFightAgaist(enemyUnit, false)) then
       begin
         var enemyWarrior := TKMUnitWarrior(enemyUnit);
