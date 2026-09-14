@@ -474,6 +474,7 @@ type
     procedure SaveToFileAsync(const aFileName: UnicodeString; aWorkerThread: TKMWorkerThread);
     procedure LoadFromStream(LoadStream: TKMemoryStream);
     procedure LoadFromFile(const aFileName: UnicodeString);
+    property Cursor: Integer read fCursor;
     property Count: Integer read fCount;
     property ReplayState: TKMGIPReplayState read fReplayState;
     function GetLastTick: Cardinal;
