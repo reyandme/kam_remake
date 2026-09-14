@@ -289,7 +289,7 @@ begin
     end, 'NewSavePointAsyncAndFree');
 
   {$ELSE}
-  NewSavePoint(aStream, aTick, aCursor);
+  NewSavePoint(aStream, aTick, aCursorPosition);
   {$ENDIF}
 end;
 
