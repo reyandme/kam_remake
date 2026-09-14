@@ -2768,7 +2768,7 @@ begin
     SaveGameToStream(0, saveStream); // Date is not important
 
     if fParams.IsReplay then
-      gicPosition := GameInputProcess.Cursor
+      gicPosition := GameInputProcess.CursorPosition
     else
       gicPosition := GameInputProcess.Count;
 

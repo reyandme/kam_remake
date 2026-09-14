@@ -381,7 +381,7 @@ type
     fStoredCommands: TKMStoredGicPackedList;
 
     fGic2StoredConverter: TKMGic2StoredConverter;
-    fCursor: Integer; //Used only in gipReplaying
+    fCursorPosition: Integer; //Used only in gipReplaying
     fQueue: array of TKMStoredGIPCommand;
     fOnReplayDesync: TIntegerEvent;
 
@@ -474,12 +474,12 @@ type
     procedure SaveToFileAsync(const aFileName: UnicodeString; aWorkerThread: TKMWorkerThread);
     procedure LoadFromStream(LoadStream: TKMemoryStream);
     procedure LoadFromFile(const aFileName: UnicodeString);
-    property Cursor: Integer read fCursor;
+    property CursorPosition: Integer read fCursorPosition;
     property Count: Integer read fCount;
     property ReplayState: TKMGIPReplayState read fReplayState;
     function GetLastTick: Cardinal;
     function ReplayEnded: Boolean;
-    procedure MoveCursorTo(aPosition: Integer);
+    procedure MoveCursorTo(aCursorPosition: Integer);
 
     property OnReplayDesync: TIntegerEvent read fOnReplayDesync write fOnReplayDesync;
 
@@ -689,7 +689,7 @@ begin
 
   SetLength(fQueue, 128);
   fCount := 0;
-  fCursor := 1;
+  fCursorPosition := 1;
   fReplayState := aReplayState;
 
   fPlannedCommands := TList<TKMGameInputCommand>.Create;
@@ -715,10 +715,10 @@ begin
 end;
 
 
-procedure TKMGameInputProcess.MoveCursorTo(aPosition: Integer);
+procedure TKMGameInputProcess.MoveCursorTo(aCursorPosition: Integer);
 begin
-  // fCursor cant be 0, while tick could if we load the very first replay savepoint
-  fCursor := Max(1, aPosition);
+  // fCursorPosition cant be 0, while tick could if we load the very first replay savepoint
+  fCursorPosition := Max(1, aCursorPosition);
 end;
 
 
@@ -1522,7 +1522,7 @@ end;
 { See if replay has ended (no more commands in queue) }
 function TKMGameInputProcess.ReplayEnded: Boolean;
 begin
-  Result := (ReplayState = gipReplaying) and (fCursor > fCount);
+  Result := (ReplayState = gipReplaying) and (fCursorPosition > fCount);
 end;
 
 
@@ -1629,7 +1629,7 @@ begin
   if fReplayState = gipRecording then
     maxIndex := fCount
   else
-    maxIndex := Min(fCount, fCursor);
+    maxIndex := Min(fCount, fCursorPosition);
 
   Result := '';
   K := 0;

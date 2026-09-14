@@ -14,15 +14,15 @@ type
   private
     fStreamCompressed: TKMemoryStream; // Compressed stream of a game save (save point)
     fTick: Cardinal;
-    fCursor: Integer;
+    fCursorPosition: Integer;
     // Opened spectator menu, viewports position etc...
   public
-    constructor Create(aStream: TKMemoryStream; aTick: Cardinal; aCursor: Integer);
+    constructor Create(aStream: TKMemoryStream; aTick: Cardinal; aCursorPosition: Integer);
     destructor Destroy; override;
 
     property StreamCompressed: TKMemoryStream read fStreamCompressed;
     property Tick: Cardinal read fTick;
-    property Cursor: Integer read fCursor;
+    property CursorPosition: Integer read fCursorPosition;
   end;
 
   TKMSavePointCollection = class
@@ -55,8 +55,8 @@ type
     function Contains(aTick: Cardinal): Boolean;
     procedure FillTicks(aTicksList: TList<Cardinal>);
 
-    procedure NewSavePoint(aStream: TKMemoryStream; aTick: Cardinal; aCursor: Integer);
-    procedure NewSavePointAsyncAndFree(var aStream: TKMemoryStream; aTick: Cardinal; aCursor: Integer; aWorkerThread: TKMWorkerThread);
+    procedure NewSavePoint(aStream: TKMemoryStream; aTick: Cardinal; aCursorPosition: Integer);
+    procedure NewSavePointAsyncAndFree(var aStream: TKMemoryStream; aTick: Cardinal; aCursorPosition: Integer; aWorkerThread: TKMWorkerThread);
 
     function LatestPointTickBefore(aTick: Cardinal): Cardinal;
 
@@ -74,13 +74,13 @@ uses
 
 
 { TKMSavePoint }
-constructor TKMSavePoint.Create(aStream: TKMemoryStream; aTick: Cardinal; aCursor: Integer);
+constructor TKMSavePoint.Create(aStream: TKMemoryStream; aTick: Cardinal; aCursorPosition: Integer);
 begin
   inherited Create;
 
   fStreamCompressed := aStream;
   fTick := aTick;
-  fCursor := aCursor;
+  fCursorPosition := aCursorPosition;
 end;
 
 
@@ -243,7 +243,7 @@ begin
 end;
 
 
-procedure TKMSavePointCollection.NewSavePointAsyncAndFree(var aStream: TKMemoryStream; aTick: Cardinal; aCursor: Integer; aWorkerThread: TKMWorkerThread);
+procedure TKMSavePointCollection.NewSavePointAsyncAndFree(var aStream: TKMemoryStream; aTick: Cardinal; aCursorPosition: Integer; aWorkerThread: TKMWorkerThread);
 {$IFDEF WDC}
 var
   localStream: TKMemoryStream;
@@ -280,7 +280,7 @@ begin
       // fSavePoints could be accessed by different threads
       Lock;
       try
-        fSavePoints.Add(aTick, TKMSavePoint.Create(S, aTick, aCursor));
+        fSavePoints.Add(aTick, TKMSavePoint.Create(S, aTick, aCursorPosition));
       finally
         Unlock;
       end;
@@ -294,7 +294,7 @@ begin
 end;
 
 
-procedure TKMSavePointCollection.NewSavePoint(aStream: TKMemoryStream; aTick: Cardinal; aCursor: Integer);
+procedure TKMSavePointCollection.NewSavePoint(aStream: TKMemoryStream; aTick: Cardinal; aCursorPosition: Integer);
 var
   S: TKMemoryStream;
 begin
@@ -308,7 +308,7 @@ begin
     S := TKMemoryStreamBinary.Create;
     aStream.SaveToStreamCompressed(S);
 
-    fSavePoints.Add(aTick, TKMSavePoint.Create(S, aTick, aCursor));
+    fSavePoints.Add(aTick, TKMSavePoint.Create(S, aTick, aCursorPosition));
   finally
     Unlock;
   end;
@@ -354,7 +354,7 @@ begin
       aSaveStream.PlaceMarker('SavePoint');
       aSaveStream.Write(key);
       savePoint := fSavePoints.Items[key];
-      aSaveStream.Write(Cardinal(savePoint.fCursor));
+      aSaveStream.Write(Cardinal(savePoint.fCursorPosition));
       aSaveStream.Write(Cardinal(savePoint.fStreamCompressed.Size));
       aSaveStream.CopyFrom(savePoint.fStreamCompressed, 0);
     end;
