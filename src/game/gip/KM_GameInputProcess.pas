@@ -478,7 +478,7 @@ type
     property ReplayState: TKMGIPReplayState read fReplayState;
     function GetLastTick: Cardinal;
     function ReplayEnded: Boolean;
-    procedure MoveCursorTo(aTick: Integer);
+    procedure MoveCursorTo(aPosition: Integer);
 
     property OnReplayDesync: TIntegerEvent read fOnReplayDesync write fOnReplayDesync;
 
@@ -714,10 +714,10 @@ begin
 end;
 
 
-procedure TKMGameInputProcess.MoveCursorTo(aTick: Integer);
+procedure TKMGameInputProcess.MoveCursorTo(aPosition: Integer);
 begin
   // fCursor cant be 0, while tick could if we load the very first replay savepoint
-  fCursor := Max(1, aTick);
+  fCursor := Max(1, aPosition);
 end;
 
 

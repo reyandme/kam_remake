@@ -842,7 +842,7 @@ begin
     // Restore GIP
     gGame.GameInputProcess := gameInputProcess;
     // Move GIP cursor to the actual position
-    gGame.GameInputProcess.MoveCursorTo(aTick);
+    gGame.GameInputProcess.MoveCursorTo(gGame.SavePoints.SavePoint[aTick].Cursor);
   except
     on E: Exception do
     begin

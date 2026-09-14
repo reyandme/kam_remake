@@ -2766,7 +2766,7 @@ begin
     saveStream := TKMemoryStreamBinary.Create;
     SaveGameToStream(0, saveStream); // Date is not important
 
-    fSavePoints.NewSavePointAsyncAndFree(saveStream, fParams.Tick, fSavePointWorkerThreadHolder.Worker);
+    fSavePoints.NewSavePointAsyncAndFree(saveStream, fParams.Tick, GameInputProcess.Count, fSavePointWorkerThreadHolder.Worker);
   finally
     {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psGameSavePoint);
