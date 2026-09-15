@@ -229,16 +229,10 @@ var
   localStream: TKMemoryStream;
 {$ENDIF}
 begin
-  {$IFDEF WDC}
-  // fSavePoints could be accessed by different threads
-  Lock;
-  try
-    // Check if we don't have same tick save here too, since we work in multithread environment
-    if fSavePoints.ContainsKey(aTick) then Exit;
-  finally
-    Unlock;
-  end;
+  // Check if we don't have same tick save here too, since we work in multithread environment
+  if ContainsTick(aTick) then Exit;
 
+  {$IFDEF WDC}
   localStream := aStream;
   aStream := nil; //So caller doesn't use it by mistake
 
@@ -278,9 +272,6 @@ begin
 
   Lock;
   try
-    // Check if we don't have same tick save here too, since we work in multithread environment
-    if fSavePoints.ContainsKey(aTick) then Exit;
-
     var S := TKMemoryStreamBinary.Create;
     aStream.SaveToStreamCompressed(S);
 
@@ -289,6 +280,7 @@ begin
     Unlock;
   end;
 end;
+
 
 {$IFDEF FPC}
 function CompareKeys(const aKey1, aKey2): Integer;
