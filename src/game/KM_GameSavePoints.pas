@@ -12,15 +12,15 @@ uses
 type
   TKMSavePoint = class
   private
-    fStreamCompressed: TKMemoryStream; // Compressed stream of a game save (save point)
+    fStreamCompressed: TKMemoryStreamBinary; // Compressed stream of a game save (save point)
     fTick: Cardinal;
     fCursor: Integer;
     // Opened spectator menu, viewports position etc...
   public
-    constructor Create(aStream: TKMemoryStream; aTick: Cardinal; aCursor: Integer);
+    constructor Create(aStream: TKMemoryStreamBinary; aTick: Cardinal; aCursor: Integer);
     destructor Destroy; override;
 
-    property StreamCompressed: TKMemoryStream read fStreamCompressed;
+    property StreamCompressed: TKMemoryStreamBinary read fStreamCompressed;
     property Tick: Cardinal read fTick;
     property Cursor: Integer read fCursor;
   end;
@@ -72,7 +72,7 @@ uses
 
 
 { TKMSavePoint }
-constructor TKMSavePoint.Create(aStream: TKMemoryStream; aTick: Cardinal; aCursor: Integer);
+constructor TKMSavePoint.Create(aStream: TKMemoryStreamBinary; aTick: Cardinal; aCursor: Integer);
 begin
   inherited Create;
 
@@ -247,10 +247,8 @@ begin
 
   aWorkerThread.QueueWork(
     procedure
-    var
-      S: TKMemoryStream;
     begin
-      S := TKMemoryStreamBinary.Create;
+      var S := TKMemoryStreamBinary.Create;
       try
         localStream.SaveToStreamCompressed(S);
       finally
@@ -275,8 +273,6 @@ end;
 
 
 procedure TKMSavePointCollection.NewSavePoint(aStream: TKMemoryStream; aTick: Cardinal; aCursor: Integer);
-var
-  S: TKMemoryStream;
 begin
   if Self = nil then Exit;
 
@@ -285,7 +281,7 @@ begin
     // Check if we don't have same tick save here too, since we work in multithread environment
     if fSavePoints.ContainsKey(aTick) then Exit;
 
-    S := TKMemoryStreamBinary.Create;
+    var S := TKMemoryStreamBinary.Create;
     aStream.SaveToStreamCompressed(S);
 
     fSavePoints.Add(aTick, TKMSavePoint.Create(S, aTick, aCursor));
@@ -437,10 +433,9 @@ end;
 
 procedure TKMSavePointCollection.Load(aLoadStream: TKMemoryStream);
 var
-  I, cnt, cursor: Integer;
+  cnt, cursor: Integer;
   tick, size: Cardinal;
   savePoint: TKMSavePoint;
-  stream: TKMemoryStream;
 begin
   if Self = nil then Exit;
 
@@ -452,14 +447,14 @@ begin
     aLoadStream.Read(fLastTick);
     aLoadStream.Read(cnt);
 
-    for I := 0 to cnt - 1 do
+    for var I := 0 to cnt - 1 do
     begin
       aLoadStream.CheckMarker('SavePoint');
       aLoadStream.Read(tick);
       aLoadStream.Read(cursor);
       aLoadStream.Read(size);
 
-      stream := TKMemoryStreamBinary.Create;
+      var stream := TKMemoryStreamBinary.Create;
       stream.CopyFrom(aLoadStream, size);
 
       savePoint := TKMSavePoint.Create(stream, tick, cursor);

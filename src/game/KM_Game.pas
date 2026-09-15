@@ -2718,7 +2718,8 @@ end;
 
 procedure TKMGame.LoadSavePoint(aTick: Cardinal; const aSaveFile: UnicodeString);
 var
-  spStream, decompStream: TKMemoryStream;
+  spStream: TKMemoryStreamBinary;
+  decompStream: TKMemoryStream;
   lastReplayTick: Cardinal;
   skipReplayEndCheck: Boolean;
 begin
@@ -2730,7 +2731,7 @@ begin
     lastReplayTick := fLastReplayTickLocal;
     skipReplayEndCheck := fSkipReplayEndCheck;
 
-    spStream := TKMemoryStreamBinary(fSavePoints[aTick].StreamCompressed);
+    spStream := fSavePoints[aTick].StreamCompressed;
     spStream.Position := 0;
 
     decompStream := TKMemoryStreamBinary.Create;
