@@ -354,7 +354,7 @@ begin
       aSaveStream.PlaceMarker('SavePoint');
       aSaveStream.Write(key);
       savePoint := fSavePoints.Items[key];
-      aSaveStream.Write(Cardinal(savePoint.fCursor));
+      aSaveStream.Write(savePoint.fCursor);
       aSaveStream.Write(Cardinal(savePoint.fStreamCompressed.Size));
       aSaveStream.CopyFrom(savePoint.fStreamCompressed, 0);
     end;
