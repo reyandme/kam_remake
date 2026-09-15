@@ -56,7 +56,7 @@ type
     procedure NewSavePoint(aStream: TKMemoryStream; aTick: Cardinal; aCursor: Integer);
     procedure NewSavePointAsyncAndFree(var aStream: TKMemoryStream; aTick: Cardinal; aCursor: Integer; aWorkerThread: TKMWorkerThread);
 
-    function LatestPointTickBefore(aTick: Cardinal): Cardinal;
+    function GetPreviousAvailableTick(aTick: Cardinal): Cardinal;
 
     procedure Save(aSaveStream: TKMemoryStream);
     procedure Load(aLoadStream: TKMemoryStream);
@@ -401,7 +401,7 @@ end;
 
 // Get latest savepoint tick, before aTick
 // 0 - if not found
-function TKMSavePointCollection.LatestPointTickBefore(aTick: Cardinal): Cardinal;
+function TKMSavePointCollection.GetPreviousAvailableTick(aTick: Cardinal): Cardinal;
 var
   key: Cardinal;
 begin

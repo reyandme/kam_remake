@@ -1098,7 +1098,7 @@ procedure TKMGameApp.LoadPrevSavePoint;
 begin
   if (gGame = nil) or (gGame.SavePoints = nil) then Exit;
 
-  TryLoadSavePoint(gGame.SavePoints.LatestPointTickBefore(gGame.Params.Tick));
+  TryLoadSavePoint(gGame.SavePoints.GetPreviousAvailableTick(gGame.Params.Tick));
 end;
 
 
