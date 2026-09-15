@@ -7,8 +7,10 @@ uses
 
 type
   // Two big archer groups shoot at each other.
-  // Fail when archers are reordered inefficiently - has to walk 10+ tiles
-  // when there are much closer candidates.
+  // Archers keep taking new spots as their ranks thin out, so a long walk is fine on its
+  // own - the whole squad could be shifting. Fail when the walk is plain wasteful:
+  // another archer would have reached that spot for less than half the effort,
+  // and ours would have reached his, had the two simply swapped destinations.
   TKMTest_ArchersGoFar = class(TKMTest)
   private const
     MAX_WALK_DIST = 10;
@@ -33,31 +35,44 @@ uses
   KM_Units, KM_UnitWarrior, KM_UnitGroup, KM_UnitGroupTypes, KM_UnitActionWalkTo;
 
 
-function NearestMember(aUnit: TKMUnit; const aTargetLoc: TKMPoint): TKMUnit;
+// Someone whose walk crosses ours, so that trading destinations would halve the longer of the two.
+// Only archers already on the move can trade - the ones standing still are shooting,
+// and sending them off means two archers walking where one walked before
+function BetterSwapPartner(aUnit: TKMUnit; const aWalkTo: TKMPoint): TKMUnit;
 begin
   Result := nil;
 
   var group := gHands[aUnit.Owner].UnitGroups.GetGroupByMember(TKMUnitWarrior(aUnit));
 
-  var bestDist := MaxSingle;
-  for var I := 0 to group.Count - 1 do
-  if group.Members[I] <> aUnit then
+  // The flag bearer keeps his spot in the formation, he is not ours to swap around
+  if (group = nil) or (group.Members[0] = aUnit) then Exit;
+
+  var ourDist := aUnit.Position.GetLengthDiag(aWalkTo);
+
+  for var I := 1 to group.Count - 1 do
   begin
     var U := group.Members[I];
-    var newDist := U.Position.GetLengthDiag(aTargetLoc);
-    if newDist < bestDist then
-    begin
-      bestDist := newDist;
-      Result := U;
-    end;
+    if (U = aUnit) or not (U.Action is TKMUnitActionWalkTo) then Continue;
+
+    var hisWalkTo := TKMUnitActionWalkTo(U.Action).WalkTo;
+    var worstNow := Max(ourDist, U.Position.GetLengthDiag(hisWalkTo));
+    var worstSwapped := Max(aUnit.Position.GetLengthDiag(hisWalkTo), U.Position.GetLengthDiag(aWalkTo));
+
+    if worstSwapped * 2 <= worstNow then
+      Exit(U);
   end;
 end;
 
 
-function DescribeFarWalk(aTick: Cardinal; aHand: Integer; aUnit: TKMUnit; const aWalkTo: TKMPoint; aDist: Single; aMember: TKMUnit; aMemberDist: Single): string;
+function DescribeSwap(aTick: Cardinal; aHand: Integer; aUnit: TKMUnit; const aWalkTo: TKMPoint; aPartner: TKMUnit): string;
 begin
-  Result := Format('Tick %d: archer %d of hand %d standing at %s was ordered to walk to %s, %.1f tiles away',
-    [aTick, aUnit.UID, aHand, aUnit.Position.ToString, aWalkTo.ToString, aDist]);
+  var hisWalkTo := TKMUnitActionWalkTo(aPartner.Action).WalkTo;
+
+  Result := Format('Tick %d: archer %d of hand %d standing at %s was ordered to walk to %s, %.1f tiles away, ' +
+                   'while member %d standing at %s walks to %s, %.1f tiles away. Swapped, those walks would be %.1f and %.1f tiles',
+    [aTick, aUnit.UID, aHand, aUnit.Position.ToString, aWalkTo.ToString, aUnit.Position.GetLengthDiag(aWalkTo),
+     aPartner.UID, aPartner.Position.ToString, hisWalkTo.ToString, aPartner.Position.GetLengthDiag(hisWalkTo),
+     aUnit.Position.GetLengthDiag(hisWalkTo), aPartner.Position.GetLengthDiag(aWalkTo)]);
 
   var group := gHands[aHand].UnitGroups.GetGroupByMember(TKMUnitWarrior(aUnit));
 
@@ -66,8 +81,8 @@ begin
     if group.Members[I] = aUnit then
       idx := I;
 
-  Result := Result + Format('. Group %d: he is member %d of %d, %d per row, order %s at %s. Member %d stands only %.1f tiles from that spot',
-    [group.UID, idx, group.Count, group.UnitsPerRow, GetEnumName(TypeInfo(TKMGroupOrder), Integer(group.Order)), group.OrderLoc.ToString, aMember.UID, aMemberDist]);
+  Result := Result + Format('. Group %d: he is member %d of %d, %d per row, order %s at %s',
+    [group.UID, idx, group.Count, group.UnitsPerRow, GetEnumName(TypeInfo(TKMGroupOrder), Integer(group.Order)), group.OrderLoc.ToString]);
 end;
 
 
@@ -117,17 +132,12 @@ begin
       if not (U.Action is TKMUnitActionWalkTo) then Continue;
 
       var walkTo := TKMUnitActionWalkTo(U.Action).WalkTo;
-      var ourDist := U.Position.GetLengthDiag(walkTo);
+      if U.Position.GetLengthDiag(walkTo) <= MAX_WALK_DIST then Continue;
 
-      if ourDist <= MAX_WALK_DIST then Continue;
+      var partner := BetterSwapPartner(U, walkTo);
+      if partner = nil then Continue;
 
-      // Only an issue when a member stands at least twice as close to that spot
-      var member := NearestMember(U, walkTo);
-      var memberDist := member.Position.GetLengthDiag(walkTo);
-      if memberDist * 2 > ourDist then Continue;
-
-      var descText := DescribeFarWalk(aTick, I, U, walkTo, ourDist, member, memberDist);
-      AssertTrue(False, descText);
+      AssertTrue(False, DescribeSwap(aTick, I, U, walkTo, partner));
     end;
 end;
 
@@ -155,7 +165,7 @@ end;
 
 class function TKMTest_ArchersGoFar.TestDescription: string;
 begin
-  Result := 'Archers in a firefight should not be ordered to walk across the whole battlefield.';
+  Result := 'Archers in a firefight should not take a long walk that a comrade would make in half the steps.';
 end;
 
 
