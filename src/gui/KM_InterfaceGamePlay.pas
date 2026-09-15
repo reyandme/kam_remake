@@ -1826,23 +1826,14 @@ end;
 
 // Update replay marks according to Game SavedReplays (checkpoints)
 procedure TKMGamePlayInterface.UpdateReplayMarks;
-var
-  tick: Cardinal;
-  ticksList: TList<Cardinal>;
 begin
   if (Self = nil) or (gGame.SavePoints = nil) then Exit;
 
-  ticksList := TList<Cardinal>.Create;
-  try
-    gGame.SavePoints.FillTicks(ticksList);
-
-    ReplayBar_Replay.Clear; // Clear marks, we are going to refill them all
-
-    for tick in ticksList do
-      AddReplayMark(tick);
-  finally
-    FreeAndNil(ticksList);
-  end;
+  ReplayBar_Replay.Clear; // Clear marks, we are going to refill them all
+  
+  var ticksList := gGame.SavePoints.GetAvailableTicks;
+  for var I := 0 to High(ticksList) do
+    AddReplayMark(ticksList[I]);
 end;
 
 

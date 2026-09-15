@@ -53,7 +53,7 @@ type
     property SavePoint[aTick: Cardinal]: TKMSavePoint read GetSavePoint;
     property Stream[aTick: Cardinal]: TKMemoryStream read GetStream; default;
     function ContainsTick(aTick: Cardinal): Boolean;
-    procedure FillTicks(aTicksList: TList<Cardinal>);
+    function GetAvailableTicks: TArray<Cardinal>;
 
     procedure NewSavePoint(aStream: TKMemoryStream; aTick: Cardinal; aCursor: Integer);
     procedure NewSavePointAsyncAndFree(var aStream: TKMemoryStream; aTick: Cardinal; aCursor: Integer; aWorkerThread: TKMWorkerThread);
@@ -195,16 +195,15 @@ begin
 end;
 
 
-procedure TKMSavePointCollection.FillTicks(aTicksList: TList<Cardinal>);
-var
-  Tick: Cardinal;
+function TKMSavePointCollection.GetAvailableTicks: TArray<Cardinal>;
 begin
+  SetLength(Result, 0);
+
   if Self = nil then Exit;
 
   Lock;
   try
-    for Tick in fSavePoints.Keys do
-      aTicksList.Add(Tick);
+    Result := fSavePoints.Keys.ToArray;
   finally
     Unlock;
   end;
