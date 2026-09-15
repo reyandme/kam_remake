@@ -771,6 +771,7 @@ end;
 //fItems.Count has changed
 procedure TKMListBox.UpdateScrollBar;
 begin
+  fScrollBar.PageSize := GetVisibleRows;
   fScrollBar.MaxValue := fItems.Count - GetVisibleRows;
   fScrollBar.Visible := IsSetVisible and (not fAutoHideScrollBar or fScrollBar.Enabled);
   //Separators can not be used with scroll bar for now.
@@ -1574,8 +1575,11 @@ end;
 procedure TKMColumnBox.UpdateScrollBar;
 var
   oldScrollBarVisible: Boolean;
+  visibleRows: Integer;
 begin
-  fScrollBar.MaxValue := fRowCount - (Height - fHeader.Height * Byte(ShowHeader)) div fItemHeight;
+  visibleRows := (Height - fHeader.Height * Byte(ShowHeader)) div fItemHeight;
+  fScrollBar.PageSize := visibleRows;
+  fScrollBar.MaxValue := fRowCount - visibleRows;
   Assert(fScrollBar.MaxValue >= fScrollBar.MinValue);
   oldScrollBarVisible := fScrollBar.Visible;
   fScrollBar.Visible := IsSetVisible and (fScrollBar.MaxValue <> fScrollBar.MinValue);
