@@ -30,7 +30,7 @@ type
     fAsyncThreadsCnt: Byte; //Number of worker threads working atm. Used to make saves or create compressed savepoints
     fWaitCS: TCriticalSection;
     fSaveCS: TCriticalSection;
-    fSavePoints: TDictionary<Cardinal, TKMSavePoint>;
+    fSavePoints: TObjectDictionary<Cardinal, TKMSavePoint>;
     //Properties to restore after load saved replay
     fLastTick: Cardinal;
 
@@ -97,7 +97,7 @@ begin
 
   fSaveCS := TCriticalSection.Create;
   fWaitCS := TCriticalSection.Create;
-  fSavePoints := TDictionary<Cardinal, TKMSavePoint>.Create;
+  fSavePoints := TObjectDictionary<Cardinal, TKMSavePoint>.Create([doOwnsValues]);
   fLastTick := 0;
 end;
 
@@ -121,8 +121,7 @@ begin
 
   Lock; // Lock even in destructor
   try
-    Clear;
-    fSavePoints.Free; // TKMList will free all objects of the list
+    FreeAndNil(fSavePoints); // TObjectDictionary will free all values of the list
   finally
     Unlock;
   end;
@@ -163,16 +162,12 @@ end;
 
 
 procedure TKMSavePointCollection.Clear;
-var
-  savePoint: TKMSavePoint;
 begin
   if Self = nil then Exit;
 
   Lock;
   try
-    for savePoint in fSavePoints.Values do
-      savePoint.Free;
-
+    // TObjectDictionary will free all values of the list
     fSavePoints.Clear;
   finally
     Unlock;
