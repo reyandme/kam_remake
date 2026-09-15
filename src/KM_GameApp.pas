@@ -1108,7 +1108,7 @@ begin
 
   if (gGame = nil) or (gGame.SavePoints = nil) then Exit;
   
-  if not gGame.SavePoints.Contains(aTick) then Exit;
+  if not gGame.SavePoints.ContainsTick(aTick) then Exit;
 
   InstantiateGameSavePoint(aTick);
   Result := True;

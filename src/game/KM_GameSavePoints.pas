@@ -52,7 +52,7 @@ type
     property Count: Integer read GetCount;
     property SavePoint[aTick: Cardinal]: TKMSavePoint read GetSavePoint;
     property Stream[aTick: Cardinal]: TKMemoryStream read GetStream; default;
-    function Contains(aTick: Cardinal): Boolean;
+    function ContainsTick(aTick: Cardinal): Boolean;
     procedure FillTicks(aTicksList: TList<Cardinal>);
 
     procedure NewSavePoint(aStream: TKMemoryStream; aTick: Cardinal; aCursor: Integer);
@@ -182,7 +182,7 @@ begin
 end;
 
 
-function TKMSavePointCollection.Contains(aTick: Cardinal): Boolean;
+function TKMSavePointCollection.ContainsTick(aTick: Cardinal): Boolean;
 begin
   if Self = nil then Exit(False);
 

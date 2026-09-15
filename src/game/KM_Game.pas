@@ -2725,7 +2725,7 @@ begin
   gLog.AddTime('Loading replay from save');
   fLastSaveFileRel := aSaveFile;
 
-  if fSavePoints.Contains(aTick) then
+  if fSavePoints.ContainsTick(aTick) then
   begin
     lastReplayTick := fLastReplayTickLocal;
     skipReplayEndCheck := fSkipReplayEndCheck;
@@ -2759,7 +2759,7 @@ begin
   gPerfLogs.SectionEnter(psGameSavePoint);
   {$ENDIF}
   try
-    if (fSavePoints = nil) or fSavePoints.Contains(fParams.Tick) then // No need to save twice on the same tick
+    if (fSavePoints = nil) or fSavePoints.ContainsTick(fParams.Tick) then // No need to save twice on the same tick
       Exit;
 
     gLog.AddTime('Make savepoint at tick ' + IntToStr(fParams.Tick));
