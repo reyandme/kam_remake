@@ -36,7 +36,6 @@ type
 
     function GetCount: Integer;
     function GetSavePoint(aTick: Cardinal): TKMSavePoint;
-    function GetStream(aTick: Cardinal): TKMemoryStream;
     function GetLastTick: Cardinal;
     procedure SetLastTick(const aLastTick: Cardinal);
   public
@@ -50,8 +49,7 @@ type
     procedure Unlock;
 
     property Count: Integer read GetCount;
-    property SavePoint[aTick: Cardinal]: TKMSavePoint read GetSavePoint;
-    property Stream[aTick: Cardinal]: TKMemoryStream read GetStream; default;
+    property SavePoints[aTick: Cardinal]: TKMSavePoint read GetSavePoint; default;
     function ContainsTick(aTick: Cardinal): Boolean;
     function GetAvailableTicks: TArray<Cardinal>;
 
@@ -219,23 +217,6 @@ begin
   try
     if fSavePoints.ContainsKey(aTick) then
       Result := fSavePoints[aTick];
-  finally
-    Unlock;
-  end;
-end;
-
-
-function TKMSavePointCollection.GetStream(aTick: Cardinal): TKMemoryStream;
-var
-  savePoint: TKMSavePoint;
-begin
-  Result := nil;
-  if Self = nil then Exit;
-
-  Lock;
-  try
-    if fSavePoints.TryGetValue(aTick, savePoint) then
-      Result := savePoint.StreamCompressed;
   finally
     Unlock;
   end;

@@ -2730,7 +2730,7 @@ begin
     lastReplayTick := fLastReplayTickLocal;
     skipReplayEndCheck := fSkipReplayEndCheck;
 
-    spStream := TKMemoryStreamBinary(fSavePoints[aTick]);
+    spStream := TKMemoryStreamBinary(fSavePoints[aTick].StreamCompressed);
     spStream.Position := 0;
 
     decompStream := TKMemoryStreamBinary.Create;
