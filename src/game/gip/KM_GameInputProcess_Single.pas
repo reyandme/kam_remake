@@ -19,9 +19,12 @@ type
 
 implementation
 uses
-  Math, KM_Game, KM_GameParams, KM_Defaults, KM_CommonUtils;
+  Math,
+  KM_Defaults, KM_CommonUtils,
+  KM_Game, KM_GameParams;
 
 
+{ TKMGameInputProcess_Single }
 procedure TKMGameInputProcess_Single.DoTakeCommand(const aCommand: TKMGameInputCommand);
 begin
   if gGameParams.IsReplay then Exit;
