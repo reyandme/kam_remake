@@ -34,6 +34,8 @@ type
     //Properties to restore after load saved replay
     fLastTick: Cardinal;
 
+    procedure Lock;
+    procedure Unlock;
     function GetCount: Integer;
     function GetSavePoint(aTick: Cardinal): TKMSavePoint;
     function GetLastTick: Cardinal;
@@ -44,10 +46,6 @@ type
     destructor Destroy; override;
 
     property LastTick: Cardinal read GetLastTick write SetLastTick;
-    procedure Clear;
-
-    procedure Lock;
-    procedure Unlock;
 
     property Count: Integer read GetCount;
     property SavePoints[aTick: Cardinal]: TKMSavePoint read GetSavePoint; default;
@@ -158,20 +156,6 @@ begin
   if Self = nil then Exit;
 
   fLastTick := aLastTick;
-end;
-
-
-procedure TKMSavePointCollection.Clear;
-begin
-  if Self = nil then Exit;
-
-  Lock;
-  try
-    // TObjectDictionary will free all values of the list
-    fSavePoints.Clear;
-  finally
-    Unlock;
-  end;
 end;
 
 
