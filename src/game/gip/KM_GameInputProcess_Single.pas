@@ -40,41 +40,41 @@ begin
   KaMRandom(MaxInt{$IFDEF DBG_RNG_SPY}, 'TKMGameInputProcess_Single.ReplayTimer'{$ENDIF});
 
   //There are still more commands left
-  if fCursorPosition <= Count then
+  if fCursor <= Count then
   begin
-    while (aTick > fQueue[fCursorPosition].Tick) and (fQueue[fCursorPosition].Command.CmdType <> gicNone) and (fCursorPosition < Count) do
-      Inc(fCursorPosition);
+    while (aTick > fQueue[fCursor].Tick) and (fQueue[fCursor].Command.CmdType <> gicNone) and (fCursor < Count) do
+      Inc(fCursor);
 
-    while (fCursorPosition <= Count) and (aTick = fQueue[fCursorPosition].Tick) do //Could be several commands in one Tick
+    while (fCursor <= Count) and (aTick = fQueue[fCursor].Tick) do //Could be several commands in one Tick
     begin
       //Call to KaMRandom, just like in StoreCommand
       //We did not generate random checks for those commands
-      if fQueue[fCursorPosition].Command.CmdType in SKIP_RANDOM_CHECKS_FOR then
+      if fQueue[fCursor].Command.CmdType in SKIP_RANDOM_CHECKS_FOR then
         myRand := 0
       else
         myRand := Cardinal(KaMRandom(MaxInt{$IFDEF DBG_RNG_SPY}, 'TKMGameInputProcess_Single.ReplayTimer 2'{$ENDIF}));
 
-      while not fGic2StoredConverter.ParseNextStoredPackedCommand(fQueue[fCursorPosition].Command, gicCommand) do
-        Inc(fCursorPosition);
+      while not fGic2StoredConverter.ParseNextStoredPackedCommand(fQueue[fCursor].Command, gicCommand) do
+        Inc(fCursor);
 
       ExecCommand(gicCommand); // Should always be called to maintain randoms flow
       // CRC check after the command
-      if (fQueue[fCursorPosition].Rand <> myRand)
+      if (fQueue[fCursor].Rand <> myRand)
       and not gGame.IgnoreConsistencyCheckErrors then
       begin
         if Assigned(fOnReplayDesync) then // Call before ReplayInconsistency, fOnReplayDesync could be free after it!
-          fOnReplayDesync(fCursorPosition);
+          fOnReplayDesync(fCursor);
 
         if CRASH_ON_REPLAY then
         begin
-          Inc(fCursorPosition); // Must be done before exiting in case user decides to continue the replay
-          gGame.ReplayInconsistency(fQueue[fCursorPosition-1], myRand);
+          Inc(fCursor); // Must be done before exiting in case user decides to continue the replay
+          gGame.ReplayInconsistency(fQueue[fCursor-1], myRand);
           Exit; // ReplayInconsistency sometimes calls GIP.Free, so exit immediately
         end;
 
         Exit;
       end;
-      Inc(fCursorPosition);
+      Inc(fCursor);
     end;
   end;
 end;
