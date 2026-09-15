@@ -233,6 +233,7 @@ var
   oldMax: Integer;
 begin
   oldMax := fScrollBar.MaxValue;
+  fScrollBar.PageSize := GetVisibleRows;
   fScrollBar.MaxValue := fItems.Count - GetVisibleRows;
   fScrollBar.Visible := IsSetVisible and (fScrollBar.MaxValue <> fScrollBar.MinValue);
 

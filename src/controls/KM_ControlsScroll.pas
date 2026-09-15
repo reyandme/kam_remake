@@ -20,6 +20,9 @@ type
     fMinValue: Integer;
     fMaxValue: Integer;
     fPosition: Integer;
+    fPageSize: Integer; //How many units (rows/pixels/etc, same units as Min/MaxValue) are visible at once.
+                         //0 (default) keeps the old fixed-size thumb; >0 sizes the thumb classically,
+                         //proportional to PageSize / (PageSize + (MaxValue-MinValue))
     fThumbPos: Integer; //Position of the thumb
     fThumbSize: Word; //Length of the thumb
     fOffset: Integer;
@@ -28,6 +31,7 @@ type
     fOnChange: TNotifyEvent;
     procedure SetMinValue(Value: Integer);
     procedure SetMaxValue(Value: Integer);
+    procedure SetPageSize(Value: Integer);
     procedure SetPosition(Value: Integer);
     procedure IncPosition(Sender: TObject);
     procedure DecPosition(Sender: TObject);
@@ -47,6 +51,7 @@ type
                        aStyle: TKMButtonStyle; aScrollStyle: TKMScrollStyle = ssGame);
     property MinValue: Integer read fMinValue write SetMinValue;
     property MaxValue: Integer read fMaxValue write SetMaxValue;
+    property PageSize: Integer read fPageSize write SetPageSize;
     property Position: Integer read fPosition write SetPosition;
     procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
@@ -213,6 +218,7 @@ procedure TKMScrollBar.SetMinValue(Value: Integer);
 begin
   fMinValue := Max(0, Value);
   Enabled := (fMaxValue > fMinValue);
+  UpdateThumbSize; //Thumb size depends on the Max-Min range when PageSize is set
   SetPosition(fPosition);
 end;
 
@@ -221,7 +227,15 @@ procedure TKMScrollBar.SetMaxValue(Value: Integer);
 begin
   fMaxValue := Max(0, Value);
   Enabled := (fMaxValue > fMinValue);
+  UpdateThumbSize;
   SetPosition(fPosition);
+end;
+
+
+procedure TKMScrollBar.SetPageSize(Value: Integer);
+begin
+  fPageSize := Max(0, Value);
+  UpdateThumbSize;
 end;
 
 
@@ -268,11 +282,23 @@ end;
 
 
 procedure TKMScrollBar.UpdateThumbSize;
+var
+  trackLen, minThumb, contentSize: Integer;
 begin
   case fScrollAxis of
-    saVertical:   fThumbSize := Math.max(0, (Height-2*Width)) div 4;
-    saHorizontal: fThumbSize := Math.max(0, (Width-2*Height)) div 4;
+    saVertical:   begin trackLen := Math.max(0, Height-2*Width); minThumb := Width div 2; end;
+    saHorizontal: begin trackLen := Math.max(0, Width-2*Height); minThumb := Height div 2; end;
+  else
+    trackLen := 0; minThumb := 0;
   end;
+
+  if fPageSize > 0 then
+  begin
+    contentSize := fPageSize + Math.max(0, fMaxValue - fMinValue);
+    fThumbSize := EnsureRange(Round(trackLen * fPageSize / contentSize), Math.min(minThumb, trackLen), trackLen);
+  end
+  else
+    fThumbSize := trackLen div 4; //No PageSize set - keep the old fixed-size thumb
 
   //If size has changed, then Pos needs to be updated as well (depends on it)
   UpdateThumbPos;
@@ -529,6 +555,7 @@ begin
   if not (saHorizontal in fScrollAxisSet) then Exit;
 
   showScroll := False;
+  fScrollBarH.PageSize := fClipRect.Width;
 
   if aChildsRect.Width + fPadding.Left + fPadding.Right > fClipRect.Width then
   begin
@@ -577,6 +604,7 @@ begin
 
   //Do not set Visible, avoid trigger OnChangeVisibility
   showScroll := False;
+  fScrollBarV.PageSize := fClipRect.Height;
 
   if aChildsRect.Height + fPadding.Top + fPadding.Bottom > fClipRect.Height then
   begin
