@@ -1,5 +1,4 @@
 unit KM_Test_MeleeEngagedJoiningFight;
-
 {$I KaM_Remake.inc}
 interface
 uses
@@ -29,7 +28,7 @@ procedure TKMTest_MeleeEngagedJoiningFight.SetUp;
 begin
   inherited;
 
-  //All soldiers should be in fight at this time.
+  // All soldiers should be in a fight by this time
   fDuration := 20;
 
   gGameApp.NewGameEmptyMap(32, 32);
