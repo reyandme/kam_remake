@@ -2752,6 +2752,7 @@ end;
 // Save game/replay savepoint
 procedure TKMGame.MakeSavePoint;
 var
+  gicPosition: Integer;
   saveStream: TKMemoryStream;
 begin
   {$IFDEF DBG_PERFLOG}
@@ -2766,7 +2767,12 @@ begin
     saveStream := TKMemoryStreamBinary.Create;
     SaveGameToStream(0, saveStream); // Date is not important
 
-    fSavePoints.NewSavePointAsyncAndFree(saveStream, fParams.Tick, fSavePointWorkerThreadHolder.Worker);
+    if fParams.IsReplay then
+      gicPosition := GameInputProcess.CursorPosition
+    else
+      gicPosition := GameInputProcess.Count;
+
+    fSavePoints.NewSavePointAsyncAndFree(saveStream, fParams.Tick, gicPosition, fSavePointWorkerThreadHolder.Worker);
   finally
     {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psGameSavePoint);
