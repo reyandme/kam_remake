@@ -2773,7 +2773,7 @@ begin
     else
       newCursor := GameInputProcess.Count;
 
-    fSavePoints.NewSavePointAsyncAndFree(saveStream, fParams.Tick, newCursor, fSavePointWorkerThreadHolder.Worker);
+    fSavePoints.NewSavePointAndFree(saveStream, fParams.Tick, newCursor, fSavePointWorkerThreadHolder.Worker);
   finally
     {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psGameSavePoint);

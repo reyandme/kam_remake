@@ -38,6 +38,7 @@ type
     function GetSavePoint(aTick: Cardinal): TKMSavePoint;
     function GetLastTick: Cardinal;
     procedure SetLastTick(const aLastTick: Cardinal);
+    procedure NewSavePoint(aStream: TKMemoryStream; aTick: Cardinal; aCursor: Integer);
   public
     constructor Create;
     destructor Destroy; override;
@@ -53,8 +54,7 @@ type
     function ContainsTick(aTick: Cardinal): Boolean;
     function GetAvailableTicks: TArray<Cardinal>;
 
-    procedure NewSavePoint(aStream: TKMemoryStream; aTick: Cardinal; aCursor: Integer);
-    procedure NewSavePointAsyncAndFree(var aStream: TKMemoryStream; aTick: Cardinal; aCursor: Integer; aWorkerThread: TKMWorkerThread);
+    procedure NewSavePointAndFree(var aStream: TKMemoryStream; aTick: Cardinal; aCursor: Integer; aWorkerThread: TKMWorkerThread);
 
     function GetPreviousAvailableTick(aTick: Cardinal): Cardinal;
 
@@ -218,19 +218,17 @@ begin
 end;
 
 
-procedure TKMSavePointCollection.NewSavePointAsyncAndFree(var aStream: TKMemoryStream; aTick: Cardinal; aCursor: Integer; aWorkerThread: TKMWorkerThread);
-{$IFDEF WDC}
-var
-  localStream: TKMemoryStream;
-{$ENDIF}
+procedure TKMSavePointCollection.NewSavePointAndFree(var aStream: TKMemoryStream; aTick: Cardinal; aCursor: Integer; aWorkerThread: TKMWorkerThread);
 begin
+  if Self = nil then Exit;
+
   // Check if we don't have same tick save here too, since we work in multithread environment
   if ContainsTick(aTick) then Exit;
 
-  {$IFDEF WDC}
-  localStream := aStream;
-  aStream := nil; //So caller doesn't use it by mistake
+  var localStream := aStream;
+  aStream := nil; // So caller doesn't use it by mistake
 
+  {$IFDEF WDC}
   // Increase save threads counter in main thread
   AtomicIncrement(fAsyncThreadsCnt);
 
@@ -253,18 +251,16 @@ begin
       end;
       // Decrease thread counter
       AtomicDecrement(fAsyncThreadsCnt);
-    end, 'NewSavePointAsyncAndFree');
-
+    end, 'NewSavePointAndFree');
   {$ELSE}
-  NewSavePoint(aStream, aTick, aCursor);
+  NewSavePoint(localStream, aTick, aCursor);
+  localStream.Free;
   {$ENDIF}
 end;
 
 
 procedure TKMSavePointCollection.NewSavePoint(aStream: TKMemoryStream; aTick: Cardinal; aCursor: Integer);
 begin
-  if Self = nil then Exit;
-
   Lock;
   try
     var S := TKMemoryStreamBinary.Create;
@@ -417,6 +413,7 @@ begin
     Unlock;
   end;
 end;
+
 
 procedure TKMSavePointCollection.Load(aLoadStream: TKMemoryStream);
 var
