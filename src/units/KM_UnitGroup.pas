@@ -909,6 +909,8 @@ begin
     gHands.CleanUpUnitPointer(U);
     fOffenders.Delete(I);
 
+
+    // When/if the last offender was pruned, we can repeat the order
     if fOffenders.Count = 0 then
       OrderRepeat;
   end;
