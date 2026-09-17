@@ -6,7 +6,7 @@ uses
 
 
 type
-  // Warrior should walk towards the target when the target cant be reacohed
+  // Warrior should try to walk towards the target when the target cant be reacohed
   TKMTest_WalkUnwalkableTarget = class(TKMTest)
   private const
     WATER_X = 30;
@@ -21,7 +21,6 @@ type
     procedure SetUp; override;
     procedure TearDown; override;
     procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
-    procedure CheckResult; override;
   public
     class function TestTags: TKMTestTagSet; override;
     class function TestDescription: string; override;
@@ -84,12 +83,9 @@ begin
     fReacted := fReacted or (fGroup.FlagBearer.Action is TKMUnitActionWalkTo) or not KMSamePoint(fGroup.FlagBearer.Position, fStartLoc);
 
   aKeepGoing := not fReacted;
-end;
 
-
-procedure TKMTest_WalkUnwalkableTarget.CheckResult;
-begin
-  AssertTrue(fReacted, 'Warrior did not move');
+  if TimeIsOut then
+    AssertFail('Warrior did not move');
 end;
 
 
