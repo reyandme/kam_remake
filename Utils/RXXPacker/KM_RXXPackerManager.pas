@@ -2,7 +2,7 @@ unit KM_RXXPackerManager;
 {$I ..\..\KaM_Remake.inc}
 interface
 uses
-  SysUtils, Windows, Generics.Collections,
+  System.SysUtils,
   KM_ResTypes, KM_ResPalettes, KM_ResSprites;
 
 
@@ -42,8 +42,7 @@ type
 
 implementation
 uses
-  KM_RXXPacker,
-  KM_ResHouses, KM_ResUnits, KM_Points, KM_ResSpritesEdit, KM_Defaults, KM_Log;
+  KM_RXXPacker;
 
 
 { TKMRXXPackerManager }
