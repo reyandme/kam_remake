@@ -12,20 +12,20 @@ type
     fRXData: PRXData;
 
     fOnlyShadows: boolean;
-    TempShadowMap: array {X} of array {Y} of Boolean; //todo -cPractical: Flip to be common pattern of [Y,X]
-    ShadowMap: array {X} of array {Y} of Boolean; //todo -cPractical: Flip to be common pattern of [Y,X]
+    fTempShadowMap: array {Y} of array {X} of Boolean;
+    fShadowMap: array {Y} of array {X} of Boolean;
 
-    function ReadPixelSafe(aIndex, aX, aY: Integer): Cardinal;
+    function ReadPixelSafe(aIndex, aX, aY: Integer): Cardinal; inline;
 
-    function IsBlack(aColor: Cardinal): Boolean;
-    function IsTransparent(aColor: Cardinal): Boolean;
-    function IsObject(aColor: Cardinal): Boolean;
-    function IsTransparentOrObject(aColor: Cardinal): Boolean;
+    function IsBlack(aColor: Cardinal): Boolean; inline;
+    function IsTransparent(aColor: Cardinal): Boolean; inline;
+    function IsObject(aColor: Cardinal): Boolean; inline;
+    function IsTransparentOrObject(aColor: Cardinal): Boolean; inline;
     function IsShadow(aIndex, aX, aY: Integer): Boolean;
     procedure PrepareShadows(aIndex: Word; aOnlyShadows: Boolean);
 
-    function IsShadowPixel(aIndex, aX, aY: Word): Boolean;
-    function IsObjectPixel(aIndex, aX, aY: Word): Boolean;
+    function IsShadowPixel(aIndex, aX, aY: Word): Boolean; inline;
+    function IsObjectPixel(aIndex, aX, aY: Word): Boolean; inline;
   public
     constructor Create(aRXData: PRXData);
     procedure ConvertShadows(aIndex: Word; aOnlyShadows: Boolean);
@@ -130,7 +130,7 @@ var
   Color: Cardinal;
 begin
   Color := ReadPixelSafe(aIndex, aX, aY);
-  Result := (TempShadowMap[aX, aY] or ShadowMap[aX, aY] or IsTransparent(Color)) and not IsObject(Color);
+  Result := (fTempShadowMap[aY, aX] or fShadowMap[aY, aX] or IsTransparent(Color)) and not IsObject(Color);
 end;
 
 
@@ -139,7 +139,7 @@ var
   Color: Cardinal;
 begin
   Color := ReadPixelSafe(aIndex, aX, aY);
-  Result := IsObject(Color) and not TempShadowMap[aX, aY] and not ShadowMap[aX, aY];
+  Result := IsObject(Color) and not fTempShadowMap[aY, aX] and not fShadowMap[aY, aX];
 end;
 
 
@@ -208,7 +208,7 @@ procedure TKMSoftShadowConverter.ConvertShadows(aIndex: Word; aOnlyShadows: Bool
         Divisor := Divisor + Multiplier;
         if (iX < 0) or (iY < 0) or (iX >= fRXData.Size[aIndex].X) or (iY >= fRXData.Size[aIndex].Y) then
           Continue;
-        Shadow := ShadowMap[iX, iY];
+        Shadow := fShadowMap[iY, iX];
         if Shadow then WasRealShadow := True;
         if not IsTransparent(ReadPixelSafe(aIndex, iX, iY)) then Shadow := True;
         if Shadow then Ret := Ret + Multiplier;
@@ -309,7 +309,7 @@ procedure TKMSoftShadowConverter.PrepareShadows(aIndex: Word; aOnlyShadows: Bool
     if (aX < 0) or (aY < 0) or (aX >= fRXData.Size[aIndex].X) or (aY >= fRXData.Size[aIndex].Y) then
       Result := False
     else
-      Result := TempShadowMap[aX, aY];
+      Result := fTempShadowMap[aY, aX];
   end;
 
   function IsShadowOrObject(aX, aY: Integer): Boolean;
@@ -317,7 +317,7 @@ procedure TKMSoftShadowConverter.PrepareShadows(aIndex: Word; aOnlyShadows: Bool
     if (aX < 0) or (aY < 0) or (aX >= fRXData.Size[aIndex].X) or (aY >= fRXData.Size[aIndex].Y) then
       Result := False
     else
-      Result := TempShadowMap[aX, aY] or IsObject(ReadPixelSafe(aIndex, aX, aY));
+      Result := fTempShadowMap[aY, aX] or IsObject(ReadPixelSafe(aIndex, aX, aY));
   end;
 
   function ShadowsNearby(aX, aY: Integer): Byte;
@@ -339,26 +339,26 @@ var
 begin
   fOnlyShadows := aOnlyShadows;
 
-  SetLength(TempShadowMap, 0);
-  SetLength(ShadowMap,     0);
+  SetLength(fTempShadowMap, 0);
+  SetLength(fShadowMap,     0);
 
-  SetLength(TempShadowMap, fRXData.Size[aIndex].X, fRXData.Size[aIndex].Y);
-  SetLength(ShadowMap,     fRXData.Size[aIndex].X, fRXData.Size[aIndex].Y);
+  SetLength(fTempShadowMap, fRXData.Size[aIndex].Y, fRXData.Size[aIndex].X);
+  SetLength(fShadowMap,     fRXData.Size[aIndex].Y, fRXData.Size[aIndex].X);
 
   for I := 0 to fRXData.Size[aIndex].Y - 1 do
   for K := 0 to fRXData.Size[aIndex].X - 1 do
-    TempShadowMap[K, I] := IsShadow(aIndex, K, I);
+    fTempShadowMap[I, K] := IsShadow(aIndex, K, I);
 
   for I := 0 to fRXData.Size[aIndex].Y - 1 do
   for K := 0 to fRXData.Size[aIndex].X - 1 do
   begin
-    Shadow := TempShadowMap[K, I];
+    Shadow := fTempShadowMap[I, K];
 
     if Shadow and not IsObject(ReadPixelSafe(aIndex, K, I))
     and (ShadowsNearby(K, I) = 1) then
       Shadow := False;
 
-    ShadowMap[K, I] := Shadow;
+    fShadowMap[I, K] := Shadow;
   end;
 end;
 
