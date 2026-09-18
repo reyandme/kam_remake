@@ -26,7 +26,7 @@ type
 
 implementation
 uses
-  KM_Defaults, KM_RXXPacker;
+  KM_Defaults, KM_RXXPacker, KM_RXXPackerManager;
 
 const
   // Everything except rxCustom
@@ -105,7 +105,6 @@ end;
 
 class procedure TKMRXXPackerConsole.Pack;
 var
-  rxxPacker: TKMRXXPacker;
   resPalettes: TKMResPalettes;
 begin
   ExeDir := ExpandFileName(ExtractFilePath(ParamStr(0)) + '..\..\');
@@ -113,16 +112,16 @@ begin
   resPalettes := TKMResPalettes.Create;
   resPalettes.LoadPalettes(ExeDir + 'data\gfx\');
 
-  rxxPacker := TKMRXXPacker.Create(resPalettes, procedure (aMsg: string) begin Writeln(aMsg); end);
-  rxxPacker.SourcePathRX := fSourcePathRX;
-  rxxPacker.SourcePathInterp := fSourcePathInterp;
-  rxxPacker.DestinationPath := fDestinationPath;
-  rxxPacker.PackToRXA := fPackToRXA;
-  rxxPacker.RXXFormat := rxxTwo;
+  var rxxPackerManager := TKMRXXPackerManager.Create(resPalettes, procedure (aMsg: string) begin Writeln(aMsg); end);
+  rxxPackerManager.SourcePathRX := fSourcePathRX;
+  rxxPackerManager.SourcePathInterp := fSourcePathInterp;
+  rxxPackerManager.DestinationPath := fDestinationPath;
+  rxxPackerManager.PackToRXA := fPackToRXA;
+  rxxPackerManager.RXXFormat := rxxTwo;
   try
-    rxxPacker.PackSet(fRxSet);
+    rxxPackerManager.PackSet(fRxSet);
   finally
-    rxxPacker.Free;
+    rxxPackerManager.Free;
     resPalettes.Free;
   end;
 end;

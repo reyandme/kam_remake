@@ -55,7 +55,7 @@ type
 implementation
 uses
   INIFiles,
-  KM_RXXPacker,
+  KM_RXXPackerManager,
   KM_ResHouses, KM_ResUnits, KM_ResTypes,
   KM_Points;
 
@@ -64,23 +64,20 @@ uses
 
 { TRXXForm1 }
 procedure TRXXForm1.UpdateList;
-var
-  RT: TRXType;
-  rxSet: TRXTypeSet;
-  path: string;
 begin
-  path := IncludeTrailingPathDelimiter(edSourceRxPath.Text);
-  // fRxxPacker is our SPOT, so we ask it about what it dims doable
-  rxSet := TKMRxxPacker.GetAvailableToPack(path);
+  var rxPath := IncludeTrailingPathDelimiter(edSourceRxPath.Text);
+
+  // TKMRxxPackerManager is our SPOT, so we ask it about what it dims doable
+  var rxSet := TKMRxxPackerManager.GetAvailableToPack(rxPath);
 
   ListBox1.Items.Clear;
-  for RT := Low(TRXType) to High(TRXType) do
+  for var RT := Low(TRXType) to High(TRXType) do
     if RT in rxSet then
       ListBox1.Items.AddObject(RX_INFO[RT].FileName, TObject(RT));
 
   if ListBox1.Items.Count = 0 then
   begin
-    ShowMessage('No .RX files were found in' + sLineBreak + path);
+    ShowMessage('No .RX files were found in' + sLineBreak + rxPath);
     btnPackRXX.Enabled := False;
   end else
   begin
@@ -239,29 +236,27 @@ begin
 
   TThread.CreateAnonymousThread(
     procedure
-    var
-      rxxPacker: TKMRXXPacker;
     begin
-      rxxPacker := TKMRXXPacker.Create(fPalettes, DoLog);
+      var rxxPackerManager := TKMRXXPackerManager.Create(fPalettes, DoLog);
 
       try
-        rxxPacker.SourcePathRX      := edSourceRxPath.Text;
-        rxxPacker.SourcePathInterp  := edSourceInterpPath.Text;
-        rxxPacker.DestinationPath   := edDestinationPath.Text;
-        rxxPacker.PackToRXX     := chkPackToRXX.Checked;
-        rxxPacker.PackToRXA     := chkPackToRXA.Checked;
-        if rbRXXFormat0.Checked then rxxPacker.RXXFormat := rxxZero;
-        if rbRXXFormat1.Checked then rxxPacker.RXXFormat := rxxOne;
-        if rbRXXFormat2.Checked then rxxPacker.RXXFormat := rxxTwo;
+        rxxPackerManager.SourcePathRX      := edSourceRxPath.Text;
+        rxxPackerManager.SourcePathInterp  := edSourceInterpPath.Text;
+        rxxPackerManager.DestinationPath   := edDestinationPath.Text;
+        rxxPackerManager.PackToRXX     := chkPackToRXX.Checked;
+        rxxPackerManager.PackToRXA     := chkPackToRXA.Checked;
+        if rbRXXFormat0.Checked then rxxPackerManager.RXXFormat := rxxZero;
+        if rbRXXFormat1.Checked then rxxPackerManager.RXXFormat := rxxOne;
+        if rbRXXFormat2.Checked then rxxPackerManager.RXXFormat := rxxTwo;
 
         try
-          rxxPacker.PackSet(rxSet);
+          rxxPackerManager.PackSet(rxSet);
         except
           on E: Exception do
             MessageBox(Handle, PWideChar(E.Message), 'Error', MB_ICONEXCLAMATION or MB_OK);
         end;
       finally
-        FreeAndNil(rxxPacker);
+        FreeAndNil(rxxPackerManager);
 
         TThread.Queue(nil,
           procedure
