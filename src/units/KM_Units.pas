@@ -187,8 +187,7 @@ type
     procedure SetActionWalk(const aLocB: TKMPoint; aActionType: TKMUnitActionType; aDistance: Single; aTargetUnit: TKMUnit;
                             aTargetHouse: TKMHouse; aAvoidLockedByMovementCost: Boolean = True);
     function TrySetActionWalk(const aLocB: TKMPoint; aActionType: TKMUnitActionType; aDistance: Single; aTargetUnit: TKMUnit;
-                              aTargetHouse: TKMHouse; aAvoidLockedByMovementCost: Boolean = True;
-                              aSilent: Boolean = True): Boolean;
+                              aTargetHouse: TKMHouse; aAvoidLockedByMovementCost: Boolean = True): Boolean;
     procedure SetActionWalkToHouse(aHouse: TKMHouse; aDistance: Single; aActionType: TKMUnitActionType = uaWalk);
     procedure SetActionWalkFromHouse(aHouse: TKMHouse; aDistance: Single; aActionType: TKMUnitActionType = uaWalk);
     procedure SetActionWalkToUnit(aUnit: TKMUnit; aDistance:single; aActionType: TKMUnitActionType = uaWalk);
@@ -1853,8 +1852,7 @@ end;
 //Used for warriors when they try to update route when attacking house and their destination loc is locked, so they try to avoid it
 function TKMUnit.TrySetActionWalk(const aLocB: TKMPoint; aActionType: TKMUnitActionType; aDistance: Single;
                                    aTargetUnit: TKMUnit; aTargetHouse: TKMHouse;
-                                   aAvoidLockedByMovementCost: Boolean = True;
-                                   aSilent: Boolean = True): Boolean; //Silent by default, as we consider fail could happen
+                                   aAvoidLockedByMovementCost: Boolean = True): Boolean; //Silent by default, as we consider fail could happen
 var
   newAction: TKMUnitActionWalkTo;
 begin
@@ -1866,7 +1864,7 @@ begin
   UpdateLastTimeTrySetActionWalk;
 
   newAction := TKMUnitActionWalkTo.Create(Self, aLocB, aActionType, aDistance, False, aTargetUnit, aTargetHouse,
-                                          tpNone, [], True, aAvoidLockedByMovementCost, aSilent);
+                                          tpNone, [], True, aAvoidLockedByMovementCost, True);
 
   //Update action only if route was built, otherwise just keep using previous action
   if newAction.RouteBuilt then
