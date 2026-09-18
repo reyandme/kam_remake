@@ -59,10 +59,13 @@ begin
     if not (U.Action is TKMUnitActionWalkTo) then Continue;
 
     var unitWalkTo := GetWalkTarget(U);
-    var worstNow := Max(ourDistance, U.Position.GetLengthDiag(unitWalkTo));
-    var worstSwapped := Max(aUnit.Position.GetLengthDiag(unitWalkTo), U.Position.GetLengthDiag(ourWalkTo));
 
-    if worstSwapped * 2 <= worstNow then
+    var longestDistanceOriginal := Max(ourDistance, U.Position.GetLengthDiag(unitWalkTo));
+
+    // What if we swapped our destinations, would we walk less?
+    var longestDistanceSwapped := Max(aUnit.Position.GetLengthDiag(unitWalkTo), U.Position.GetLengthDiag(ourWalkTo));
+
+    if longestDistanceSwapped * 2 <= longestDistanceOriginal then
       Exit(U);
   end;
 end;
@@ -71,14 +74,14 @@ end;
 function DescribeSwap(aTick: Cardinal; aUnit, aPartner: TKMUnit): string;
 begin
   var ourWalkTo := GetWalkTarget(aUnit);
-  var hisWalkTo := GetWalkTarget(aPartner);
+  var partnerWalkTo := GetWalkTarget(aPartner);
   var group := gHands[aUnit.Owner].UnitGroups.GetGroupByMember(TKMUnitWarrior(aUnit));
 
   Result := Format('Tick %d: archer %d of hand %d walks %.1f tiles from %s to %s, while member %d walks %.1f tiles from %s to %s. ' +
                    'Swapped, those walks would be %.1f and %.1f tiles. Group %d has %d members, %d per row, order %s at %s',
     [aTick, aUnit.UID, aUnit.Owner, aUnit.Position.GetLengthDiag(ourWalkTo), aUnit.Position.ToString, ourWalkTo.ToString,
-     aPartner.UID, aPartner.Position.GetLengthDiag(hisWalkTo), aPartner.Position.ToString, hisWalkTo.ToString,
-     aUnit.Position.GetLengthDiag(hisWalkTo), aPartner.Position.GetLengthDiag(ourWalkTo),
+     aPartner.UID, aPartner.Position.GetLengthDiag(partnerWalkTo), aPartner.Position.ToString, partnerWalkTo.ToString,
+     aUnit.Position.GetLengthDiag(partnerWalkTo), aPartner.Position.GetLengthDiag(ourWalkTo),
      group.UID, group.Count, group.UnitsPerRow, GetEnumName(TypeInfo(TKMGroupOrder), Integer(group.Order)), group.OrderLoc.ToString]);
 end;
 
