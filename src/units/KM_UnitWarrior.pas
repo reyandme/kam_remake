@@ -903,7 +903,7 @@ begin
                       begin
                         FreeAndNil(fTask); //e.g. TaskAttackHouse
 
-                        loc := gTerrain.GetClosestTile(fOrderLoc, Position, GetDesiredPassability, fUseExactTarget);
+                        loc := gTerrain.GetClosestTile(fOrderLoc, Position, GetDesiredPassability, fUseExactTarget, True);
 
                         TKMUnitActionWalkTo(Action).ChangeWalkTo(loc, 0);
                         fNextOrder := woNone;
@@ -915,7 +915,7 @@ begin
                       begin
                         FreeAndNil(fTask);
 
-                        loc := gTerrain.GetClosestTile(fOrderLoc, Position, GetDesiredPassability, fUseExactTarget);
+                        loc := gTerrain.GetClosestTile(fOrderLoc, Position, GetDesiredPassability, fUseExactTarget, True);
 
                         //Ranged units instead of attack get walk order to change direction, so they should move in case there was an attack order.
                         //For others there is no need to walk if we reached destination already.

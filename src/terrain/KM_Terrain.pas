@@ -180,7 +180,7 @@ type
     function RouteCanBeMade(const aLocA, aLocB: TKMPoint; aPass: TKMTerrainPassability): Boolean; overload; inline;
     function RouteCanBeMade(const aLocA, aLocB: TKMPoint; aPass: TKMTerrainPassability; aDistance: Single): Boolean; overload;
     function RouteCanBeMadeToVertex(const aLocA, aLocB: TKMPoint; aPass: TKMTerrainPassability): Boolean;
-    function GetClosestTile(const aTargetLoc, aOriginLoc: TKMPoint; aPass: TKMTerrainPassability; aAcceptTargetLoc: Boolean): TKMPoint;
+    function GetClosestTile(const aTargetLoc, aOriginLoc: TKMPoint; aPass: TKMTerrainPassability; aAcceptTargetLoc: Boolean; aNeedToFight: Boolean = False): TKMPoint;
     function GetClosestRoad(const aFromLoc: TKMPoint; aWalkConnectIDSet: TKMByteSet; aPass: TKMTerrainPassability = tpWalkRoad): TKMPoint;
 
     procedure UnitAdd(const aLocTo: TKMPoint; aUnit: Pointer);
@@ -4168,7 +4168,7 @@ end;
 
 //Returns the closest tile to TargetLoc with aPass and walk connect to OriginLoc
 //If no tile found - return Origin location
-function TKMTerrain.GetClosestTile(const aTargetLoc, aOriginLoc: TKMPoint; aPass: TKMTerrainPassability; aAcceptTargetLoc: Boolean): TKMPoint;
+function TKMTerrain.GetClosestTile(const aTargetLoc, aOriginLoc: TKMPoint; aPass: TKMTerrainPassability; aAcceptTargetLoc: Boolean; aNeedToFight: Boolean = False): TKMPoint;
 const
   TEST_DEPTH = 255;
 begin
@@ -4195,6 +4195,8 @@ begin
     if not CheckPassability(newTile, aPass) then Continue;
 
     if walkConnectID <> Land^[newTile.Y,newTile.X].WalkConnect[wcType] then Continue;
+
+    if aNeedToFight and not CanWalkDiagonally(aTargetLoc, newTile.X, newTile.Y) then Continue;
 
     // Allow position without other units or the one we are currently on
     if not HasUnit(newTile) or KMSamePoint(newTile, aOriginLoc) then

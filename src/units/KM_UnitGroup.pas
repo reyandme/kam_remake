@@ -978,7 +978,7 @@ begin
 
         // Walk to offenders tile, fight will ensue
         // This will also take care of trees (and other fight blockers) inbetween us
-        fMembers[I].OrderWalk(offender.PositionNext, True);
+        fMembers[I].OrderWalk(offender.PositionNext, False);
 
         // Set warrior attacking some offender, to avoid switching to another offender
         fMembers[I].SetAttackingUnit(offender);
