@@ -192,7 +192,7 @@ begin
   if fWalkTo.X*fWalkTo.Y = 0 then
     raise ELocError.Create('WalkTo 0:0', fWalkTo);
 
-  fNodeList := TKMPointList.Create; //Freed on destroy
+  fNodeList := TKMPointList.Create;
   SetInitValues;
 
   if KMSamePoint(fWalkFrom,fWalkTo) then //We don't care for this case, Execute will report action is done immediately
