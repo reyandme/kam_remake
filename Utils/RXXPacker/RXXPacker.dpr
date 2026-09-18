@@ -11,6 +11,7 @@ uses
   RXXPackerConsole in 'RXXPackerConsole.pas',
   RXXPackerForm in 'RXXPackerForm.pas' {RXXForm1},
   KM_RXXPacker in 'KM_RXXPacker.pas',
+  KM_RXXPackerManager in 'KM_RXXPackerManager.pas',
 
   KM_IoPNG in '..\..\src\utils\io\KM_IoPNG.pas',
   KM_Pics in '..\..\src\res\KM_Pics.pas',

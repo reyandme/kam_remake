@@ -9,36 +9,24 @@ uses
 type
   TKMRXXPacker = class
   private
+    fRT: TRXType;
+
     fSourcePathRX: string;
     fSourcePathInterp: string;
     fDestinationPath: string;
 
+    fPackToRXX: Boolean;
+    fPackToRXA: Boolean;
+    fRXXFormat: TKMRXXFormat;
+
     fPalettes: TKMResPalettes;
     fOnMessage: TProc<string>;
 
-    fTimeBegin: TDateTime;
-    fCurrentRT: TRXType;
-
     procedure DoLog(aMsg: string);
-
-    procedure Pack(aRT: TRXType);
-    procedure SetDestinationPath(const aValue: string);
-    procedure SetSourcePathInterp(const aValue: string);
-    procedure SetSourcePathRX(const aValue: string);
   public
-    PackToRXX: Boolean;
-    PackToRXA: Boolean;
-    RXXFormat: TKMRXXFormat;
+    constructor Create(aRT: TRXType; aSourcePathRX, aSourcePathInterp, aDestinationPath: string; aPackToRXX, aPackToRXA: Boolean; aRXXFormat: TKMRXXFormat; aPalettes: TKMResPalettes;aOnMessage: TProc<string>);
 
-    constructor Create(aPalettes: TKMResPalettes; aOnMessage: TProc<string>);
-
-    procedure PackSet(aRxSet: TRXTypeSet);
-
-    property SourcePathRX: string read fSourcePathRX write SetSourcePathRX;
-    property SourcePathInterp: string read fSourcePathInterp write SetSourcePathInterp;
-    property DestinationPath: string read fDestinationPath write SetDestinationPath;
-
-    class function GetAvailableToPack(const aPath: string): TRXTypeSet;
+    procedure Pack;
   end;
 
 
@@ -48,40 +36,32 @@ uses
 
 
 { TKMRXXPacker }
-constructor TKMRXXPacker.Create(aPalettes: TKMResPalettes; aOnMessage: TProc<string>);
+constructor TKMRXXPacker.Create(aRT: TRXType; aSourcePathRX, aSourcePathInterp, aDestinationPath: string; aPackToRXX, aPackToRXA: Boolean; aRXXFormat: TKMRXXFormat; aPalettes: TKMResPalettes; aOnMessage: TProc<string>);
 begin
   inherited Create;
 
-  // Default values
-  PackToRXX := True;
-  PackToRXA := False;
-  RXXFormat := rxxTwo;
+  fRT := aRT;
+
+  fSourcePathRX := aSourcePathRX;
+  fSourcePathInterp := aSourcePathInterp;
+  fDestinationPath := aDestinationPath;
+
+  fPackToRXX := aPackToRXX;
+  fPackToRXA := aPackToRXA;
+  fRXXFormat := aRXXFormat;
 
   fPalettes := aPalettes;
   fOnMessage := aOnMessage;
 end;
 
 
-class function TKMRXXPacker.GetAvailableToPack(const aPath: string): TRXTypeSet;
-var
-  RT: TRXType;
-begin
-  Result := [rxTiles]; //Tiles are always in the list
-
-  for RT := Low(TRXType) to High(TRXType) do
-    if FileExists(aPath + RX_INFO[RT].FileName + '.rx') then
-      Result := Result + [RT];
-end;
-
-
 procedure TKMRXXPacker.DoLog(aMsg: string);
 begin
-  // Packing is so lengthy, we show timestamp with minutes
-  fOnMessage(Format('%s [%s] %s', [TimeToStr(Now - fTimeBegin), RX_INFO[fCurrentRT].FileName, aMsg]));
+  fOnMessage(Format('[%s] %s', [RX_INFO[fRT].FileName, aMsg]));
 end;
 
 
-procedure TKMRXXPacker.Pack(aRT: TRXType);
+procedure TKMRXXPacker.Pack;
 var
   tick: Cardinal;
   rxPath: string;
@@ -95,39 +75,37 @@ var
   dir: TKMDirection;
   path: string;
 begin
-  fCurrentRT := aRT;
-
   tick := GetTickCount;
   DoLog('Packing ...');
 
   //ruCustom sprite packs do not have a main RXX file so don't need packing
-  if RX_INFO[aRT].Usage = ruCustom then Exit;
+  if RX_INFO[fRT].Usage = ruCustom then Exit;
 
-  rxPath := SourcePathRX + RX_INFO[aRT].FileName + '.rx';
+  rxPath := fSourcePathRX + RX_INFO[fRT].FileName + '.rx';
 
-  if (aRT <> rxTiles) and not FileExists(rxPath) then
+  if (fRT <> rxTiles) and not FileExists(rxPath) then
     raise Exception.Create('Cannot find "' + rxPath + '" file.' + sLineBreak + 'Please copy the file from your KaM\data\gfx\res\ folder.');
 
-  spritePack := TKMSpritePackEdit.Create(aRT, fPalettes);
+  spritePack := TKMSpritePackEdit.Create(fRT, fPalettes);
   try
     // Load base sprites from original KaM RX packages
-    if aRT <> rxTiles then
+    if fRT <> rxTiles then
     begin
       // Load base RX
       spritePack.LoadFromRXFile(rxPath);
       DoLog('RX contains ' + IntToStr(spritePack.RXData.Count) + ' entries');
 
       // Overload (something we dont need in RXXPacker, cos all the custom sprites are in other folders)
-      spritePack.OverloadRXDataFromFolder(SourcePathRX, DoLog, False); // Do not soften shadows, it will be done later on
+      spritePack.OverloadRXDataFromFolder(fSourcePathRX, DoLog, False); // Do not soften shadows, it will be done later on
       DoLog('With overload contains ' + IntToStr(spritePack.RXData.Count) + ' entries');
 
       trimmedAmount := spritePack.TrimSprites;
       DoLog('  trimmed ' + IntToStr(trimmedAmount) + ' bytes');
     end
     else
-      if DirectoryExists(SourcePathRX) then
+      if DirectoryExists(fSourcePathRX) then
       begin
-        spritePack.OverloadRXDataFromFolder(SourcePathRX, DoLog);
+        spritePack.OverloadRXDataFromFolder(fSourcePathRX, DoLog);
         DoLog('Overload contains ' + IntToStr(spritePack.RXData.Count) + ' entries');
         if spritePack.RXData.Count = 0 then
           DoLog('WARNING: no RX sprites were found!');
@@ -135,7 +113,7 @@ begin
       end;
 
     // Houses need some special treatment to adapt to GL_ALPHA_TEST that we use for construction steps
-    if aRT = rxHouses then
+    if fRT = rxHouses then
     begin
       DoLog('Pre-processing houses');
       resHouses := TKMResHouses.Create;
@@ -148,7 +126,7 @@ begin
 
     // Determine objects size only for units (used for hitbox)
     //todo -cComplicated: do we need it for houses too ?
-    if aRT = rxUnits then
+    if fRT = rxUnits then
     begin
       DoLog('Pre-processing units');
       spritePack.DetermineImagesObjectSizeAll;
@@ -159,23 +137,23 @@ begin
     //  SpritePack.SoftWater(nil);
 
     // Save
-    if PackToRXX then
+    if fPackToRXX then
     begin
       DoLog('Saving RXX');
-      spritePack.SaveToRXXFile(DestinationPath + RX_INFO[aRT].FileName + '.rxx', RXXFormat);
+      spritePack.SaveToRXXFile(fDestinationPath + RX_INFO[fRT].FileName + '.rxx', fRXXFormat);
     end;
 
     // Generate alpha shadows for the following sprite packs
-    if aRT in [rxHouses, rxUnits, rxGui, rxTrees] then
+    if fRT in [rxHouses, rxUnits, rxGui, rxTrees] then
     begin
-      if aRT = rxHouses then
+      if fRT = rxHouses then
       begin
         DoLog('Alpha shadows for houses');
         spritePack.SoftenShadowsRange(889, 892, False); // Smooth smoke
         spritePack.SoftenShadowsRange(1615, 1638, False); // Smooth flame
       end;
 
-      if aRT = rxUnits then
+      if fRT = rxUnits then
       begin
         DoLog('Alpha shadows for units');
         spritePack.SoftenShadowsRange(6251, 6322, False); // Smooth thought bubbles
@@ -201,7 +179,7 @@ begin
         end;
       end;
 
-      if aRT = rxGui then
+      if fRT = rxGui then
       begin
         DoLog('Alpha shadows for GUI');
         spritePack.SoftenShadowsRange(105, 128); //Field plans
@@ -212,23 +190,23 @@ begin
       else
         spritePack.SoftenShadowsRange(1, spritePack.RXData.Count);
 
-      if PackToRXX then
+      if fPackToRXX then
       begin
         DoLog('Saving _a.RXX');
-        spritePack.SaveToRXXFile(DestinationPath + RX_INFO[aRT].FileName + '_a.rxx', RXXFormat);
+        spritePack.SaveToRXXFile(fDestinationPath + RX_INFO[fRT].FileName + '_a.rxx', fRXXFormat);
       end;
 
-      if PackToRXA then
+      if fPackToRXA then
       begin
         // There are no overloaded interp sprites for rxGui
-        if aRT <> rxGui then
+        if fRT <> rxGui then
         begin
-          path := SourcePathInterp + IntToStr(Ord(aRT)+1) + '\';
+          path := fSourcePathInterp + IntToStr(Ord(fRT)+1) + '\';
           // Append interpolated sprites
           if DirectoryExists(path) then
           begin
             rxCount := spritePack.RXData.Count;
-            spritePack.OverloadRXDataFromFolder(SourcePathInterp + IntToStr(Ord(aRT)+1) + '\', DoLog, False); // Shadows are already softened for interps
+            spritePack.OverloadRXDataFromFolder(fSourcePathInterp + IntToStr(Ord(fRT)+1) + '\', DoLog, False); // Shadows are already softened for interps
             DoLog(Format('Overload with interpolated sprites contains %d entries. Unique entries found in .rxa file: %d',
                               [spritePack.RXData.Count, spritePack.RXData.Count - rxCount]));
             if spritePack.RXData.Count = rxCount then
@@ -239,7 +217,7 @@ begin
         end;
 
         DoLog('Saving RXA');
-        spritePack.SaveToRXAFile(DestinationPath + RX_INFO[aRT].FileName + '.rxa', RXXFormat);
+        spritePack.SaveToRXAFile(fDestinationPath + RX_INFO[fRT].FileName + '.rxa', fRXXFormat);
       end;
     end;
   finally
@@ -247,50 +225,6 @@ begin
   end;
 
   DoLog(Format('... packed in %dms', [GetTickCount - tick]));
-end;
-
-
-procedure TKMRXXPacker.PackSet(aRxSet: TRXTypeSet);
-var
-  I: TRXType;
-begin
-  if not DirectoryExists(SourcePathRX) then
-  begin
-    fOnMessage('Cannot find "' + SourcePathRX + '" folder.' + sLineBreak + 'Please make sure this folder exists and has data.');
-    Exit;
-  end;
-
-  if PackToRXA and not DirectoryExists(SourcePathInterp) then
-  begin
-    fOnMessage('Cannot find "' + SourcePathInterp + '" folder.' + sLineBreak + 'Please make sure this folder exists and has data.');
-    Exit;
-  end;
-
-  fTimeBegin := Now;
-
-  for I := Low(TRXType) to High(TRXType) do
-  if I in aRxSet then
-    Pack(I);
-
-  fOnMessage(Format('Everything packed in %dsec', [Round((Now - fTimeBegin) * SecsPerDay)]));
-end;
-
-
-procedure TKMRXXPacker.SetDestinationPath(const aValue: string);
-begin
-  fDestinationPath := IncludeTrailingPathDelimiter(aValue);
-end;
-
-
-procedure TKMRXXPacker.SetSourcePathInterp(const aValue: string);
-begin
-  fSourcePathInterp := IncludeTrailingPathDelimiter(aValue);
-end;
-
-
-procedure TKMRXXPacker.SetSourcePathRX(const aValue: string);
-begin
-  fSourcePathRX := IncludeTrailingPathDelimiter(aValue);
 end;
 
 
