@@ -260,8 +260,8 @@
 261:Budynki|wybudowane
 262:Budynki|utracone
 263:Budynki|zniszczone
-264:Towary|wyprodukowane
-265:Broń|wyprodukowana
+264:Wytworzone|towary
+265:Wytworzona|broń
 266:Armia
 267:Mieszkańcy
 268:Budynki
@@ -1377,7 +1377,7 @@
 1449:Następny utwór
 1450:Poprzedni utwór
 1451:Zatrzymaj utwór
-1452:Odtwarzanie/Wstrzymanie utw.
+1452:Odtwórz/Wstrzymaj utwór
 1453:Otwórz e-mail
 1454:Włącz zaznaczony utwór
 1455:Otwórz aplikację 1
