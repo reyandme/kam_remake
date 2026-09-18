@@ -9,6 +9,7 @@ uses
 
   function DetermineMapKind(const aFolderName: UnicodeString; out aMapKind: TKMMapKind): Boolean;
   function GetMapKind(aIsMultiplayer: Boolean): TKMMapKind;
+  function IsCampaignMissionPathRel(const aMissionFileRel: string): Boolean;
 
 implementation
 uses
@@ -59,6 +60,12 @@ begin
     Result := mkMP
   else
     Result := mkSP;
+end;
+
+
+function IsCampaignMissionPathRel(const aMissionFileRel: string): Boolean;
+begin
+  Result := (aMissionFileRel <> '') and (Pos(MAP_FOLDER_NAME[mkCM] + PathDelim, aMissionFileRel) = 1);
 end;
 
 

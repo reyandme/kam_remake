@@ -125,6 +125,8 @@ type
     fMenu_MapEdMPMapCRC: Cardinal;
     fMenu_MapEdMPMapName: UnicodeString;
     fMenu_MapEdDLMapCRC: Cardinal;
+    fMenu_MapEdCMIndex: Byte;
+    fMenu_MapEdCMMapCRC: Cardinal;
     fMenu_CampaignName: UnicodeString;
     fMenu_ReplaySPSaveName: UnicodeString;
     fMenu_ReplayMPSaveName: UnicodeString;
@@ -242,6 +244,8 @@ type
     property MenuMapEdMPMapCRC: Cardinal read fMenu_MapEdMPMapCRC write fMenu_MapEdMPMapCRC;
     property MenuMapEdMPMapName: UnicodeString read fMenu_MapEdMPMapName write fMenu_MapEdMPMapName;
     property MenuMapEdDLMapCRC: Cardinal read fMenu_MapEdDLMapCRC write fMenu_MapEdDLMapCRC;
+    property MenuMapEdCMIndex: Byte read fMenu_MapEdCMIndex write fMenu_MapEdCMIndex;
+    property MenuMapEdCMMapCRC: Cardinal read fMenu_MapEdCMMapCRC write fMenu_MapEdCMMapCRC;
     property MenuCampaignName: UnicodeString read fMenu_CampaignName write fMenu_CampaignName;
     property MenuReplaySPSaveName: UnicodeString read fMenu_ReplaySPSaveName write fMenu_ReplaySPSaveName;
     property MenuReplayMPSaveName: UnicodeString read fMenu_ReplayMPSaveName write fMenu_ReplayMPSaveName;
@@ -549,6 +553,8 @@ begin
       fMenu_MapEdMPMapCRC     := StrToInt64(nMenuMapEd.Attributes['MPMapCRC'].AsString('0'));
       fMenu_MapEdMPMapName    := nMenuMapEd.Attributes['MPMapName'].AsString('');
       fMenu_MapEdDLMapCRC     := StrToInt64(nMenuMapEd.Attributes['DLMapCRC'].AsString('0'));
+      fMenu_MapEdCMIndex      := nMenuMapEd.Attributes['CMIndex'].AsInteger(0);
+      fMenu_MapEdCMMapCRC     := StrToInt64(nMenuMapEd.Attributes['CMMapCRC'].AsString('0'));
 
   // Debug
   nDebug := nGameSettings.AddOrFindChild('Debug');
@@ -739,6 +745,8 @@ begin
       nMenuMapEd.Attributes['MPMapCRC']   := IntToStr(fMenu_MapEdMPMapCRC);
       nMenuMapEd.Attributes['MPMapName']  := fMenu_MapEdMPMapName;
       nMenuMapEd.Attributes['DLMapCRC']   := IntToStr(fMenu_MapEdDLMapCRC);
+      nMenuMapEd.Attributes['CMIndex']    := fMenu_MapEdCMIndex;
+      nMenuMapEd.Attributes['CMMapCRC']   := IntToStr(fMenu_MapEdCMMapCRC);
 
   // Debug
   nDebug := nGameSettings.AddOrFindChild('Debug');

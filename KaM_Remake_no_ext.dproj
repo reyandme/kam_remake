@@ -230,6 +230,9 @@
         <DCCReference Include="src\game\notifications\KM_MessageLog.pas"/>
         <DCCReference Include="src\game\notifications\KM_MessageStack.pas"/>
         <DCCReference Include="src\gui\KM_Cursor.pas"/>
+        <DCCReference Include="src\gui\KM_GUIMapsBrowsePanel.pas"/>
+        <DCCReference Include="src\gui\KM_GUICampaignMapView.pas"/>
+        <DCCReference Include="src\gui\KM_GUIFileDialog.pas"/>
         <DCCReference Include="src\gui\KM_InterfaceDefaults.pas"/>
         <DCCReference Include="src\gui\KM_InterfaceGame.pas"/>
         <DCCReference Include="src\gui\KM_InterfaceGamePlay.pas"/>
@@ -255,6 +258,7 @@
         <DCCReference Include="src\gui\pages_maped\KM_GUIMapEdMarkerDefence.pas"/>
         <DCCReference Include="src\gui\pages_maped\KM_GUIMapEdMarkerReveal.pas"/>
         <DCCReference Include="src\gui\pages_maped\menu\KM_GUIMapEdMenu.pas"/>
+        <DCCReference Include="src\gui\pages_maped\menu\KM_GUIMapEdMenuMapsBrowse.pas"/>
         <DCCReference Include="src\gui\pages_maped\menu\KM_GUIMapEdMenuLoad.pas"/>
         <DCCReference Include="src\gui\pages_maped\menu\KM_GUIMapEdMenuSave.pas"/>
         <DCCReference Include="src\gui\pages_maped\menu\KM_GUIMapEdMenuResize.pas"/>
@@ -292,6 +296,7 @@
         <DCCReference Include="src\gui\pages_maped\KM_GUIMapEdUnit.pas"/>
         <DCCReference Include="src\gui\pages_menu\KM_GUIMenuCampaign.pas"/>
         <DCCReference Include="src\gui\pages_menu\KM_GUIMenuCampaigns.pas"/>
+        <DCCReference Include="src\gui\pages_menu\KM_GUIMenuCampaignMapEditor.pas"/>
         <DCCReference Include="src\gui\pages_menu\KM_GUIMenuCredits.pas"/>
         <DCCReference Include="src\gui\pages_menu\KM_GUIMenuError.pas"/>
         <DCCReference Include="src\gui\pages_menu\KM_GUIMenuLoad.pas"/>

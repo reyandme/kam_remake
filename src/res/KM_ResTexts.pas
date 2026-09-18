@@ -32,6 +32,7 @@ type
     function GetTexts(aIndex: Word): UnicodeString;
   public
     procedure LoadLocale(const aPathTemplate: string); // Initial locale for UI strings
+    procedure LoadSingleLocale(const aPathTemplate: string; const aLocale: AnsiString);
     property Texts[aIndex: Word]: UnicodeString read GetTexts; default;
     function IsIndexValid(aIndex: Word): Boolean;
   end;
@@ -213,6 +214,13 @@ begin
     LoadLIBXFile(Format(aPathTemplate, [gResLocales.FallbackLocale]), fTexts);
 
   LoadLIBXFile(Format(aPathTemplate, [gResLocales.UserLocale]), fTexts);
+end;
+
+
+procedure TKMTextLibrarySingle.LoadSingleLocale(const aPathTemplate: string; const aLocale: AnsiString);
+begin
+  SetLength(fTexts, 0);
+  LoadLIBXFile(Format(aPathTemplate, [aLocale]), fTexts);
 end;
 
 

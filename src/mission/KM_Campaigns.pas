@@ -11,9 +11,11 @@ uses
 const
   MAX_CAMP_MAPS = 64;
   MAX_CAMP_NODES = 64;
+  MISSION_BRIEFING_LIBX_ID = 10;
 
 type
   TKMBriefingCorner = (bcBottomRight, bcBottomLeft);
+  TKMCampaignMapNodes = array [0 .. MAX_CAMP_NODES - 1] of TKMPointW;
 
   TKMCampaignMapProgressData = record
     Completed: Boolean;
@@ -54,7 +56,7 @@ type
     Maps: array of record
       Flag: TKMPointW;
       NodeCount: Byte;
-      Nodes: array [0 .. MAX_CAMP_NODES - 1] of TKMPointW;
+      Nodes: TKMCampaignMapNodes;
       TextPos: TKMBriefingCorner;
     end;
 
@@ -140,12 +142,20 @@ type
     function GetMissionFile(aIndex: Byte; const aExt: UnicodeString = '.dat'): string;
     function GetMissionName(aIndex: Byte): string;
     function GetMissionTitle(aIndex: Byte): string;
-    function GetMissionBriefing(aIndex: Byte): string;
-    function GetBriefingAudioFile(aIndex: Byte): string;
+    function GetMissionBriefing(aIndex: Byte): string; overload;
+    function GetMissionBriefing(aIndex: Byte; const aLocale: AnsiString): string; overload;
+    function GetTextLocales: TKMStringArray;
+    function GetBriefingAudioFile(aIndex: Byte): string; overload;
+    function GetBriefingAudioFile(aIndex: Byte; const aLocale: AnsiString): string; overload;
     function GetCampaignDataScriptFilePath: UnicodeString;
 
     procedure UnlockNextMission(aCurrentMission: Word);
     procedure UnlockAllMissions;
+
+    procedure SwapMissions(aIndexA, aIndexB: Byte);
+    procedure DeleteMission(aIndex: Byte);
+
+    procedure SetBackgroundImage(const aPngFilePath: string);
   end;
 
 
@@ -170,6 +180,7 @@ type
     fOnRefresh: TNotifyEvent;
     fOnTerminate: TNotifyEvent;
     fOnComplete: TNotifyEvent;
+    fListUpdateListeners: TList<TNotifyEvent>;
 
     fCriticalSection: TCriticalSection;
     fScanner: TKMCampaignsScanner;
@@ -195,8 +206,11 @@ type
     procedure Unlock;
     procedure TerminateScan;
     procedure Refresh(aOnRefresh, aOnTerminate, aOnComplete: TNotifyEvent);
+    procedure AddListUpdateListener(aListener: TNotifyEvent);
+    procedure RemoveListUpdateListener(aListener: TNotifyEvent);
 
     //Usage
+    function CreateCampaign(aCampaignId: TKMCampaignId; const aDirName: string): TKMCampaign;
     property ActiveCampaign: TKMCampaign read fActiveCampaign;
     function Count: Integer;
     property Campaigns[aIndex: Integer]: TKMCampaign read GetCampaign; default;
@@ -216,7 +230,7 @@ uses
   SysUtils, Math, KromUtils,
   KM_GameParams,
   KM_CampaignUtils, KM_CampaignTypes,
-  KM_Resource, KM_ResLocales, KM_ResSprites, KM_ResTypes,
+  KM_Resource, KM_ResLocales, KM_ResSprites, KM_ResSpritesEdit, KM_ResTypes,
   KM_Log, KM_Defaults, KM_CommonUtils,
   KM_FileIO, KM_IoXML;
 
@@ -226,6 +240,16 @@ const
 
   XML_ROOT_TAG = 'campaignData';
 
+  TEXT_FILE_PREFIX = 'text.';
+  TEXT_FILE_EXT = '.libx';
+  TEXT_FILE_TEMPLATE = TEXT_FILE_PREFIX + '%s' + TEXT_FILE_EXT;
+  TEXT_FILE_MASK = TEXT_FILE_PREFIX + '*' + TEXT_FILE_EXT;
+
+  LIBX_ID_SEPARATOR = ':';
+  LIBX_BYTE_CR = 13;
+  LIBX_BYTE_LF = 10;
+  DECIMAL_BASE = 10;
+
 
 { TKMCampaignsCollection }
 constructor TKMCampaignsCollection.Create;
@@ -233,6 +257,7 @@ begin
   inherited;
 
   fList := TObjectList<TKMCampaign>.Create;
+  fListUpdateListeners := TList<TNotifyEvent>.Create;
 
   //CS is used to guard sections of code to allow only one thread at once to access them
   //We mostly don't need it, as UI should access Maps only when map events are signaled
@@ -248,6 +273,7 @@ begin
 
   // Objects will be freed automatically since we use TObjectList
   fList.Free;
+  fListUpdateListeners.Free;
 
   fCriticalSection.Free;
 
@@ -281,6 +307,32 @@ end;
 function TKMCampaignsCollection.Count: Integer;
 begin
   Result := fList.Count;
+end;
+
+
+function TKMCampaignsCollection.CreateCampaign(aCampaignId: TKMCampaignId; const aDirName: string): TKMCampaign;
+var
+  path: string;
+  stringList: TStringList;
+begin
+  path := ExeDir + CAMPAIGNS_FOLDER_NAME + PathDelim + aDirName + PathDelim;
+  ForceDirectories(path);
+
+  Result := TKMCampaign.Create;
+  Result.Spec.CampaignId := aCampaignId;
+  Result.Spec.SaveToFile(path + 'info.cmp');
+
+  stringList := TStringList.Create;
+  try
+    stringList.Add('0:' + aDirName);
+    stringList.SaveToFile(path + 'text.eng.libx');
+  finally
+    stringList.Free;
+  end;
+
+  Result.LoadFromPath(path);
+
+  HandleCampaignAdd(Result);
 end;
 
 
@@ -451,7 +503,26 @@ begin
 end;
 
 
+procedure TKMCampaignsCollection.AddListUpdateListener(aListener: TNotifyEvent);
+begin
+  fListUpdateListeners.Add(aListener);
+end;
+
+
+procedure TKMCampaignsCollection.RemoveListUpdateListener(aListener: TNotifyEvent);
+var
+  I: Integer;
+begin
+  for I := fListUpdateListeners.Count - 1 downto 0 do
+    if (TMethod(fListUpdateListeners[I]).Code = TMethod(aListener).Code)
+    and (TMethod(fListUpdateListeners[I]).Data = TMethod(aListener).Data) then
+      fListUpdateListeners.Delete(I);
+end;
+
+
 procedure TKMCampaignsCollection.UpdateState;
+var
+  I: Integer;
 begin
   if Self = nil then Exit;
 
@@ -459,6 +530,9 @@ begin
 
   if Assigned(fOnRefresh) then
     fOnRefresh(Self);
+
+  for I := fListUpdateListeners.Count - 1 downto 0 do
+    fListUpdateListeners[I](Self);
 
   fUpdateNeeded := False;
 end;
@@ -543,7 +617,7 @@ begin
 
   FreeAndNil(fTextLib);
   fTextLib := TKMTextLibrarySingle.Create;
-  fTextLib.LoadLocale(aDir + 'text.%s.libx');
+  fTextLib.LoadLocale(aDir + TEXT_FILE_TEMPLATE);
 
   LoadMapsInfo(aDir);
 end;
@@ -880,6 +954,150 @@ begin
 end;
 
 
+procedure RenameMissionFiles(const aDir, aOldName, aNewName: string);
+var
+  searchRec: TSearchRec;
+  fileNames: TStringList;
+  I: Integer;
+begin
+  fileNames := TStringList.Create;
+  try
+    if FindFirst(aDir + '*', faAnyFile, searchRec) = 0 then
+    try
+      repeat
+        if (searchRec.Name <> '.') and (searchRec.Name <> '..')
+        and (Pos(aOldName, searchRec.Name) = 1) then
+          fileNames.Add(searchRec.Name);
+      until FindNext(searchRec) <> 0;
+    finally
+      FindClose(searchRec);
+    end;
+
+    for I := 0 to fileNames.Count - 1 do
+      RenameFile(aDir + fileNames[I], aDir + aNewName + Copy(fileNames[I], Length(aOldName) + 1, MaxInt));
+  finally
+    fileNames.Free;
+  end;
+end;
+
+
+function ReadAllBytes(const aFilePath: string): TBytes;
+var
+  stream: TFileStream;
+begin
+  stream := TFileStream.Create(aFilePath, fmOpenRead or fmShareDenyWrite);
+  try
+    SetLength(Result, stream.Size);
+    if stream.Size > 0 then
+      stream.ReadBuffer(Result[0], stream.Size);
+  finally
+    stream.Free;
+  end;
+end;
+
+
+procedure WriteByteRange(aStream: TStream; const aBytes: TBytes; aFrom, aTo: Integer);
+begin
+  if aTo > aFrom then
+    aStream.WriteBuffer(aBytes[aFrom], aTo - aFrom);
+end;
+
+
+function FindLibxLineText(const aBytes: TBytes; aLineId: Integer; out aTextStart, aTextEnd: Integer): Boolean;
+var
+  lineStart, lineEnd, colonPos, lineId: Integer;
+begin
+  lineStart := 0;
+  while lineStart < Length(aBytes) do
+  begin
+    lineEnd := lineStart;
+    while (lineEnd < Length(aBytes)) and (aBytes[lineEnd] <> LIBX_BYTE_CR) and (aBytes[lineEnd] <> LIBX_BYTE_LF) do
+      Inc(lineEnd);
+
+    colonPos := lineStart;
+    lineId := 0;
+    while (colonPos < lineEnd) and (aBytes[colonPos] >= Ord('0')) and (aBytes[colonPos] <= Ord('9')) do
+    begin
+      lineId := lineId * DECIMAL_BASE + (aBytes[colonPos] - Ord('0'));
+      Inc(colonPos);
+    end;
+
+    if (colonPos > lineStart) and (colonPos < lineEnd) and (aBytes[colonPos] = Ord(LIBX_ID_SEPARATOR)) and (lineId = aLineId) then
+    begin
+      aTextStart := colonPos + 1;
+      aTextEnd := lineEnd;
+      Exit(True);
+    end;
+
+    lineStart := lineEnd + 1;
+  end;
+
+  Result := False;
+end;
+
+
+procedure SwapLibxTextLines(const aFilePath: string; aLineIdA, aLineIdB: Integer);
+var
+  bytes: TBytes;
+  stream: TMemoryStream;
+  startFirst, endFirst, startSecond, endSecond, tmp: Integer;
+begin
+  if not FileExists(aFilePath) then
+    Exit;
+
+  bytes := ReadAllBytes(aFilePath);
+
+  if not FindLibxLineText(bytes, aLineIdA, startFirst, endFirst)
+  or not FindLibxLineText(bytes, aLineIdB, startSecond, endSecond) then
+    Exit;
+
+  if startFirst > startSecond then
+  begin
+    tmp := startFirst;
+    startFirst := startSecond;
+    startSecond := tmp;
+
+    tmp := endFirst;
+    endFirst := endSecond;
+    endSecond := tmp;
+  end;
+
+  stream := TMemoryStream.Create;
+  try
+    WriteByteRange(stream, bytes, 0, startFirst);
+    WriteByteRange(stream, bytes, startSecond, endSecond);
+    WriteByteRange(stream, bytes, endFirst, startSecond);
+    WriteByteRange(stream, bytes, startFirst, endFirst);
+    WriteByteRange(stream, bytes, endSecond, Length(bytes));
+
+    stream.SaveToFile(aFilePath);
+  finally
+    stream.Free;
+  end;
+end;
+
+
+procedure SwapMissionBriefings(const aDir: string; aIndexA, aIndexB: Byte);
+var
+  searchRec: TSearchRec;
+begin
+  if aIndexA = aIndexB then
+    Exit;
+
+  if FindFirst(aDir + TEXT_FILE_MASK, faAnyFile, searchRec) <> 0 then
+    Exit;
+
+  try
+    repeat
+      if (searchRec.Attr and faDirectory) = 0 then
+        SwapLibxTextLines(aDir + searchRec.Name, MISSION_BRIEFING_LIBX_ID + aIndexA, MISSION_BRIEFING_LIBX_ID + aIndexB);
+    until FindNext(searchRec) <> 0;
+  finally
+    FindClose(searchRec);
+  end;
+end;
+
+
 { TKMCampaign }
 constructor TKMCampaign.Create;
 begin
@@ -900,7 +1118,7 @@ destructor TKMCampaign.Destroy;
 begin
   // Free background texture
   if fBackGroundPic.ID <> 0 then
-    gRes.Sprites[rxCustom].DeleteSpriteTexture(fBackGroundPic.ID);
+    gRes.Sprites[rxCampaign].DeleteSpriteTexture(fBackGroundPic.ID);
 
 
   FreeAndNil(fSavedData);
@@ -918,38 +1136,38 @@ end;
 
 procedure TKMCampaign.LoadSprites;
 var
-  SP: TKMSpritePack;
+  spritePack: TKMSpritePack;
   firstSpriteIndex: Word;
 begin
   if gRes.Sprites  = nil then Exit;
   
   gLog.AddNoTime('Loading campaign images.rxx for ' + fSpec.IdStr);
 
-  SP := gRes.Sprites[rxCustom];
-  firstSpriteIndex := SP.RXData.Count + 1;
+  spritePack := gRes.Sprites[rxCampaign];
+  firstSpriteIndex := spritePack.RXData.Count + 1;
 
-  SP.LoadFromRXXFile(fPath + 'images.rxx', firstSpriteIndex);
+  spritePack.LoadFromRXXFile(fPath + 'images.rxx', firstSpriteIndex);
 
-  if firstSpriteIndex <= SP.RXData.Count then
+  if firstSpriteIndex <= spritePack.RXData.Count then
   begin
     // Make campaign sprite GFX in the main thread only
     TThread.Synchronize(TThread.CurrentThread, procedure
       begin
         //Images were successfully loaded
         {$IFNDEF NO_OGL}
-        SP.MakeGFX(False, firstSpriteIndex);
+        spritePack.MakeGFX(False, firstSpriteIndex);
         {$ENDIF}
       end
     );
 
-    SP.ClearTemp;
-    fBackGroundPic.RX := rxCustom;
+    spritePack.ClearTemp;
+    fBackGroundPic.RX := rxCampaign;
     fBackGroundPic.ID := firstSpriteIndex;
   end
   else
   begin
     //Images were not found - use blank
-    fBackGroundPic.RX := rxCustom;
+    fBackGroundPic.RX := rxCampaign;
     fBackGroundPic.ID := 0;
   end;
 end;
@@ -1019,6 +1237,96 @@ begin
 end;
 
 
+procedure TKMCampaign.SwapMissions(aIndexA, aIndexB: Byte);
+var
+  nameA, nameB, tempName: string;
+  pathA, pathB, tempPath: string;
+begin
+  if aIndexA = aIndexB then
+    Exit;
+  if not InRange(aIndexA, 0, fSpec.MissionsCount - 1) or not InRange(aIndexB, 0, fSpec.MissionsCount - 1) then
+    Exit;
+
+  nameA := GetMissionName(aIndexA);
+  nameB := GetMissionName(aIndexB);
+  tempName := nameA + '_swaptmp';
+
+  pathA := fPath + nameA + PathDelim;
+  pathB := fPath + nameB + PathDelim;
+  tempPath := fPath + tempName + PathDelim;
+
+  if not DirectoryExists(pathA) or not DirectoryExists(pathB) then
+    Exit;
+
+  RenameMissionFiles(pathA, nameA, tempName);
+  RenameFile(ExcludeTrailingPathDelimiter(pathA), ExcludeTrailingPathDelimiter(tempPath));
+
+  RenameMissionFiles(pathB, nameB, nameA);
+  RenameFile(ExcludeTrailingPathDelimiter(pathB), ExcludeTrailingPathDelimiter(pathA));
+
+  RenameMissionFiles(tempPath, tempName, nameB);
+  RenameFile(ExcludeTrailingPathDelimiter(tempPath), ExcludeTrailingPathDelimiter(pathB));
+
+  SwapMissionBriefings(fPath, aIndexA, aIndexB);
+
+  fSpec.SaveToFile(fPath + 'info.cmp');
+
+  LoadFromPath(fPath);
+end;
+
+
+procedure TKMCampaign.SetBackgroundImage(const aPngFilePath: string);
+var
+  sprites: TKMSpritePackEdit;
+  rxxPath: string;
+begin
+  rxxPath := fPath + 'images.rxx';
+
+  sprites := TKMSpritePackEdit.Create(rxCustom, nil);
+  try
+    if FileExists(rxxPath) then
+      sprites.LoadFromRXXFile(rxxPath);
+
+    sprites.AddImage(ExtractFilePath(aPngFilePath), ExtractFileName(aPngFilePath), 1);
+    sprites.SaveToRXXFile(rxxPath, rxxTwo);
+  finally
+    sprites.Free;
+  end;
+
+  LoadSprites;
+end;
+
+
+procedure TKMCampaign.DeleteMission(aIndex: Byte);
+var
+  I: Integer;
+  missionName, nextMissionName: string;
+begin
+  if not InRange(aIndex, 0, fSpec.MissionsCount - 1) then
+    Exit;
+
+  missionName := GetMissionName(aIndex);
+  KMDeleteFolder(fPath + missionName);
+
+  for I := aIndex to fSpec.MissionsCount - 2 do
+  begin
+    missionName := GetMissionName(I);
+    nextMissionName := GetMissionName(I + 1);
+
+    RenameMissionFiles(fPath + nextMissionName + PathDelim, nextMissionName, missionName);
+    RenameFile(ExcludeTrailingPathDelimiter(fPath + nextMissionName), ExcludeTrailingPathDelimiter(fPath + missionName));
+
+    fSpec.Maps[I] := fSpec.Maps[I + 1];
+  end;
+
+  fSpec.MissionsCount := fSpec.MissionsCount - 1;
+
+  fSpec.SaveToFile(fPath + 'info.cmp');
+
+  LoadFromPath(fPath);
+end;
+
+
 function TKMCampaign.GetMissionTitle(aIndex: Byte): string;
 begin
   if fSpec.TextLib[1] <> '' then
@@ -1032,30 +1340,80 @@ end;
 //custom campaigns are unlikely to have more texts in more than 1-2 languages
 function TKMCampaign.GetMissionBriefing(aIndex: Byte): string;
 begin
-  Result := fSpec.TextLib[10 + aIndex];
+  Result := fSpec.TextLib[MISSION_BRIEFING_LIBX_ID + aIndex];
 end;
 
 
-// aIndex starts from 0
-function TKMCampaign.GetBriefingAudioFile(aIndex: Byte): string;
+function TKMCampaign.GetMissionBriefing(aIndex: Byte; const aLocale: AnsiString): string;
+var
+  textLib: TKMTextLibrarySingle;
+begin
+  textLib := TKMTextLibrarySingle.Create;
+  try
+    textLib.LoadSingleLocale(fPath + TEXT_FILE_TEMPLATE, aLocale);
 
-  function GetBriefingPath(aLocale: AnsiString): string;
-  begin
-    // map index is 1-based in the file names
-    Result := fPath + fSpec.IdStr + Format('%.2d', [aIndex + 1]) + PathDelim +
-                      fSpec.IdStr + Format('%.2d', [aIndex + 1]) + '.' + UnicodeString(aLocale) + '.mp3';
+    if textLib.IsIndexValid(MISSION_BRIEFING_LIBX_ID + aIndex) then
+      Result := textLib[MISSION_BRIEFING_LIBX_ID + aIndex]
+    else
+      Result := '';
+  finally
+    textLib.Free;
   end;
+end;
 
+
+function TKMCampaign.GetTextLocales: TKMStringArray;
+var
+  searchRec: TSearchRec;
+  locales: TStringList;
+  code: string;
+  I: Integer;
+begin
+  locales := TStringList.Create;
+  try
+    locales.Sorted := True;
+    locales.Duplicates := dupIgnore;
+
+    if FindFirst(fPath + TEXT_FILE_MASK, faAnyFile, searchRec) = 0 then
+    try
+      repeat
+        code := Copy(searchRec.Name, Length(TEXT_FILE_PREFIX) + 1, Length(searchRec.Name) - Length(TEXT_FILE_PREFIX) - Length(TEXT_FILE_EXT));
+
+        if gResLocales.IndexByCode(AnsiString(code)) >= 0 then
+          locales.Add(code);
+      until FindNext(searchRec) <> 0;
+    finally
+      FindClose(searchRec);
+    end;
+
+    SetLength(Result, locales.Count);
+    for I := 0 to locales.Count - 1 do
+      Result[I] := locales[I];
+  finally
+    locales.Free;
+  end;
+end;
+
+
+function TKMCampaign.GetBriefingAudioFile(aIndex: Byte; const aLocale: AnsiString): string;
 begin
   Assert(InRange(aIndex, 0, MAX_CAMP_MAPS - 1));
 
-  Result := GetBriefingPath(gResLocales.UserLocale);
+  // map index is 1-based in the file names
+  Result := fPath + fSpec.IdStr + Format('%.2d', [aIndex + 1]) + PathDelim +
+                    fSpec.IdStr + Format('%.2d', [aIndex + 1]) + '.' + UnicodeString(aLocale) + '.mp3';
+end;
+
+
+function TKMCampaign.GetBriefingAudioFile(aIndex: Byte): string;
+begin
+  Result := GetBriefingAudioFile(aIndex, gResLocales.UserLocale);
 
   if not FileExists(Result) then
-    Result := GetBriefingPath(gResLocales.FallbackLocale);
+    Result := GetBriefingAudioFile(aIndex, gResLocales.FallbackLocale);
 
   if not FileExists(Result) then
-    Result := GetBriefingPath(gResLocales.DefaultLocale);
+    Result := GetBriefingAudioFile(aIndex, gResLocales.DefaultLocale);
 end;
 
 

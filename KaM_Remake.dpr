@@ -124,6 +124,9 @@ uses
   KM_MessageStack in 'src\game\notifications\KM_MessageStack.pas',  
 
   KM_Cursor in 'src\gui\KM_Cursor.pas',
+  KM_GUIMapsBrowsePanel in 'src\gui\KM_GUIMapsBrowsePanel.pas',
+  KM_GUICampaignMapView in 'src\gui\KM_GUICampaignMapView.pas',
+  KM_GUIFileDialog in 'src\gui\KM_GUIFileDialog.pas',
   KM_InterfaceDefaults in 'src\gui\KM_InterfaceDefaults.pas',
   KM_InterfaceGame in 'src\gui\KM_InterfaceGame.pas',
   KM_InterfaceGamePlay in 'src\gui\KM_InterfaceGamePlay.pas',
@@ -154,6 +157,7 @@ uses
   KM_GUIMapEdMarkerReveal in 'src\gui\pages_maped\KM_GUIMapEdMarkerReveal.pas',
   
   KM_GUIMapEdMenu in 'src\gui\pages_maped\menu\KM_GUIMapEdMenu.pas',
+  KM_GUIMapEdMenuMapsBrowse in 'src\gui\pages_maped\menu\KM_GUIMapEdMenuMapsBrowse.pas',
   KM_GUIMapEdMenuLoad in 'src\gui\pages_maped\menu\KM_GUIMapEdMenuLoad.pas',
   KM_GUIMapEdMenuSave in 'src\gui\pages_maped\menu\KM_GUIMapEdMenuSave.pas',
   KM_GUIMapEdMenuResize in 'src\gui\pages_maped\menu\KM_GUIMapEdMenuResize.pas',
@@ -442,7 +446,10 @@ uses
   KM_IoXML in 'src\utils\io\KM_IoXML.pas',
   
   KM_MethodParser in 'src\utils\method_parser\KM_MethodParser.pas',
-  KM_MethodParserParams in 'src\utils\method_parser\KM_MethodParserParams.pas';
+  KM_MethodParserParams in 'src\utils\method_parser\KM_MethodParserParams.pas',
+
+  KM_GUIMenuCampaignMapEditor in 'src\gui\pages_menu\KM_GUIMenuCampaignMapEditor.pas',
+  KM_ResSpritesEdit in 'src\res\KM_ResSpritesEdit.pas';
 
   //KM_PerfLog in 'src\unused\KM_PerfLog.pas', //unused
 

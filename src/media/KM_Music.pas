@@ -67,6 +67,7 @@ type
     constructor Create(aVolume: Single);
     destructor Destroy; override;
 
+    property IsInitialized: Boolean read fIsInitialized;
     property Volume: Single read GetVolume write SetVolume;
     property Muted: Boolean read GetMuted write SetMuted;
     procedure SetPlayerVolume(aValue: Single);

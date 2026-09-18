@@ -5,8 +5,34 @@ uses
   Classes, SysUtils, Math,
   KM_Controls, KM_ControlsBase, KM_ControlsDrop,
   KM_Pics, KM_MapTypes, KM_CampaignClasses, KM_GameTypes,
-  KM_Campaigns, KM_InterfaceDefaults, KM_InterfaceTypes;
+  KM_Campaigns, KM_InterfaceDefaults, KM_InterfaceTypes, KM_GUICampaignMapView;
 
+const
+  CAMP_NODE_ANIMATION_PERIOD = 5;
+  IMG_SCROLL_MAX_HEIGHT = 430;
+
+  CAMP_SCROLL_W = 360;
+  CAMP_SCROLL_BG_TEX = 410;
+  CAMP_SCROLL_CLOSE_TEX = 52;
+  CAMP_SCROLL_CLOSE_SIZE = 32;
+  CAMP_SCROLL_CLOSE_TOP = 10;
+  CAMP_SCROLL_CLOSE_RIGHT = 60;
+  CAMP_TEXT_LEFT = 20;
+  CAMP_TITLE_TOP = 46;
+  CAMP_TITLE_W = 325;
+  CAMP_TITLE_H = 20;
+  CAMP_TEXT_TOP = 70;
+  CAMP_TEXT_W = 323;
+  CAMP_TEXT_H = 290;
+  CAMP_SCROLL_BOTTOM_PAD = 70;
+  CAMP_DIFFICULTY_ROW_H = 25;
+
+  CAMP_RESTORE_TEX = 491;
+  CAMP_RESTORE_W = 30;
+  CAMP_RESTORE_H = 48;
+  CAMP_RESTORE_MARGIN_RIGHT = 20;
+  CAMP_RESTORE_MARGIN_BOTTOM = 103;
+  CAMP_RESTORE_DIFFICULTY_SHIFT = 32;
 
 type
   TKMMenuCampaign = class(TKMMenuPageCommon)
@@ -34,11 +60,7 @@ type
     procedure PlayBriefingAudioTrack;
   protected
     Panel_Campaign: TKMPanel;
-      Image_CampaignBG: TKMImage;
-      Panel_Campaign_Flags: TKMPanel;
-        Image_CampaignFlags: array[0..MAX_CAMP_MAPS - 1] of TKMImage;
-        Label_CampaignFlags: array[0..MAX_CAMP_MAPS - 1] of TKMLabel;
-        Image_CampaignSubNode: array[0..MAX_CAMP_NODES - 1] of TKMImage;
+      MapView: TKMCampaignMapView;
       Panel_CampScroll: TKMPanel;
         Image_Scroll, Image_ScrollClose: TKMImage;
         Label_CampaignTitle, Label_CampaignText: TKMLabel;
@@ -71,12 +93,6 @@ uses
   KM_RenderUI,
   KM_Defaults;
 
-const
-  FLAG_LABEL_OFFSET_X = 10;
-  FLAG_LABEL_OFFSET_Y = 7;
-  CAMP_NODE_ANIMATION_PERIOD = 5;
-  IMG_SCROLL_MAX_HEIGHT = 430;
-
 { TKMGUIMainCampaign }
 constructor TKMMenuCampaign.Create(aParent: TKMPanel; aCampaigns: TKMCampaignsCollection; aOnPageChange: TKMMenuChangeEventText);
 var
@@ -93,46 +109,35 @@ begin
 
   Panel_Campaign := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_Campaign.AnchorsStretch;
-    Image_CampaignBG := TKMImage.Create(Panel_Campaign, 0, 0, aParent.Width, aParent.Height,0,rxGuiMain);
-    Image_CampaignBG.ImageStretch;
-
-    Panel_Campaign_Flags := TKMPanel.Create(Panel_Campaign, 0, 0, aParent.Width, aParent.Height);
-    Panel_Campaign_Flags.AnchorsStretch;
-    for I := 0 to High(Image_CampaignFlags) do
+    MapView := TKMCampaignMapView.Create(Panel_Campaign, 0, 0, aParent.Width, aParent.Height, cmScreen);
+    MapView.AnchorsStretch;
+    for I := 0 to MAX_CAMP_MAPS - 1 do
     begin
-      Image_CampaignFlags[I] := TKMImage.Create(Panel_Campaign_Flags, aParent.Width, aParent.Height, 23, 29, 10, rxGuiMain);
-      Image_CampaignFlags[I].OnClick := Campaign_SelectMap;
-      Image_CampaignFlags[I].Tag := I;
-
-      Label_CampaignFlags[I] := TKMLabel.Create(Panel_Campaign_Flags, aParent.Width, aParent.Height, IntToStr(I+1), fntMini, taCenter);
-      Label_CampaignFlags[I].FontColor := icLightGray2;
-      Label_CampaignFlags[I].Hitable := False;
-    end;
-    for I := 0 to High(Image_CampaignSubNode) do
-    begin
-      Image_CampaignSubNode[I] := TKMImage.Create(Panel_Campaign_Flags, aParent.Width, aParent.Height, 0, 0, 16, rxGuiMain);
-      Image_CampaignSubNode[I].ImageCenter; //Pivot at the center of the dot (width/height = 0)
+      MapView.Flags[I].OnClick := Campaign_SelectMap;
+      MapView.Flags[I].Tag := I;
     end;
 
-  Panel_CampScroll := TKMPanel.Create(Panel_Campaign, 0, 0, 360, 430);
+  Panel_CampScroll := TKMPanel.Create(Panel_Campaign, 0, 0, CAMP_SCROLL_W, IMG_SCROLL_MAX_HEIGHT);
   Panel_CampScroll.Anchors := [anLeft,anBottom];
 
-    Image_Scroll := TKMImage.Create(Panel_CampScroll, 0, 0, 360, IMG_SCROLL_MAX_HEIGHT, 410, rxGui);
+    Image_Scroll := TKMImage.Create(Panel_CampScroll, 0, 0, CAMP_SCROLL_W, IMG_SCROLL_MAX_HEIGHT, CAMP_SCROLL_BG_TEX, rxGui);
     Image_Scroll.ClipToBounds := True;
     Image_Scroll.AnchorsStretch;
     Image_Scroll.ImageAnchors := [anLeft, anRight, anTop];
 
-    Image_ScrollClose := TKMImage.Create(Panel_CampScroll, 360-60, 10, 32, 32, 52);
+    Image_ScrollClose := TKMImage.Create(Panel_CampScroll, CAMP_SCROLL_W - CAMP_SCROLL_CLOSE_RIGHT, CAMP_SCROLL_CLOSE_TOP,
+                                         CAMP_SCROLL_CLOSE_SIZE, CAMP_SCROLL_CLOSE_SIZE, CAMP_SCROLL_CLOSE_TEX);
     Image_ScrollClose.Anchors := [anTop, anRight];
     Image_ScrollClose.OnClick := Scroll_Toggle;
     Image_ScrollClose.HighlightOnMouseOver := True;
 
-    Label_CampaignTitle := TKMLabel.Create(Panel_CampScroll, 20, 46, 325, 20, NO_TEXT, fntOutline, taCenter);
+    Label_CampaignTitle := TKMLabel.Create(Panel_CampScroll, CAMP_TEXT_LEFT, CAMP_TITLE_TOP, CAMP_TITLE_W, CAMP_TITLE_H, NO_TEXT, fntOutline, taCenter);
 
-    Label_CampaignText := TKMLabel.Create(Panel_CampScroll, 20, 70, 323, 290, NO_TEXT, fntAntiqua, taLeft);
+    Label_CampaignText := TKMLabel.Create(Panel_CampScroll, CAMP_TEXT_LEFT, CAMP_TEXT_TOP, CAMP_TEXT_W, CAMP_TEXT_H, NO_TEXT, fntAntiqua, taLeft);
     Label_CampaignText.WordWrap := True;
 
-  Image_ScrollRestore := TKMImage.Create(Panel_Campaign, aParent.Width-20-30, Panel_Campaign.Height-50-53, 30, 48, 491);
+  Image_ScrollRestore := TKMImage.Create(Panel_Campaign, aParent.Width - CAMP_RESTORE_MARGIN_RIGHT - CAMP_RESTORE_W,
+                                         Panel_Campaign.Height - CAMP_RESTORE_MARGIN_BOTTOM, CAMP_RESTORE_W, CAMP_RESTORE_H, CAMP_RESTORE_TEX);
   Image_ScrollRestore.Anchors := [anBottom, anRight];
   Image_ScrollRestore.OnClick := Scroll_Toggle;
   Image_ScrollRestore.HighlightOnMouseOver := True;
@@ -157,7 +162,7 @@ end;
 
 procedure TKMMenuCampaign.RefreshCampaign;
 const
-  MAP_PIC: array [Boolean] of Byte = (10, 11);
+  MAP_PIC: array [Boolean] of Byte = (FLAG_TEX_LOCKED, FLAG_TEX_UNLOCKED);
 var
   I: Integer;
 begin
@@ -169,30 +174,21 @@ begin
   if fCampaign = nil then Exit;
   
   //Choose background
-  Image_CampaignBG.RX := fCampaign.BackGroundPic.RX;
-  Image_CampaignBG.TexID := fCampaign.BackGroundPic.ID;
+  MapView.SetCampaign(fCampaign);
 
   DropBox_Difficulty.Clear;
 
   //Setup sites
-  for I := 0 to High(Image_CampaignFlags) do
+  for I := 0 to MAX_CAMP_MAPS - 1 do
   begin
-    Image_CampaignFlags[I].Visible := I < fCampaign.Spec.MissionsCount;
-    Image_CampaignFlags[I].TexID   := MAP_PIC[I <= fCampaign.SavedData.UnlockedMission];
-    Image_CampaignFlags[I].HighlightOnMouseOver := I <= fCampaign.SavedData.UnlockedMission;
-    Label_CampaignFlags[I].Visible := (I < fCampaign.Spec.MissionsCount) and (I <= fCampaign.SavedData.UnlockedMission);
+    MapView.Flags[I].Visible := I < fCampaign.Spec.MissionsCount;
+    MapView.Flags[I].TexID   := MAP_PIC[I <= fCampaign.SavedData.UnlockedMission];
+    MapView.Flags[I].HighlightOnMouseOver := I <= fCampaign.SavedData.UnlockedMission;
+    MapView.FlagLabels[I].Visible := (I < fCampaign.Spec.MissionsCount) and (I <= fCampaign.SavedData.UnlockedMission);
   end;
 
   //Place sites
-  for I := 0 to fCampaign.Spec.MissionsCount - 1 do
-  begin
-    //Pivot flags around Y=bottom X=middle, that's where the flag pole is
-    Image_CampaignFlags[I].Left := fCampaign.Spec.Maps[I].Flag.X - Round((Image_CampaignFlags[I].Width/2)*(1-Panel_Campaign_Flags.Scale));
-    Image_CampaignFlags[I].Top  := fCampaign.Spec.Maps[I].Flag.Y - Round(Image_CampaignFlags[I].Height   *(1-Panel_Campaign_Flags.Scale));
-
-    Label_CampaignFlags[I].AbsLeft := Image_CampaignFlags[I].AbsLeft + FLAG_LABEL_OFFSET_X;
-    Label_CampaignFlags[I].AbsTop := Image_CampaignFlags[I].AbsTop + FLAG_LABEL_OFFSET_Y;
-  end;
+  MapView.PlaceFlags;
 
   //Select last map, no brifing will be played, since its set as
   SelectMap(fCampaign.SavedData.UnlockedMission);
@@ -262,23 +258,22 @@ begin
   UpdateDifficultyLevel;
 
   // Place highlight
-  for I := 0 to High(Image_CampaignFlags) do
+  for I := 0 to MAX_CAMP_MAPS - 1 do
   begin
-    Image_CampaignFlags[I].Highlight := (fMapIndex = I);
+    MapView.Flags[I].Highlight := (fMapIndex = I);
     color := icLightGray2;
     if I < fCampaign.Spec.MissionsCount then
       color := DIFFICULTY_LEVELS_COLOR[fCampaign.SavedData.MapsProgressData[I].BestCompletedDifficulty];
-    Label_CampaignFlags[I].FontColor := color;
+    MapView.FlagLabels[I].FontColor := color;
   end;
 
   //Connect by sub-nodes
   fAnimNodeIndex := 0;
 
-  for I := 0 to High(Image_CampaignSubNode) do
+  for I := 0 to MAX_CAMP_NODES - 1 do
   begin
-    Image_CampaignSubNode[I].Visible := False;
-    Image_CampaignSubNode[I].Left := fCampaign.Spec.Maps[fMapIndex].Nodes[I].X;
-    Image_CampaignSubNode[I].Top  := fCampaign.Spec.Maps[fMapIndex].Nodes[I].Y;
+    MapView.Nodes[I].Visible := False;
+    MapView.PlaceNode(fMapIndex, I);
   end;
 
   Label_CampaignTitle.Caption := fCampaign.Spec.GetCampaignMissionTitle(fMapIndex);
@@ -286,8 +281,8 @@ begin
 
   Panel_CampScroll.Left := IfThen(fCampaign.Spec.Maps[fMapIndex].TextPos = bcBottomRight, Panel_Campaign.Width - Panel_CampScroll.Width, 0);
   //Add offset from top and space on bottom to fit buttons
-  panHeight := Label_CampaignText.Top + Label_CampaignText.TextSize.Y + 70
-               + 25*Byte((DropBox_Difficulty.Count > 0) and (fCampaign.Spec.Maps[fMapIndex].TextPos = bcBottomRight));
+  panHeight := Label_CampaignText.Top + Label_CampaignText.TextSize.Y + CAMP_SCROLL_BOTTOM_PAD
+               + CAMP_DIFFICULTY_ROW_H*Byte((DropBox_Difficulty.Count > 0) and (fCampaign.Spec.Maps[fMapIndex].TextPos = bcBottomRight));
 
   // Stretch image in case its too small for a briefing text
   // Stretched scroll does not look good, but its okay for now (only happens for a custom campaigns)
@@ -300,7 +295,7 @@ begin
   Panel_CampScroll.Height := panHeight;
   Panel_CampScroll.Top := Panel_Campaign.Height - Panel_CampScroll.Height;
 
-  Image_ScrollRestore.Top := Panel_Campaign.Height - 50 - 53 - 32*Byte(DropBox_Difficulty.Count > 0);
+  Image_ScrollRestore.Top := Panel_Campaign.Height - CAMP_RESTORE_MARGIN_BOTTOM - CAMP_RESTORE_DIFFICULTY_SHIFT*Byte(DropBox_Difficulty.Count > 0);
 
   Image_ScrollRestore.Hide;
   Panel_CampScroll.Show;
@@ -353,8 +348,9 @@ procedure TKMMenuCampaign.AnimNodes(aTickCount: Cardinal);
 begin
   if not InRange(fAnimNodeIndex, 0, fCampaign.Spec.Maps[fMapIndex].NodeCount-1) then Exit;
   if (aTickCount mod CAMP_NODE_ANIMATION_PERIOD) <> 0 then Exit;
-  if Image_CampaignSubNode[fAnimNodeIndex].Visible then Exit;
-  Image_CampaignSubNode[fAnimNodeIndex].Visible := True;
+  if MapView.Nodes[fAnimNodeIndex].Visible then
+    Exit;
+  MapView.Nodes[fAnimNodeIndex].Visible := True;
   inc(fAnimNodeIndex);
 end;
 
@@ -375,29 +371,10 @@ end;
 
 
 procedure TKMMenuCampaign.Resize(X, Y: Word);
-var
-  I: Integer;
 begin
   if (fCampaign = nil) or not Visible then Exit;
 
-  //Special rules for resizing the campaigns panel
-  Panel_Campaign_Flags.Scale := Min(768,Y) / 768;
-  Panel_Campaign_Flags.Left := Round(1024*(1-Panel_Campaign_Flags.Scale) / 2);
-  Image_CampaignBG.Left := Round(1024*(1-Panel_Campaign_Flags.Scale) / 2);
-  Image_CampaignBG.Height := Min(768,Y);
-  Image_CampaignBG.Width := Round(1024*Panel_Campaign_Flags.Scale);
-  //Special rule to keep campaign flags pivoted at the right place (so the flagpole doesn't move when you resize)
-  if fCampaign <> nil then
-    for I := 0 to fCampaign.Spec.MissionsCount - 1 do
-      with Image_CampaignFlags[I] do
-      begin
-        //Pivot flags around Y=bottom X=middle, that's where the flag pole is
-        Left := fCampaign.Spec.Maps[I].Flag.X - Round((Width/2)*(1-Panel_Campaign_Flags.Scale));
-        Top  := fCampaign.Spec.Maps[I].Flag.Y - Round(Height   *(1-Panel_Campaign_Flags.Scale));
-
-        Label_CampaignFlags[I].AbsLeft := AbsLeft + FLAG_LABEL_OFFSET_X;
-        Label_CampaignFlags[I].AbsTop := AbsTop + FLAG_LABEL_OFFSET_Y;
-      end;
+  MapView.ResizeToScreen(Y);
 end;
 
 

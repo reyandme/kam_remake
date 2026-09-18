@@ -7,8 +7,7 @@ uses
   KM_InterfaceDefaults,
   KM_GUIMapEdMenuResize,
   KM_GUIMapEdMenuQuickPlay,
-  KM_GUIMapEdMenuLoad,
-  KM_GUIMapEdMenuSave,
+  KM_GUIMapEdMenuMapsBrowse,
   KM_GUIMapEdMenuQuit,
   KM_GUICommonGameOptions,
   KM_CommonTypes;
@@ -18,16 +17,17 @@ type
   private
     fGuiMenuResize: TKMMapEdMenuResize;
     fGuiMenuQuickPlay: TKMMapEdMenuQuickPlay;
-    fGuiMenuLoad: TKMMapEdMenuLoad;
-    fGuiMenuSave: TKMMapEdMenuSave;
+    fGuiMenuMapsBrowse: TKMMapEdMenuMapsBrowse;
     fGuiMenuSettings: TKMGUICommonGameOptions;
     fGuiMenuQuit: TKMMapEdMenuQuit;
     procedure MenuClick(Sender: TObject);
     procedure MenuDone(Sender: TObject);
+    procedure QuickSave;
   protected
     Panel_Menu: TKMPanel;
       Button_Resize: TKMButton;
       Button_Menu_Save: TKMButton;
+      Button_Menu_SaveAs: TKMButton;
       Button_Menu_Load: TKMButton;
       Button_QuickPlay: TKMButton;
       Button_Menu_Settings: TKMButton;
@@ -52,7 +52,8 @@ type
 
 implementation
 uses
-  KM_InterfaceGame, KM_ResTexts, KM_RenderUI, KM_Utils;
+  KM_InterfaceGame, KM_ResTexts, KM_RenderUI, KM_Utils,
+  KM_Game, KM_GameParams;
 
 
 { TKMMapEdMenu }
@@ -61,8 +62,7 @@ begin
   inherited Create;
 
   fGuiMenuResize := TKMMapEdMenuResize.Create(aParent, MenuDone, aOnPageChange);
-  fGuiMenuLoad := TKMMapEdMenuLoad.Create(aParent, MenuDone);
-  fGuiMenuSave := TKMMapEdMenuSave.Create(aParent, MenuDone, aOnMapTypChanged);
+  fGuiMenuMapsBrowse := TKMMapEdMenuMapsBrowse.Create(aParent.Parent, MenuDone);
   fGuiMenuQuit := TKMMapEdMenuQuit.Create(aParent, MenuDone);
   fGuiMenuSettings := TKMGUICommonGameOptions.Create(aParent, gResTexts[TX_MENU_SETTINGS_MAPED], aOnKeysUpdated);
 
@@ -80,13 +80,16 @@ begin
   Button_Menu_Load := TKMButton.Create(Panel_Menu, 9, 110, Panel_Menu.Width - 9, 30, gResTexts[TX_MAPED_LOAD_TITLE], bsGame);
   Button_Menu_Load.Anchors := [anLeft, anTop, anRight];
   Button_Menu_Load.OnClick := MenuClick;
-  Button_Menu_Save := TKMButton.Create(Panel_Menu, 9, 150, Panel_Menu.Width - 9, 30, gResTexts[TX_MAPED_SAVE_TITLE], bsGame);
+  Button_Menu_Save := TKMButton.Create(Panel_Menu, 9, 150, Panel_Menu.Width - 9, 30, gResTexts[TX_MAPED_SAVE], bsGame);
   Button_Menu_Save.Anchors := [anLeft, anTop, anRight];
   Button_Menu_Save.OnClick := MenuClick;
-  Button_Menu_Settings := TKMButton.Create(Panel_Menu, 9, 190, TB_MAP_ED_WIDTH - 9, 30, gResTexts[TX_MENU_SETTINGS], bsGame);
+  Button_Menu_SaveAs := TKMButton.Create(Panel_Menu, 9, 190, Panel_Menu.Width - 9, 30, gResTexts[TX_MAPED_SAVE_AS], bsGame);
+  Button_Menu_SaveAs.Anchors := [anLeft, anTop, anRight];
+  Button_Menu_SaveAs.OnClick := MenuClick;
+  Button_Menu_Settings := TKMButton.Create(Panel_Menu, 9, 230, TB_MAP_ED_WIDTH - 9, 30, gResTexts[TX_MENU_SETTINGS], bsGame);
   Button_Menu_Settings.OnClick := MenuClick;
 
-  Button_Menu_Quit := TKMButton.Create(Panel_Menu, 9, 250, Panel_Menu.Width - 9, 30, gResTexts[TX_MENU_QUIT_MAPED], bsGame);
+  Button_Menu_Quit := TKMButton.Create(Panel_Menu, 9, 290, Panel_Menu.Width - 9, 30, gResTexts[TX_MENU_QUIT_MAPED], bsGame);
   Button_Menu_Quit.Anchors := [anLeft, anTop, anRight];
   Button_Menu_Quit.OnClick := MenuClick;
 end;
@@ -95,8 +98,7 @@ end;
 destructor TKMMapEdMenu.Destroy;
 begin
   fGuiMenuResize.Free;
-  fGuiMenuLoad.Free;
-  fGuiMenuSave.Free;
+  FreeAndNil(fGuiMenuMapsBrowse);
   fGuiMenuQuit.Free;
   fGuiMenuSettings.Free;
 
@@ -135,13 +137,31 @@ begin
     fGuiMenuQuit.Show
   else
   if Sender = Button_Menu_Save then
-    fGuiMenuSave.Show
+    QuickSave
+  else
+  if Sender = Button_Menu_SaveAs then
+    fGuiMenuMapsBrowse.ShowSave
   else
   if Sender = Button_Menu_Load then
-    fGuiMenuLoad.Show
+    fGuiMenuMapsBrowse.ShowLoad
   else
   if Sender = Button_Menu_Settings then
     fGuiMenuSettings.Show;
+end;
+
+
+procedure TKMMapEdMenu.QuickSave;
+var
+  path: UnicodeString;
+begin
+  path := gGameParams.GuessMissionFullFilePath;
+  if path = '' then
+    fGuiMenuMapsBrowse.ShowSave
+  else
+  begin
+    gGame.SaveMapEditor(path);
+    gGame.ActiveInterface.SyncUI(False);
+  end;
 end;
 
 
@@ -149,8 +169,6 @@ procedure TKMMapEdMenu.MenuDone(Sender: TObject);
 begin
   fGuiMenuResize.Hide;
   fGuiMenuQuickPlay.Hide;
-  fGuiMenuLoad.Hide;
-  fGuiMenuSave.Hide;
   fGuiMenuQuit.Hide;
   fGuiMenuSettings.Hide;
 
@@ -187,7 +205,8 @@ begin
   Button_Resize.Hint        := GetHintWHotkey(TX_MAPED_MAP_RESIZE,          MAPED_SUBMENU_HOTKEYS[0]);
   Button_QuickPlay.Hint     := GetHintWHotkey(TX_MAPED_MAP_QUICK_PLAY_HINT, MAPED_SUBMENU_HOTKEYS[1]);
   Button_Menu_Load.Hint     := GetHintWHotkey(TX_MAPED_LOAD_TITLE,          MAPED_SUBMENU_HOTKEYS[2]);
-  Button_Menu_Save.Hint     := GetHintWHotkey(TX_MAPED_SAVE_TITLE,          MAPED_SUBMENU_HOTKEYS[3]);
+  Button_Menu_Save.Hint     := GetHintWHotkey(TX_MAPED_SAVE,                MAPED_SUBMENU_HOTKEYS[3]);
+  Button_Menu_SaveAs.Hint   := gResTexts[TX_MAPED_SAVE_AS];
   Button_Menu_Settings.Hint := GetHintWHotkey(TX_MENU_SETTINGS,             MAPED_SUBMENU_HOTKEYS[4]);
   Button_Menu_Quit.Hint     := GetHintWHotkey(TX_MENU_QUIT_MAPED,           MAPED_SUBMENU_HOTKEYS[5]);
 end;
@@ -195,7 +214,7 @@ end;
 
 procedure TKMMapEdMenu.UpdateState;
 begin
-  fGuiMenuLoad.UpdateState;
+  fGuiMenuMapsBrowse.UpdateState;
 end;
 
 
@@ -203,8 +222,6 @@ procedure TKMMapEdMenu.SetLoadMode(aMultiplayer: Boolean);
 begin
   fGuiMenuResize.SetLoadMode(aMultiplayer);
   fGuiMenuQuickPlay.SetLoadMode(aMultiplayer);
-  fGuiMenuLoad.SetLoadMode(aMultiplayer);
-  fGuiMenuSave.SetLoadMode(aMultiplayer);
 end;
 
 

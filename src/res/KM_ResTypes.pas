@@ -269,6 +269,7 @@ type
     rxUnits,
     rxGui,
     rxGuiMain,
+    rxCampaign,
     rxCustom, //Used for loading stuff like campaign maps (there is no main RXX file)
     rxTiles //Tiles
   );
@@ -281,6 +282,7 @@ const
     rxUnits,
     rxGui,
     rxGuiMain,
+    rxCampaign,
     rxCustom,
     rxTiles
   ];
@@ -324,6 +326,7 @@ const
     (FileName: 'Units';      TeamColors: True;  Usage: ruGame;   LoadingTextID: TX_MENU_LOADING_UNITS;),
     (FileName: 'GUI';        TeamColors: True;  Usage: ruMenu;   LoadingTextID: 0;),
     (FileName: 'GUIMain';    TeamColors: False; Usage: ruMenu;   LoadingTextID: 0;),
+    (FileName: 'Campaign';   TeamColors: False; Usage: ruCustom; LoadingTextID: 0;),
     (FileName: 'Custom';     TeamColors: False; Usage: ruCustom; LoadingTextID: 0;),
     (FileName: 'Tileset';    TeamColors: False; Usage: ruMenu;   LoadingTextID: TX_MENU_LOADING_TILESET;));
 

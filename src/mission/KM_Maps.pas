@@ -197,6 +197,7 @@ type
     function IsPlayableForSP: Boolean;
     function IsSinglePlayerKind: Boolean;
     function IsMultiPlayerKind: Boolean;
+    function IsCampaignKind: Boolean;
     function IsDownloadedKind: Boolean;
     function IsBuildingMission: Boolean;
     function IsFightingMission: Boolean;
@@ -874,6 +875,12 @@ end;
 function TKMMapInfo.IsMultiPlayerKind: Boolean;
 begin
   Result := fKind = mkMP;
+end;
+
+
+function TKMMapInfo.IsCampaignKind: Boolean;
+begin
+  Result := fKind = mkCM;
 end;
 
 

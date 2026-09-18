@@ -58,7 +58,7 @@ uses
   KM_RenderUI, KM_ResFonts, KM_ResTexts, KM_Resource, Math;
 
 const
-  PANEL_QUICKPLAY_HEIGHT = 505;
+  PANEL_QUICKPLAY_HEIGHT = 545;
 
 
 { TKMMapEdMenuQuickPlay }
@@ -96,9 +96,9 @@ begin
     Radio_AIOpponents.ItemIndex := 0; // Classic AI
 
     Inc(dy, Radio_AIOpponents.Height);
-    Panel_Save := TKMPanel.Create(Form_QuickPlay.ItemsPanel, dx, dy, CTRLS_WIDTH, 230);
+    Panel_Save := TKMPanel.Create(Form_QuickPlay.ItemsPanel, dx, dy, CTRLS_WIDTH, 270);
 
-    Inc(dy, 215);
+    Inc(dy, 255);
     Button_QuickPlay := TKMButton.Create(Form_QuickPlay.ItemsPanel, dx, dy, CTRLS_WIDTH, 30, gResTexts[TX_MAPED_MAP_QUICK_PLAY_START_NO_SAVE], bsGame);
     Button_QuickPlay.Hint := gResTexts[TX_MAPED_MAP_QUICK_PLAY_START_NO_SAVE_HINT];
     Button_QuickPlay.OnClick := QuickPlay_Click;

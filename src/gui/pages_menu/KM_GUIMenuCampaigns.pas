@@ -7,7 +7,7 @@ uses
   Classes, SysUtils, Math,
   KM_Controls, KM_ControlsBase, KM_ControlsList, KM_ControlsMemo,
   KM_Pics, KM_CommonTypes,
-  KM_Campaigns, KM_InterfaceDefaults, KM_InterfaceTypes;
+  KM_Campaigns, KM_InterfaceDefaults, KM_InterfaceTypes, KM_GUICampaignMapView;
 
 
 type
@@ -30,7 +30,7 @@ type
     Panel_CampSelect: TKMPanel;
       Panel_Campaigns: TKMPanel;
         ColumnBox_Camps: TKMColumnBox;
-        Image_CampsPreview: TKMImage;
+        MapView_Camps: TKMCampaignMapView;
         Memo_CampDesc: TKMMemo;
         Button_Camp_Start, Button_Camp_Back: TKMButton;
   public
@@ -100,9 +100,8 @@ begin
     ColumnBox_Camps.OnDoubleClick := StartClick;
 
     TKMBevel.Create(Panel_Campaigns, LIST_W + COL_PAD, 30, MAP_IMG_W + 2*MAP_PAD, MAP_IMG_H + 2*MAP_PAD).AnchorsCenter;
-    Image_CampsPreview := TKMImage.Create(Panel_Campaigns, LIST_W + COL_PAD + MAP_PAD, 34, MAP_IMG_W, MAP_IMG_H, 0, rxGuiMain);
-    Image_CampsPreview.ImageStretch;
-    Image_CampsPreview.AnchorsCenter;
+    MapView_Camps := TKMCampaignMapView.Create(Panel_Campaigns, LIST_W + COL_PAD + MAP_PAD, 34, MAP_IMG_W, MAP_IMG_H, cmPreview);
+    MapView_Camps.AnchorsCenter;
 
     Memo_CampDesc := TKMMemo.Create(Panel_Campaigns, LIST_W + COL_PAD, DESC_TOP, DESC_W, DESC_H, fntGame, bsMenu);
     Memo_CampDesc.AnchorsCenter;
@@ -129,7 +128,7 @@ procedure TKMMenuCampaigns.RefreshList;
 begin
   if Self = nil then Exit;
 
-  Image_CampsPreview.TexID := 0; //Clear preview image
+  MapView_Camps.Clear; //Clear preview image
   ColumnBox_Camps.Clear;
   Memo_CampDesc.Clear;
   for var I := 0 to fCampaigns.Count - 1 do
@@ -162,17 +161,16 @@ begin
   if ColumnBox_Camps.ItemIndex = -1 then
   begin
     Button_Camp_Start.Disable;
-    Image_CampsPreview.TexID := 0;
+    MapView_Camps.Clear;
     Memo_CampDesc.Clear;
   end
   else
   begin
-    Button_Camp_Start.Enable;
     cmpID := fCampaigns[ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Tag].Spec.CampaignId;
     camp := fCampaigns.CampaignById(cmpID);
+    Button_Camp_Start.Enabled := camp.Spec.MissionsCount > 0;
 
-    Image_CampsPreview.RX := camp.BackGroundPic.RX;
-    Image_CampsPreview.TexID := camp.BackGroundPic.ID;
+    MapView_Camps.SetCampaign(camp);
 
     Memo_CampDesc.Text := camp.Spec.GetCampaignDescription;
     gGameSettings.MenuCampaignName := camp.Spec.IdStr;

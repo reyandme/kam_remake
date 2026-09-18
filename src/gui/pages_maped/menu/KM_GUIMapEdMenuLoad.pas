@@ -1,9 +1,9 @@
-unit KM_GUIMapEdMenuLoad;
+﻿unit KM_GUIMapEdMenuLoad;
 {$I KaM_Remake.inc}
 interface
 uses
    Classes, SysUtils,
-   KM_Controls, KM_ControlsBase, KM_ControlsList, KM_ControlsSwitch,
+   KM_Controls, KM_ControlsBase, KM_ControlsList, KM_ControlsSwitch, KM_ControlsDrop,
    KM_Maps;
 
 type
@@ -14,14 +14,20 @@ type
     fMaps: TKMapsCollection;
     fMapsMP: TKMapsCollection;
     fMapsDL: TKMapsCollection;
+    fCampaignMissionIndices: array of Byte;
 
     procedure Menu_LoadClick(Sender: TObject);
     procedure Menu_LoadChange(Sender: TObject);
     procedure Menu_LoadUpdate;
     procedure Menu_LoadUpdateDone(Sender: TObject);
+    procedure UpdateCategoryLayout;
+    procedure PopulateCampaignsList(aAutoSelectCurrent: Boolean);
+    procedure PopulateCampaignMissionList;
+    function IsCampaignCategory: Boolean;
   protected
     Panel_Load: TKMPanel;
     Radio_Load_MapType: TKMRadioGroup;
+    DropList_LoadCampaign: TKMDropList;
     ListBox_Load: TKMListBox;
     Button_LoadLoad: TKMButton;
     Button_LoadCancel: TKMButton;
@@ -38,8 +44,12 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_Game, KM_GameApp, KM_RenderUI, KM_ResFonts, KM_InterfaceGame,
-  KM_InterfaceMapEditor, KM_Defaults, KM_MapTypes, KM_CommonTypes;
+  Math,
+  KM_ResTexts, KM_Game, KM_GameApp, KM_GameParams, KM_RenderUI, KM_ResFonts, KM_InterfaceGame,
+  KM_InterfaceMapEditor, KM_Defaults, KM_MapTypes, KM_MapUtils, KM_Campaigns, KM_CommonTypes;
+
+const
+  LOAD_CAT_CAMPAIGN = 3;
 
 
 { TKMMapEdMenuLoad }
@@ -57,14 +67,20 @@ begin
   Panel_Load.Anchors := [anLeft, anTop, anBottom];
 
   TKMLabel.Create(Panel_Load, 9, PAGE_TITLE_Y, Panel_Load.Width - 9, 30, gResTexts[TX_MAPED_LOAD_TITLE], fntOutline, taLeft).Anchors := [anLeft, anTop, anRight];
-  TKMBevel.Create(Panel_Load, 9, 30, TB_MAP_ED_WIDTH - 9, 57).Anchors := [anLeft, anTop, anRight];
-  Radio_Load_MapType := TKMRadioGroup.Create(Panel_Load,9,32,Panel_Load.Width - 9,54,fntGrey);
+  TKMBevel.Create(Panel_Load, 9, 30, TB_MAP_ED_WIDTH - 9, 75).Anchors := [anLeft, anTop, anRight];
+  Radio_Load_MapType := TKMRadioGroup.Create(Panel_Load,9,32,Panel_Load.Width - 9,72,fntGrey);
   Radio_Load_MapType.Anchors := [anLeft, anTop, anRight];
   Radio_Load_MapType.ItemIndex := 0;
   Radio_Load_MapType.Add(gResTexts[TX_MENU_MAPED_SPMAPS]);
   Radio_Load_MapType.Add(gResTexts[TX_MENU_MAPED_MPMAPS_SHORT]);
   Radio_Load_MapType.Add(gResTexts[TX_MENU_MAPED_DLMAPS]);
+  Radio_Load_MapType.Add(gResTexts[TX_MENU_CAMPAIGNS]);
   Radio_Load_MapType.OnChange := Menu_LoadChange;
+
+  DropList_LoadCampaign := TKMDropList.Create(Panel_Load, 9, Radio_Load_MapType.Bottom + 8, Panel_Load.Width - 9, 20, fntGrey, '', bsGame);
+  DropList_LoadCampaign.Anchors := [anLeft, anTop, anRight];
+  DropList_LoadCampaign.OnChange := Menu_LoadChange;
+
   ListBox_Load := TKMListBox.Create(Panel_Load, 9, 104, Panel_Load.Width - 9, 205, fntGrey, bsGame);
   ListBox_Load.Anchors := [anLeft, anTop, anRight];
   ListBox_Load.ItemHeight := 18;
@@ -79,6 +95,8 @@ begin
   Button_LoadCancel.Anchors := [anLeft, anTop, anRight];
   Button_LoadLoad.OnClick     := Menu_LoadClick;
   Button_LoadCancel.OnClick   := Menu_LoadClick;
+
+  UpdateCategoryLayout;
 end;
 
 
@@ -92,19 +110,119 @@ begin
 end;
 
 
+function TKMMapEdMenuLoad.IsCampaignCategory: Boolean;
+begin
+  Result := Radio_Load_MapType.ItemIndex = LOAD_CAT_CAMPAIGN;
+end;
+
+
+procedure TKMMapEdMenuLoad.UpdateCategoryLayout;
+var
+  listTop: Integer;
+begin
+  DropList_LoadCampaign.Visible := IsCampaignCategory;
+
+  if IsCampaignCategory then
+    listTop := DropList_LoadCampaign.Bottom + 8
+  else
+    listTop := Radio_Load_MapType.Bottom + 18;
+
+  ListBox_Load.Top := listTop;
+  Button_LoadLoad.Top := ListBox_Load.Bottom + 9;
+  Button_LoadCancel.Top := Button_LoadLoad.Bottom + 6;
+end;
+
+
+procedure TKMMapEdMenuLoad.PopulateCampaignsList(aAutoSelectCurrent: Boolean);
+var
+  I, selectTag: Integer;
+  currentCampaignPath: string;
+begin
+  DropList_LoadCampaign.Clear;
+  selectTag := 0;
+
+  if aAutoSelectCurrent then
+    currentCampaignPath := ExtractFileDir(ExtractFileDir(ExeDir + gGameParams.MissionFileRel)) + PathDelim;
+
+  for I := 0 to gGameApp.Campaigns.Count - 1 do
+  begin
+    DropList_LoadCampaign.Add(gGameApp.Campaigns[I].Spec.GetCampaignTitle, I);
+    if aAutoSelectCurrent and SameFileName(ExcludeTrailingPathDelimiter(gGameApp.Campaigns[I].Path), ExcludeTrailingPathDelimiter(currentCampaignPath)) then
+      selectTag := I;
+  end;
+
+  if gGameApp.Campaigns.Count > 0 then
+    DropList_LoadCampaign.SelectByTag(selectTag);
+end;
+
+
+procedure TKMMapEdMenuLoad.PopulateCampaignMissionList;
+var
+  I, count: Integer;
+  campaign: TKMCampaign;
+  missionName, currentMissionName: string;
+begin
+  ListBox_Load.Clear;
+  ListBox_Load.ItemIndex := -1;
+  SetLength(fCampaignMissionIndices, 0);
+
+  if not DropList_LoadCampaign.IsSelected then
+    Exit;
+
+  campaign := gGameApp.Campaigns[DropList_LoadCampaign.GetSelectedTag];
+  currentMissionName := gGameParams.Name;
+
+  SetLength(fCampaignMissionIndices, campaign.Spec.MissionsCount);
+  count := 0;
+  for I := 0 to campaign.Spec.MissionsCount - 1 do
+  begin
+    missionName := campaign.GetMissionName(I);
+    if FileExists(campaign.GetMissionFile(I, '.dat')) then
+    begin
+      ListBox_Load.Add(campaign.GetMissionTitle(I));
+      fCampaignMissionIndices[count] := I;
+      if SameText(missionName, currentMissionName) then
+        ListBox_Load.ItemIndex := count;
+      Inc(count);
+    end;
+  end;
+  SetLength(fCampaignMissionIndices, count);
+end;
+
+
 //Mission loading dialog
 procedure TKMMapEdMenuLoad.Menu_LoadClick(Sender: TObject);
 var
   mapName: string;
-  isMulti: Boolean;
+  mapKind: TKMMapKind;
+  campaign: TKMCampaign;
+  missionIndex: Integer;
 begin
   if (Sender = Button_LoadLoad) or (Sender = ListBox_Load) then
   begin
     if ListBox_Load.ItemIndex = -1 then Exit;
 
-    mapName := ListBox_Load.Item[ListBox_Load.ItemIndex];
-    isMulti := Radio_Load_MapType.ItemIndex <> 0;
-    gGameApp.NewGameMapEditor(TKMapsCollection.FullPath(mapName, '.dat', TKMMapKind(Radio_Load_MapType.ItemIndex + 1)), isMulti);
+    if IsCampaignCategory then
+    begin
+      if not DropList_LoadCampaign.IsSelected then
+        Exit;
+      if not InRange(ListBox_Load.ItemIndex, 0, High(fCampaignMissionIndices)) then
+        Exit;
+
+      campaign := gGameApp.Campaigns[DropList_LoadCampaign.GetSelectedTag];
+      missionIndex := fCampaignMissionIndices[ListBox_Load.ItemIndex];
+      gGameApp.NewGameMapEditor(campaign.GetMissionFile(missionIndex, '.dat'), False);
+    end
+    else
+    begin
+      mapName := ListBox_Load.Item[ListBox_Load.ItemIndex];
+      case Radio_Load_MapType.ItemIndex of
+        1:       mapKind := mkMP;
+        2:       mapKind := mkDL;
+        else     mapKind := mkSP;
+      end;
+      gGameApp.NewGameMapEditor(TKMapsCollection.FullPath(mapName, '.dat', mapKind), Radio_Load_MapType.ItemIndex = 1);
+    end;
   end
   else
   if Sender = Button_LoadCancel then
@@ -114,7 +232,12 @@ end;
 
 procedure TKMMapEdMenuLoad.Menu_LoadChange(Sender: TObject);
 begin
-  Menu_LoadUpdate;
+  UpdateCategoryLayout;
+
+  if Sender = DropList_LoadCampaign then
+    PopulateCampaignMissionList
+  else
+    Menu_LoadUpdate;
 end;
 
 
@@ -131,8 +254,7 @@ begin
     0: fMaps.Refresh(Menu_LoadUpdateDone);
     1: fMapsMP.Refresh(Menu_LoadUpdateDone);
     2: fMapsDL.Refresh(Menu_LoadUpdateDone);
-  else
-    Exit;
+    LOAD_CAT_CAMPAIGN: PopulateCampaignMissionList;
   end;
 end;
 
@@ -187,7 +309,17 @@ end;
 
 
 procedure TKMMapEdMenuLoad.Show;
+var
+  isCampaign: Boolean;
 begin
+  isCampaign := IsCampaignMissionPathRel(gGameParams.MissionFileRel);
+  PopulateCampaignsList(isCampaign);
+
+  if isCampaign then
+    Radio_Load_MapType.ItemIndex := LOAD_CAT_CAMPAIGN;
+
+  UpdateCategoryLayout;
+
   Menu_LoadUpdate;
   Panel_Load.Show;
 end;
@@ -207,6 +339,8 @@ begin
     Radio_Load_MapType.ItemIndex := 1
   else
     Radio_Load_MapType.ItemIndex := 0;
+
+  UpdateCategoryLayout;
 end;
 
 

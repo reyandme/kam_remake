@@ -20,6 +20,7 @@ uses
   KM_GUIMenuLobby,
   KM_GUIMenuMain,
   KM_GUIMenuMapEditor,
+  KM_GUIMenuCampaignMapEditor,
   KM_GUIMenuMultiplayer,
   KM_GUIMenuOptions,
   KM_GUIMenuReplays,
@@ -39,6 +40,7 @@ type
     fMenuLobby: TKMMenuLobby;
     fMenuMain: TKMMenuMain;
     fMenuMapEditor: TKMMenuMapEditor;
+    fMenuCampaignMapEditor: TKMMenuCampaignMapEditor;
     fMenuMultiplayer: TKMMenuMultiplayer;
     fMenuOptions: TKMMenuOptions;
     fMenuReplays: TKMMenuReplays;
@@ -132,6 +134,7 @@ begin
   fMenuMultiplayer   := TKMMenuMultiplayer.Create(Panel_Menu, PageChange);
   fMenuLobby         := TKMMenuLobby.Create(Panel_Menu, PageChange);
   fMenuMapEditor     := TKMMenuMapEditor.Create(Panel_Menu, PageChange);
+  fMenuCampaignMapEditor := TKMMenuCampaignMapEditor.Create(Panel_Menu, PageChange);
   fMenuReplays       := TKMMenuReplays.Create(Panel_Menu, PageChange);
   fMenuOptions       := TKMMenuOptions.Create(Panel_Menu, PageChange, nil, UpdateHotkeys);
   fMenuCredits       := TKMMenuCredits.Create(Panel_Menu, PageChange);
@@ -176,6 +179,8 @@ procedure TKMMainMenuInterface.AfterCampaignsScanComplete;
 begin
   // Put the call to refresh into a separate method, to make sure fMenuCampaign is already created
   fMenuCampaign.RefreshCampaign;
+
+  fMenuMapEditor.RefreshCampaign;
 end;
 
 
@@ -197,6 +202,7 @@ begin
   fMenuLobby.Free;
   fMenuMain.Free;
   fMenuMapEditor.Free;
+  FreeAndNil(fMenuCampaignMapEditor);
   fMenuMultiplayer.Free;
   fMenuOptions.Free;
   fMenuReplays.Free;
@@ -324,6 +330,10 @@ begin
     gpMapEditor:    begin
                       fMenuMapEditor.Show;
                       fMenuPage := fMenuMapEditor;
+                    end;
+    gpCampaignMapEditor: begin
+                      fMenuCampaignMapEditor.Show(aArgument);
+                      fMenuPage := fMenuCampaignMapEditor;
                     end;
     gpReplays:      begin
                       fMenuReplays.Show;
@@ -474,6 +484,7 @@ begin
   fMenuSingleMap.UpdateState;
   fMenuCampaign.UpdateState(aGlobalTickCount);
   fMenuCampaigns.UpdateState;
+  fMenuCampaignMapEditor.UpdateStateTick(aGlobalTickCount);
 end;
 
 
