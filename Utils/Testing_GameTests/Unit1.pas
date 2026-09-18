@@ -207,12 +207,12 @@ begin
   fStopped := False;
 
   var t := GetTickCount;
-  var thisTest := aClass.Create(HandleShouldStop, HandleProgress);
+  var testInstance := aClass.Create(HandleShouldStop, HandleProgress);
   try
-    thisTest.PaceRender := Ord(chkThrottleRender.Checked) * 100;
-    thisTest.PaceTicks := seDelay.Value;
+    testInstance.PaceRender := Ord(chkThrottleRender.Checked) * 100;
+    testInstance.PaceTicks := seDelay.Value;
 
-    fResults := thisTest.Run(aSeed);
+    fResults := testInstance.Run(aSeed);
 
     var resStr := '';
     case fResults.TestResult of
@@ -221,9 +221,9 @@ begin
       trException:  resStr := 'EXCEPTION: ' + fResults.TestMessage;
     end;
 
-    meLog.Lines.Append(Format('%-32s: %s, seed %d, %d ms, %d ticks', [aClass.ClassName, resStr, aSeed, GetTickCount - t, thisTest.TickCountActual]));
+    meLog.Lines.Append(Format('%-32s: %s, seed %d, %d ms, %d ticks', [aClass.ClassName, resStr, aSeed, GetTickCount - t, testInstance.TickCountActual]));
   finally
-    thisTest.Free;
+    testInstance.Free;
   end;
 end;
 
