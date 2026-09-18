@@ -15,7 +15,8 @@ type
     fTempShadowMap: array {Y} of array {X} of Boolean;
     fShadowMap: array {Y} of array {X} of Boolean;
 
-    function ReadPixelSafe(aIndex, aX, aY: Integer): Cardinal; inline;
+    function ReadPixel(const aIndex, aX, aY: Integer): Cardinal; inline;
+    function ReadPixelSafe(const aIndex, aX, aY: Integer): Cardinal; inline;
 
     function IsBlack(aColor: Cardinal): Boolean; inline;
     function IsTransparent(aColor: Cardinal): Boolean; inline;
@@ -49,12 +50,18 @@ begin
 end;
 
 
-function TKMSoftShadowConverter.ReadPixelSafe(aIndex, aX, aY: Integer): Cardinal;
+function TKMSoftShadowConverter.ReadPixel(const aIndex, aX, aY: Integer): Cardinal;
+begin
+  Result := fRXData.RGBA[aIndex, aY * fRXData.Size[aIndex].X + aX];
+end;
+
+
+function TKMSoftShadowConverter.ReadPixelSafe(const aIndex, aX, aY: Integer): Cardinal;
 begin
   if (aX < 0) or (aY < 0) or (aX >= fRXData.Size[aIndex].X) or (aY >= fRXData.Size[aIndex].Y) then
     Result := 0
   else
-    Result := fRXData.RGBA[aIndex, aY * fRXData.Size[aIndex].X + aX];
+    Result := ReadPixel(aIndex, aX, aY);
 end;
 
 
@@ -126,19 +133,15 @@ end;
 
 
 function TKMSoftShadowConverter.IsShadowPixel(aIndex, aX, aY: Word): Boolean;
-var
-  Color: Cardinal;
 begin
-  Color := ReadPixelSafe(aIndex, aX, aY);
+  var Color := ReadPixel(aIndex, aX, aY);
   Result := (fTempShadowMap[aY, aX] or fShadowMap[aY, aX] or IsTransparent(Color)) and not IsObject(Color);
 end;
 
 
 function TKMSoftShadowConverter.IsObjectPixel(aIndex, aX, aY: Word): Boolean;
-var
-  Color: Cardinal;
 begin
-  Color := ReadPixelSafe(aIndex, aX, aY);
+  var Color := ReadPixel(aIndex, aX, aY);
   Result := IsObject(Color) and not fTempShadowMap[aY, aX] and not fShadowMap[aY, aX];
 end;
 
@@ -317,7 +320,7 @@ procedure TKMSoftShadowConverter.PrepareShadows(aIndex: Word; aOnlyShadows: Bool
     if (aX < 0) or (aY < 0) or (aX >= fRXData.Size[aIndex].X) or (aY >= fRXData.Size[aIndex].Y) then
       Result := False
     else
-      Result := fTempShadowMap[aY, aX] or IsObject(ReadPixelSafe(aIndex, aX, aY));
+      Result := fTempShadowMap[aY, aX] or IsObject(ReadPixel(aIndex, aX, aY));
   end;
 
   function ShadowsNearby(aX, aY: Integer): Byte;
@@ -354,7 +357,7 @@ begin
   begin
     Shadow := fTempShadowMap[I, K];
 
-    if Shadow and not IsObject(ReadPixelSafe(aIndex, K, I))
+    if Shadow and not IsObject(ReadPixel(aIndex, K, I))
     and (ShadowsNearby(K, I) = 1) then
       Shadow := False;
 
