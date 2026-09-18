@@ -33,32 +33,34 @@ uses
   KM_Units, KM_UnitWarrior, KM_UnitGroup, KM_UnitGroupTypes, KM_UnitActionWalkTo;
 
 
-function WalkTarget(aUnit: TKMUnit): TKMPoint;
+function GetWalkTarget(aUnit: TKMUnit): TKMPoint;
 begin
   Result := TKMUnitActionWalkTo(aUnit.Action).WalkTo;
 end;
 
 
-// Archers standing still are shooting, so only those already walking can trade destinations with us
-function BetterSwapPartner(aUnit: TKMUnit): TKMUnit;
+function FindBetterSwapPartner(aUnit: TKMUnit): TKMUnit;
 begin
   Result := nil;
 
   var group := gHands[aUnit.Owner].UnitGroups.GetGroupByMember(TKMUnitWarrior(aUnit));
 
-  if group.FlagBearer = aUnit then Exit;
+  if aUnit = group.FlagBearer then Exit;
 
-  var ourWalkTo := WalkTarget(aUnit);
-  var ourDist := aUnit.Position.GetLengthDiag(ourWalkTo);
+  var ourWalkTo := GetWalkTarget(aUnit);
+  var ourDistance := aUnit.Position.GetLengthDiag(ourWalkTo);
 
   for var I := 1 to group.Count - 1 do
   begin
     var U := group.Members[I];
-    if (U = aUnit) or not (U.Action is TKMUnitActionWalkTo) then Continue;
+    if U = aUnit then Continue;
 
-    var hisWalkTo := WalkTarget(U);
-    var worstNow := Max(ourDist, U.Position.GetLengthDiag(hisWalkTo));
-    var worstSwapped := Max(aUnit.Position.GetLengthDiag(hisWalkTo), U.Position.GetLengthDiag(ourWalkTo));
+    // Archers standing still are shooting, so only those already walking can trade destinations with us
+    if not (U.Action is TKMUnitActionWalkTo) then Continue;
+
+    var unitWalkTo := GetWalkTarget(U);
+    var worstNow := Max(ourDistance, U.Position.GetLengthDiag(unitWalkTo));
+    var worstSwapped := Max(aUnit.Position.GetLengthDiag(unitWalkTo), U.Position.GetLengthDiag(ourWalkTo));
 
     if worstSwapped * 2 <= worstNow then
       Exit(U);
@@ -68,8 +70,8 @@ end;
 
 function DescribeSwap(aTick: Cardinal; aUnit, aPartner: TKMUnit): string;
 begin
-  var ourWalkTo := WalkTarget(aUnit);
-  var hisWalkTo := WalkTarget(aPartner);
+  var ourWalkTo := GetWalkTarget(aUnit);
+  var hisWalkTo := GetWalkTarget(aPartner);
   var group := gHands[aUnit.Owner].UnitGroups.GetGroupByMember(TKMUnitWarrior(aUnit));
 
   Result := Format('Tick %d: archer %d of hand %d walks %.1f tiles from %s to %s, while member %d walks %.1f tiles from %s to %s. ' +
@@ -126,9 +128,9 @@ begin
       if (U = nil) or U.IsDeadOrDying then Continue;
       if not (U.Action is TKMUnitActionWalkTo) then Continue;
 
-      if U.Position.GetLengthDiag(WalkTarget(U)) <= MAX_WALK_DIST then Continue;
+      if U.Position.GetLengthDiag(GetWalkTarget(U)) <= MAX_WALK_DIST then Continue;
 
-      var partner := BetterSwapPartner(U);
+      var partner := FindBetterSwapPartner(U);
       if partner <> nil then
         AssertFail(DescribeSwap(aTick, U, partner));
     end;
