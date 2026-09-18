@@ -627,7 +627,7 @@ begin
       begin
         U := fUnit; //Local copy since Self will get freed if TrySetActionWalk succeeds
         animStep := fUnit.AnimStep; //Save anim step locally
-        if fUnit.TrySetActionWalk(fWalkTo, fType, fDistance, fTargetUnit, fTargetHouse, False) then
+        if fUnit.TrySetActionWalk(fWalkTo, fType, fDistance, fTargetUnit, fTargetHouse) then
         begin
           //Now Self = nil since the walk action was replaced! Don't access members and exit ASAP
           //Restore direction, cause it usually looks unpleasant,
