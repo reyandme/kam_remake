@@ -29,7 +29,7 @@ begin
   inherited;
 
   // All soldiers should be in a fight by this time
-  fDuration := 20;
+  fDuration := 23;
 
   gGameApp.NewGameEmptyMap(32, 32);
 
