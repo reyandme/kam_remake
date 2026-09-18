@@ -187,7 +187,7 @@ type
     procedure SetActionWalk(const aLocB: TKMPoint; aActionType: TKMUnitActionType; aDistance: Single; aTargetUnit: TKMUnit;
                             aTargetHouse: TKMHouse; aAvoidLockedByMovementCost: Boolean = True);
     function TrySetActionWalk(const aLocB: TKMPoint; aActionType: TKMUnitActionType; aDistance: Single; aTargetUnit: TKMUnit;
-                              aTargetHouse: TKMHouse; aAvoidLockedByMovementCost: Boolean = True): Boolean;
+                              aTargetHouse: TKMHouse): Boolean;
     procedure SetActionWalkToHouse(aHouse: TKMHouse; aDistance: Single; aActionType: TKMUnitActionType = uaWalk);
     procedure SetActionWalkFromHouse(aHouse: TKMHouse; aDistance: Single; aActionType: TKMUnitActionType = uaWalk);
     procedure SetActionWalkToUnit(aUnit: TKMUnit; aDistance:single; aActionType: TKMUnitActionType = uaWalk);
@@ -1851,20 +1851,20 @@ end;
 //Try to set action walk for unit
 //Used for warriors when they try to update route when attacking house and their destination loc is locked, so they try to avoid it
 function TKMUnit.TrySetActionWalk(const aLocB: TKMPoint; aActionType: TKMUnitActionType; aDistance: Single;
-                                   aTargetUnit: TKMUnit; aTargetHouse: TKMHouse;
-                                   aAvoidLockedByMovementCost: Boolean = True): Boolean; //Silent by default, as we consider fail could happen
+                                   aTargetUnit: TKMUnit; aTargetHouse: TKMHouse): Boolean; //Silent by default, as we consider fail could happen
 var
   newAction: TKMUnitActionWalkTo;
 begin
   Result := False;
-  //Don't do tries too often
+  
+  // Don't try too often
   if fTicker <= fLastTimeTrySetActionWalk + TRY_SET_ACTION_WALK_FREQ then
     Exit;
 
   UpdateLastTimeTrySetActionWalk;
 
   newAction := TKMUnitActionWalkTo.Create(Self, aLocB, aActionType, aDistance, False, aTargetUnit, aTargetHouse,
-                                          tpNone, [], True, aAvoidLockedByMovementCost, True);
+                                          tpNone, [], True, False, True);
 
   //Update action only if route was built, otherwise just keep using previous action
   if newAction.RouteBuilt then
