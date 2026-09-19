@@ -104,15 +104,21 @@ end;
 
 
 class procedure TKMRXXPackerConsole.Pack;
-var
-  resPalettes: TKMResPalettes;
 begin
   ExeDir := ExpandFileName(ExtractFilePath(ParamStr(0)) + '..\..\');
 
-  resPalettes := TKMResPalettes.Create;
+  var resPalettes := TKMResPalettes.Create;
   resPalettes.LoadPalettes(ExeDir + 'data\gfx\');
 
-  var rxxPackerManager := TKMRXXPackerManager.Create(resPalettes, procedure (aMsg: string) begin Writeln(aMsg); end);
+  var rxxPackerManager := TKMRXXPackerManager.Create(resPalettes,
+    procedure (aMsg: string)
+    begin
+      TThread.Queue(nil,
+      procedure
+      begin
+        Writeln(aMsg);
+      end);
+    end);
   rxxPackerManager.SourcePathRX := fSourcePathRX;
   rxxPackerManager.SourcePathInterp := fSourcePathInterp;
   rxxPackerManager.DestinationPath := fDestinationPath;
