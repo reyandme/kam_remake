@@ -23,6 +23,8 @@ type
     procedure SetDestinationPath(const aValue: string);
     procedure SetSourcePathInterp(const aValue: string);
     procedure SetSourcePathRX(const aValue: string);
+    procedure PackAsync(aRxSet: TRXTypeSet);
+    procedure PackSync(aRxSet: TRXTypeSet);
   public
     PackToRXX: Boolean;
     PackToRXA: Boolean;
@@ -42,6 +44,7 @@ type
 
 implementation
 uses
+  System.Classes, System.Generics.Collections,
   KM_RXXPacker;
 
 
@@ -77,6 +80,55 @@ begin
 end;
 
 
+procedure TKMRXXPackerManager.PackAsync(aRxSet: TRXTypeSet);
+  procedure CaptureAndCreateThread(aRT: TRXType; aThreadList: TList<TThread>);
+  begin
+    var t := TThread.CreateAnonymousThread(
+      procedure
+      begin
+        TThread.NameThreadForDebugging('Packing ' + RX_INFO[aRT].FileName);
+
+        fOnMessage('Creating thread for ' + RX_INFO[aRT].FileName);
+
+        var rxxPacker := TKMRXXPacker.Create(aRT, fSourcePathRX, fSourcePathInterp, fDestinationPath, PackToRXX, PackToRXA, RXXFormat, fPalettes, DoLog);
+        rxxPacker.Pack;
+        rxxPacker.Free;
+      end);
+
+    t.FreeOnTerminate := False;
+
+    aThreadList.Add(t);
+  end;
+begin
+  var threadList := TList<TThread>.Create;
+  try
+    for var I := Low(TRXType) to High(TRXType) do
+    if I in aRxSet then
+      CaptureAndCreateThread(I, threadList);
+
+    for var t in threadList do
+      t.Start;
+
+    for var t in threadList do
+      t.WaitFor;
+  finally
+    threadList.Free;
+  end;
+end;
+
+
+procedure TKMRXXPackerManager.PackSync(aRxSet: TRXTypeSet);
+begin
+  for var I := Low(TRXType) to High(TRXType) do
+  if I in aRxSet then
+  begin
+    var rxxPacker := TKMRXXPacker.Create(I, fSourcePathRX, fSourcePathInterp, fDestinationPath, PackToRXX, PackToRXA, RXXFormat, fPalettes, DoLog);
+    rxxPacker.Pack;
+    rxxPacker.Free;
+  end;
+end;
+
+
 procedure TKMRXXPackerManager.PackSet(aRxSet: TRXTypeSet);
 begin
   if not DirectoryExists(SourcePathRX) then
@@ -93,13 +145,8 @@ begin
 
   fTimeBegin := Now;
 
-  for var I := Low(TRXType) to High(TRXType) do
-  if I in aRxSet then
-  begin
-    var rxxPacker := TKMRXXPacker.Create(I, fSourcePathRX, fSourcePathInterp, fDestinationPath, PackToRXX, PackToRXA, RXXFormat, fPalettes, DoLog);
-    rxxPacker.Pack;
-    rxxPacker.Free;
-  end;
+  PackASync(aRxSet);
+  //PackSync(aRxSet);
 
   fOnMessage(Format('Everything packed in %dsec', [Round((Now - fTimeBegin) * SecsPerDay)]));
 end;
