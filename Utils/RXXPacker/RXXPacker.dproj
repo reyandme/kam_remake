@@ -45,8 +45,6 @@
         <DebugSourcePath>..\..\;..\..\src\ext;..\..\src\ext\zlib;..\..\src\ext\pngimage;..\..\src\ext\Overbyte ICS;$(DebugSourcePath)</DebugSourcePath>
         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <Manifest_File>None</Manifest_File>
-        <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
-        <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>3081</VerInfo_Locale>
     </PropertyGroup>
@@ -54,8 +52,6 @@
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
-        <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
-        <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
@@ -86,6 +82,8 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
+        <DCCReference Include="..\..\src\ext\BGRABitmap\BGRABitmap.pas"/>
+        <DCCReference Include="..\..\src\utils\KromUtils.pas"/>
         <DCCReference Include="RXXPackerConsole.pas"/>
         <DCCReference Include="RXXPackerForm.pas">
             <Form>RXXForm1</Form>
@@ -94,27 +92,18 @@
         <DCCReference Include="KM_RXXPackerManager.pas"/>
         <DCCReference Include="..\..\src\utils\io\KM_IoPNG.pas"/>
         <DCCReference Include="..\..\src\res\KM_Pics.pas"/>
-        <DCCReference Include="..\..\src\res\KM_ResSprites.pas"/>
-        <DCCReference Include="..\..\src\res\KM_ResSpritesEdit.pas"/>
-        <DCCReference Include="..\..\src\res\KM_ResPalettes.pas"/>
-        <DCCReference Include="..\..\src\res\KM_ResTypes.pas"/>
         <DCCReference Include="..\..\src\utils\algorithms\KM_SoftShadows.pas"/>
         <DCCReference Include="..\..\src\common\KM_Defaults.pas"/>
         <DCCReference Include="..\..\src\common\KM_CommonTypes.pas"/>
         <DCCReference Include="..\..\src\common\KM_CommonClasses.pas"/>
         <DCCReference Include="..\..\src\common\KM_Points.pas"/>
         <DCCReference Include="..\..\src\utils\KM_CommonUtils.pas"/>
-        <DCCReference Include="..\..\src\utils\KromUtils.pas"/>
         <DCCReference Include="..\..\src\utils\io\KM_FileIO.pas"/>
-        <DCCReference Include="..\..\src\navmesh\KM_Outline.pas"/>
-        <DCCReference Include="..\..\src\navmesh\KM_PolySimplify.pas"/>
-        <DCCReference Include="..\..\src\render\KM_Render.pas"/>
-        <DCCReference Include="..\..\src\render\KM_RenderControl.pas"/>
         <DCCReference Include="..\..\src\utils\algorithms\KM_BinPacking.pas"/>
-        <DCCReference Include="..\..\src\ext\PolyTriangulate.pas"/>
-        <DCCReference Include="..\..\src\ext\BGRABitmap\BGRABitmap.pas"/>
-        <DCCReference Include="..\..\src\ext\dglOpenGL.pas"/>
-        <DCCReference Include="..\..\src\utils\KromOGLUtils.pas"/>
+        <DCCReference Include="..\..\src\res\KM_ResSprites.pas"/>
+        <DCCReference Include="..\..\src\res\KM_ResSpritesEdit.pas"/>
+        <DCCReference Include="..\..\src\res\KM_ResPalettes.pas"/>
+        <DCCReference Include="..\..\src\res\KM_ResTypes.pas"/>
         <None Include="Profiling\AQtimeModule1.aqt"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
