@@ -20,9 +20,9 @@ type
     fMinValue: Integer;
     fMaxValue: Integer;
     fPosition: Integer;
-    fPageSize: Integer; //How many units (rows/pixels/etc, same units as Min/MaxValue) are visible at once.
-                         //0 (default) keeps the old fixed-size thumb; >0 sizes the thumb classically,
-                         //proportional to PageSize / (PageSize + (MaxValue-MinValue))
+    fPageSize: Integer; // How many units are visible at once.
+                         // 0 - (default) keeps the old fixed-size thumb
+                         // >0 proportional thumb
     fThumbPos: Integer; //Position of the thumb
     fThumbSize: Word; //Length of the thumb
     fOffset: Integer;
