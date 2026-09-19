@@ -382,7 +382,7 @@ begin
     Sender.AddTypeS('TKMMissionDifficulty', '(mdNone, mdEasy3, mdEasy2, mdEasy1, mdNormal, ' +
       'mdHard1, mdHard2, mdHard3)');
     Sender.AddTypeS('TKMPoint', 'record ' +
-        'X,Y: Integer; ' +
+        'X, Y: Integer; ' +
       'end;');
     Sender.AddTypeS('TKMTerrainKind', '(tkCustom, tkGrass, tkMoss, tkPaleGrass, tkCoastSand, ' +
       'tkGrassSand1, tkGrassSand2, tkGrassSand3, tkSand, tkGrassDirt, ' +
