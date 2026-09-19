@@ -41,6 +41,7 @@ uses
   KM_Test_Sawmill_DeliveryOut in 'KM_Test_Sawmill_DeliveryOut.pas',
   KM_Test_Stone in 'KM_Test_Stone.pas',
   KM_Test_TerrainGetClosestTile in 'KM_Test_TerrainGetClosestTile.pas',
+  KM_Test_Walk_PastWolf in 'KM_Test_Walk_PastWolf.pas',
   KM_Test_Walk_UnwalkableTarget in 'KM_Test_Walk_UnwalkableTarget.pas',
   KM_Test_Woodcutter_Chop in 'KM_Test_Woodcutter_Chop.pas',
   KM_Test_Woodcutter_Plant in 'KM_Test_Woodcutter_Plant.pas',
