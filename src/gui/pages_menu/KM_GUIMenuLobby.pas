@@ -182,7 +182,8 @@ type
           PercentBar_SetupProgress: TKMPercentBar;
         Panel_SetupMinimap: TKMPanel;
           MinimapView: TKMMinimapView;
-        Button_TabDesc, Button_TabOptions: TKMButton;
+        Button_TabDesc: TKMButton;
+        Button_TabOptions: TKMButton;
         Panel_SetupDesc: TKMPanel;
           Memo_MapDesc: TKMMemo;
           Button_SetupReadme: TKMButton;
@@ -192,7 +193,8 @@ type
             DropBox_Difficulty: TKMDropList;
           Panel_GameOptions: TKMPanel;
             TrackBar_LobbyPeacetime: TKMTrackBar;
-            TrackBar_SpeedPT, TrackBar_SpeedAfterPT: TKMTrackBar;
+            TrackBar_SpeedPT: TKMTrackBar;
+            TrackBar_SpeedAfterPT: TKMTrackBar;
 
       Memo_Posts: TKMMemo;
       Button_Post: TKMButtonFlat;
@@ -236,7 +238,7 @@ const
   MAP_TYPE_INDEX_SAVE = 5;
 
 
-{ TKMGUIMenuLobby }
+{ TKMMenuLobby }
 constructor TKMMenuLobby.Create(aParent: TKMPanel; aOnPageChange: TKMMenuChangeEventText);
 begin
   inherited Create(gpLobby);
@@ -784,21 +786,21 @@ begin
                             Edit_Post.DrawOutline := True;
                             Edit_Post.OutlineColor := $FF66FF66;
                           end;
-    else  begin //Whisper to player
-            netI := gNetworking.Room.ServerToLocal(aItemTag);
-            if netI <> -1 then
-            begin
-              gChat.Mode := cmWhisper;
-              Edit_Post.DrawOutline := True;
-              Edit_Post.OutlineColor := $FF00B9FF;
-              with gNetworking.Room[netI] do
-              begin
-                gChat.WhisperRecipient := IndexOnServer;
-                UpdateButtonCaption(NicknameU, IfThen(IsColorSet, FlagColorToTextColor(FlagColor), 0));
-              end;
-            end;
-          end;
+  else  
+    // Whisper to player
+    netI := gNetworking.Room.ServerToLocal(aItemTag);
+    if netI <> -1 then
+    begin
+      gChat.Mode := cmWhisper;
+      Edit_Post.DrawOutline := True;
+      Edit_Post.OutlineColor := $FF00B9FF;
+      with gNetworking.Room[netI] do
+      begin
+        gChat.WhisperRecipient := IndexOnServer;
+        UpdateButtonCaption(NicknameU, IfThen(IsColorSet, FlagColorToTextColor(FlagColor), 0));
+      end;
     end;
+  end;
 end;
 
 
@@ -1256,19 +1258,13 @@ begin
   Result := True;
   ctrl := TKMControl(Sender);
   if fLocalToSlot[ctrl.Tag] = -1 then
-  begin
-    Result := False;
-    Exit;
-  end;
+    Exit(False);
 
   //Only human players (excluding ourselves) have the player menu
   if not gNetworking.Room[fLocalToSlot[ctrl.Tag]].IsHuman //No menu for AI players
   or (gNetworking.MySlotIndex = fLocalToSlot[ctrl.Tag]) //No menu for ourselves
   or not gNetworking.Room[fLocalToSlot[ctrl.Tag]].Connected then //Don't show menu for empty slots
-  begin
-    Result := False;
-    Exit;
-  end;
+    Exit(False);
 end;
 
 
@@ -1278,7 +1274,8 @@ begin
   begin
     DropBox_Loc[aPlayerIndex].Hide;
     PercentBar_DownloadProgress[aPlayerIndex].DoSetVisible; //Don't use Show here, since it will Show parent panels as well...
-  end else begin
+  end else
+  begin
     //Don't use Show here, since it will Show parent panels as well...
     //And since we call this method on disconnection we will see Lobby window over Multiplayer list window then...
     DropBox_Loc[aPlayerIndex].DoSetVisible;
@@ -1306,7 +1303,8 @@ begin
 
     //Position the menu next to the icon, but do not overlap players name
     PopUpMenu_Host.ShowAt(ctrl.AbsLeft, ctrl.AbsTop + ctrl.Height);
-  end else begin
+  end else
+  begin
     //Remember which player it is by his server index
     //since order of players can change. If someone above leaves we still have the proper Id
     PopUpMenu_Joiner.Tag := gNetworking.Room[fLocalToSlot[ctrl.Tag]].IndexOnServer;
@@ -1402,7 +1400,7 @@ begin
         //We have to revert ItemIndex to its previous value, because its value was already switched to AI on MouseDown
         //but we are not sure yet about what value should be there, we will set it properly later on
         if IsAILine and (DropBox_PlayerSlot[I].ItemIndex = aCellY)
-          and (fDropBoxPlayers_LastItemIndex <> -1) then
+        and (fDropBoxPlayers_LastItemIndex <> -1) then
           DropBox_PlayerSlot[I].ItemIndex := fDropBoxPlayers_LastItemIndex;
 
         Break;
@@ -1417,7 +1415,8 @@ begin
       case aCellY of
         0:       J := MAX_LOBBY_SLOTS + 1 - I; // we must Open slots in reverse order
         1, 2, 3: J := I;                       // Closed and AI slots - in straight order
-        else     J := I;
+      else
+        J := I;
       end;
 
       RowChanged := False;
@@ -1462,7 +1461,8 @@ begin
       case gNetworking.SelectGameKind of
         ngkMap:   color := gNetworking.MapInfo.FlagColors[DropBox_Loc[I].GetSelectedTag - 1];
         ngkSave:  color := gNetworking.SaveInfo.GameInfo.Color[DropBox_Loc[I].GetSelectedTag - 1];
-        else      color := 0;
+      else
+        color := 0;
       end;
 
       DropBox_Colors[I][0].Cells[0].Color := color;
@@ -1560,11 +1560,9 @@ begin
       begin
         case DropBox_PlayerSlot[I].ItemIndex of
           0:  //Open
-              begin
-                if gNetworking.Room[slotIndex].IsComputer
-                  or gNetworking.Room[slotIndex].IsClosed then
-                  gNetworking.Room.RemPlayer(slotIndex);
-              end;
+              if gNetworking.Room[slotIndex].IsComputer
+              or gNetworking.Room[slotIndex].IsClosed then
+                gNetworking.Room.RemPlayer(slotIndex);
           1:  //Closed
               gNetworking.Room.AddClosedPlayer(slotIndex); //Replace it
           2:  //AI
@@ -1928,10 +1926,10 @@ begin
 
     // We assume locs are in a row for now. From 1 to LocCount
     for I := 1 to gNetworking.MapInfo.LocCount do
-      begin
-        Include(players, I);
-        Inc(playersCnt);
-      end;
+    begin
+      Include(players, I);
+      Inc(playersCnt);
+    end;
 
     // Find rngPlayersTeam
     for I := 1 to gNetworking.Room.Count do
@@ -2074,10 +2072,8 @@ begin
                                    gResTexts[TX_MENU_LOAD_MAP_NAME], gResTexts[TX_MENU_LOAD_GAME_VERSION]],
                                   [0, 290, 320, 400, 540, 760]);
         end;
-    else
-        begin
-          DropCol_Maps.DefaultCaption := NO_TEXT;
-        end;
+  else
+    DropCol_Maps.DefaultCaption := NO_TEXT;
   end;
   DropCol_Maps.ItemIndex := -1; //Clear previously selected item
 end;
@@ -2222,7 +2218,8 @@ begin
         1:    addMap := fMapsMP[I].IsFightingMission and not fMapsMP[I].TxtInfo.IsCoop and not fMapsMP[I].TxtInfo.IsSpecial; //FightMap
         2:    addMap := fMapsMP[I].TxtInfo.IsCoop; //CoopMap
         3:    addMap := fMapsMP[I].TxtInfo.IsSpecial; //Special map
-        else  addMap := False; //Other cases are already handled in Lobby_MapTypeSelect
+      else
+        addMap := False; //Other cases are already handled in Lobby_MapTypeSelect
       end;
 
       //Presect RMG map, if we have it in map list
@@ -2585,7 +2582,6 @@ begin
 
     Panel_Difficulty.DoSetVisible;
     DropBox_Difficulty.Enabled := gNetworking.IsHost; //Only Host can change map difficulty
-
   end else
     Panel_Difficulty.Hide;
 
@@ -2706,6 +2702,7 @@ begin
   Panel_SetupTransfer.Show;
   Button_SetupDownload.Show;
   Lobby_OnFileTransferProgress(0, 0); //Reset progress bar
+
   if aStartTransfer then
     FileDownloadClick(nil);
 end;
@@ -2771,26 +2768,24 @@ var
 begin
   Result := False;
   if IsKeyEvent_Return_Handled(Self, Key) then
-  begin
-    case Key of
-      VK_RETURN:  Result := DoPost;
-      VK_UP:      begin
-                    str := gChat.GetNextHistoryMsg;
-                    if str <> '' then
-                    begin
-                      Edit_Post.Text := str;
-                      Result := True;
-                    end;
+  case Key of
+    VK_RETURN:  Result := DoPost;
+    VK_UP:      begin
+                  str := gChat.GetNextHistoryMsg;
+                  if str <> '' then
+                  begin
+                    Edit_Post.Text := str;
+                    Result := True;
                   end;
-      VK_DOWN:    begin
-                    str := gChat.GetPrevHistoryMsg;
-                    if str <> '' then
-                    begin
-                      Edit_Post.Text := str;
-                      Result := True;
-                    end;
+                end;
+    VK_DOWN:    begin
+                  str := gChat.GetPrevHistoryMsg;
+                  if str <> '' then
+                  begin
+                    Edit_Post.Text := str;
+                    Result := True;
                   end;
-    end;
+                end;
   end;
 end;
 
@@ -2858,7 +2853,8 @@ begin
   begin
     PercentBar_SetupProgress.Hide;
     PercentBar_SetupProgress.SetCaptions('', gResTexts[TX_LOBBY_DOWNLOADING], '');
-  end else begin
+  end else
+  begin
     PercentBar_SetupProgress.Show;
     PercentBar_SetupProgress.Position := aProgress / aTotal;
     PercentBar_SetupProgress.SetCaptions(IntToStr(aProgress div 1024) + 'kb ', '/', ' ' + IntToStr(aTotal div 1024) + 'kb');
@@ -2876,7 +2872,8 @@ begin
     PercentBar_DownloadProgress[row].Position := 0;
     PercentBar_DownloadProgress[row].SetCaptions('', gResTexts[TX_LOBBY_DOWNLOADING], '');
     PercentBar_PlayerDl_ChVisibility(row, False);
-  end else begin
+  end else
+  begin
     PercentBar_DownloadProgress[row].Position := aProgress / aTotal;
     PercentBar_DownloadProgress[row].SetCaptions(IntToStr(aProgress div 1024) + 'kb ', '/', ' ' + IntToStr(aTotal div 1024) + 'kb');
     PercentBar_PlayerDl_ChVisibility(row, True);
