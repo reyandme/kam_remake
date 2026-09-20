@@ -16,6 +16,7 @@
 
 KaM Remake Beta r_____ []
 ------------------------------
++ Fixed terrain connectivity after applying terrain brushes from dynamic script
 
 
 KaM Remake Beta r16397 [2026.09.19]
