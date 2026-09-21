@@ -14,10 +14,13 @@ type
     fLoc: TKMPoint;
     fTextID: Integer;
     fIsReadGIP: Boolean; //This is synced through GIP
+
+    // Runtime (not saved)
     fIsReadLocal: Boolean; //This is used locally so it responds instantly
   public
     constructor Create(aKind: TKMMessageKind; aTextID: Integer; const aLoc: TKMPoint; aEntityUID: Integer);
     constructor Load(LoadStream: TKMemoryStream);
+    procedure Save(SaveStream: TKMemoryStream);
 
     function IsGoto: Boolean;
     function IsRead: Boolean;
@@ -28,20 +31,25 @@ type
 
     property IsReadGIP: Boolean write fIsReadGIP;
     property IsReadLocal: Boolean write fIsReadLocal;
-
-    procedure Save(SaveStream: TKMemoryStream);
   end;
 
   TKMMessageLog = class
   private
-    fReadAtCountGIP: Integer; // Last time player opened log when log count was equal to
-    fReadAtCountLocal: Integer;
     fCountLog: Integer;
     fListLog: array of TKMLogMessage;
+
+    fReadAtCountGIP: Integer; // Last time player opened log when log count was equal to
+
+    // Runtime (not saved)
+    fReadAtCountLocal: Integer;
+
     function GetMessageLog(aIndex: Integer): TKMLogMessage;
     function GetReadAtCount: Integer;
   public
     destructor Destroy; override;
+
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
 
     property CountLog: Integer read fCountLog;
     property ReadAtCountGIP: Integer read fReadAtCountGIP write fReadAtCountGIP;
@@ -52,9 +60,6 @@ type
     function HasNewMessages: Boolean;
 
     procedure Add(aKind: TKMMessageKind; aTextID: Integer; const aLoc: TKMPoint; aEntityUID: Integer);
-
-    procedure Save(SaveStream: TKMemoryStream);
-    procedure Load(LoadStream: TKMemoryStream);
   end;
 
 
@@ -90,6 +95,17 @@ begin
 end;
 
 
+procedure TKMLogMessage.Save(SaveStream: TKMemoryStream);
+begin
+  SaveStream.PlaceMarker('LogMessage');
+  SaveStream.Write(fEntityUID);
+  SaveStream.Write(fLoc);
+  SaveStream.Write(fTextID);
+  SaveStream.Write(fKind, SizeOf(TKMMessageKind));
+  SaveStream.Write(fIsReadGIP);
+end;
+
+
 //Check wherever message has a GoTo option
 function TKMLogMessage.IsGoto: Boolean;
 begin
@@ -106,17 +122,6 @@ end;
 function TKMLogMessage.Text: UnicodeString;
 begin
   Result := gResTexts[fTextID];
-end;
-
-
-procedure TKMLogMessage.Save(SaveStream: TKMemoryStream);
-begin
-  SaveStream.PlaceMarker('LogMessage');
-  SaveStream.Write(fEntityUID);
-  SaveStream.Write(fLoc);
-  SaveStream.Write(fTextID);
-  SaveStream.Write(fKind, SizeOf(TKMMessageKind));
-  SaveStream.Write(fIsReadGIP);
 end;
 
 
