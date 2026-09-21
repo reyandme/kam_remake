@@ -8,6 +8,7 @@ uses
 type
   //Individual message
   TKMStackMessage = class
+  private
     fKind: TKMMessageKind;
     fLoc: TKMPoint;
     fText: UnicodeString;
