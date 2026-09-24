@@ -421,7 +421,8 @@ begin
       'wtBow, wtCrossbow, wtHorse, wtFish, wtAll, ' +
       'wtWarfare, wtFood)');
     Sender.AddTypeS('TKMWoodcutterMode', '(wmChopAndPlant, wmChop, wmPlant)');
-    // Dependent types of level 1
+
+    // Level 1 types depend on preceeding types of level 0
     Sender.AddTypeS('TKMAIAttackInfo', 'record ' +
         'UID: Integer; ' +
         'AttackType: TKMAIAttackType; ' +
