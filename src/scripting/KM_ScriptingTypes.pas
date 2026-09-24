@@ -6,7 +6,7 @@ uses
 
 type
   TKMScriptEventType = (
-    //*Events-Reg*//
+    //*Area-Events-Reg*//
     evtBeacon,
     evtFieldBuilt,
     evtGameSpeedChanged,
@@ -59,7 +59,7 @@ type
     evtWarriorWalked,
     evtWinefieldBuilt,
     evtWoodcuttersModeChanged
-    //*Events-Reg*//
+    //*Area-Events-Reg*//
   );
 
 

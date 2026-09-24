@@ -351,7 +351,7 @@ var
 begin
   if Name = 'SYSTEM' then
   begin
-    //*Types-Reg*//
+    //*Area-Types-Reg*//
     Sender.AddTypeS('TAnsiStringArray', 'array of AnsiString');
     Sender.AddTypeS('TByteSet', 'set of Byte');
     Sender.AddTypeS('TIntegerArray', 'array of Integer');
@@ -451,7 +451,7 @@ begin
     Sender.AddTypeS('TKMMissionDifficultySet', 'set of TKMMissionDifficulty');
     Sender.AddTypeS('TKMUnitTypeSet', 'set of TKMUnitType');
     Sender.AddTypeS('TKMWareTypeSet', 'set of TKMWareType');
-    //*Types-Reg*//
+    //*Area-Types-Reg*//
 
     // Add CampaignData type and variable only after addition of all other custom types,
     // so those types could be used in the TKMCampaignData declaration
@@ -460,7 +460,7 @@ begin
     // Register classes and methods to the script engine.
     // After that they can be used from within the script.
     c := Sender.AddClassN(nil, AnsiString(fStates.ClassName));
-    //*States-Check*//
+    //*Area-States-Check*//
     RegisterMethodCheck(c, 'function  AAIAttackHouseTypesGet(aHand: Byte): TKMHouseTypeSet');
     RegisterMethodCheck(c, 'function  AIArmyType(aHand: Byte): TKMArmyType');
     RegisterMethodCheck(c, 'function  AIAutoAttack(aHand: Byte): Boolean');
@@ -695,10 +695,10 @@ begin
     RegisterMethodCheck(c, 'function  WareTypeName(aWareType: Byte): AnsiString');
     RegisterMethodCheck(c, 'function  WareTypeNameEx(aWareType: TKMWareType): AnsiString');
     RegisterMethodCheck(c, 'function  WarriorInFight(aUnitID: Integer; aCountCitizens: Boolean): Boolean');
-    //*States-Check*//
+    //*Area-States-Check*//
 
     c := Sender.AddClassN(nil, AnsiString(fActions.ClassName));
-    //*Actions-Check*//
+    //*Area-Actions-Check*//
     RegisterMethodCheck(c, 'procedure AAIAttackHouseTypesSet(aHand: Byte; aHouses: TKMHouseTypeSet)');
     RegisterMethodCheck(c, 'procedure AIArmyType(aHand: Byte; aType: TKMArmyType)');
     RegisterMethodCheck(c, 'function  AIAttackAdd(aHand: Integer; aRepeating: Boolean; aDelay: Cardinal; aTotalMen: Integer; ' +
@@ -917,10 +917,10 @@ begin
     RegisterMethodCheck(c, 'procedure UnitHungerSet(aUnitID: Integer; aHungerLevel: Integer)');
     RegisterMethodCheck(c, 'procedure UnitKill(aUnitID: Integer; aSilent: Boolean)');
     RegisterMethodCheck(c, 'function  UnitOrderWalk(aUnitID: Integer; X, Y: Integer): Boolean');
-    //*Actions-Check*//
+    //*Area-Actions-Check*//
 
     c := Sender.AddClassN(nil, AnsiString(fUtils.ClassName));
-    //*Utils-Check*//
+    //*Area-Utils-Check*//
     RegisterMethodCheck(c, 'function  AbsI(aValue: Integer): Integer');
     RegisterMethodCheck(c, 'function  AbsS(aValue: Single): Single');
     RegisterMethodCheck(c, 'function  ArrayElementCount(aElement: AnsiString; aArray: array of String): Integer');
@@ -986,7 +986,7 @@ begin
     RegisterMethodCheck(c, 'function  TrimRight(Str: string): String');
     RegisterMethodCheck(c, 'function  TruncTo(aValue: Single; aBase: Integer): Integer');
     RegisterMethodCheck(c, 'function  UpperCase(Str: string): String');
-    //*Utils-Check*//
+    //*Area-Utils-Check*//
 
     // Register objects
     AddImportedClassVariable(Sender, 'States', AnsiString(fStates.ClassName));
@@ -1024,7 +1024,7 @@ const
     Typ: array [0..5] of Byte;
     Dir: array [0..4] of TPSParameterMode;
   end = (
-    //*Events-Check*//
+    //*Area-Events-Check*//
     (ParamCount: 3; Typ: (0, btS32   , btS32   , btS32   , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnBeacon
     (ParamCount: 3; Typ: (0, btS32   , btS32   , btS32   , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnFieldBuilt
     (ParamCount: 1; Typ: (0, btSingle, 0       , 0       , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnGameSpeedChanged
@@ -1077,7 +1077,7 @@ const
     (ParamCount: 3; Typ: (0, btS32   , btS32   , btS32   , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnWarriorWalked
     (ParamCount: 3; Typ: (0, btS32   , btS32   , btS32   , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnWinefieldBuilt
     (ParamCount: 3; Typ: (0, btS32   , btEnum  , btEnum  , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)) // OnWoodcuttersModeChanged
-    //*Events-Check*//
+    //*Area-Events-Check*//
   );
 var
   I: Integer;
@@ -1228,7 +1228,7 @@ begin
     //(uppercase is not needed, FastUpperCase does this well. See uPSRuntime.pas, line 11387)
     with classImp.Add(TKMScriptStates) do
     begin
-      //*States-Reg*//
+      //*Area-States-Reg*//
       RegisterMethod(@TKMScriptStates.AAIAttackHouseTypesGet, 'AAIAttackHouseTypesGet');
       RegisterMethod(@TKMScriptStates.AIArmyType, 'AIArmyType');
       RegisterMethod(@TKMScriptStates.AIAutoAttack, 'AIAutoAttack');
@@ -1462,12 +1462,12 @@ begin
       RegisterMethod(@TKMScriptStates.WareTypeName, 'WareTypeName');
       RegisterMethod(@TKMScriptStates.WareTypeNameEx, 'WareTypeNameEx');
       RegisterMethod(@TKMScriptStates.WarriorInFight, 'WarriorInFight');
-      //*States-Reg*//
+      //*Area-States-Reg*//
     end;
 
     with classImp.Add(TKMScriptActions) do
     begin
-      //*Actions-Reg*//
+      //*Area-Actions-Reg*//
       RegisterMethod(@TKMScriptActions.AAIAttackHouseTypesSet, 'AAIAttackHouseTypesSet');
       RegisterMethod(@TKMScriptActions.AIArmyType, 'AIArmyType');
       RegisterMethod(@TKMScriptActions.AIAttackAdd, 'AIAttackAdd');
@@ -1664,12 +1664,12 @@ begin
       RegisterMethod(@TKMScriptActions.UnitHungerSet, 'UnitHungerSet');
       RegisterMethod(@TKMScriptActions.UnitKill, 'UnitKill');
       RegisterMethod(@TKMScriptActions.UnitOrderWalk, 'UnitOrderWalk');
-      //*Actions-Reg*//
+      //*Area-Actions-Reg*//
     end;
 
     with classImp.Add(TKMScriptUtils) do
     begin
-      //*Utils-Reg*//
+      //*Area-Utils-Reg*//
       RegisterMethod(@TKMScriptUtils.AbsI, 'AbsI');
       RegisterMethod(@TKMScriptUtils.AbsS, 'AbsS');
       RegisterMethod(@TKMScriptUtils.ArrayElementCount, 'ArrayElementCount');
@@ -1734,7 +1734,7 @@ begin
       RegisterMethod(@TKMScriptUtils.TrimRight, 'TrimRight');
       RegisterMethod(@TKMScriptUtils.TruncTo, 'TruncTo');
       RegisterMethod(@TKMScriptUtils.UpperCase, 'UpperCase');
-      //*Utils-Reg*//
+      //*Area-Utils-Reg*//
     end;
 
     //Append classes info to Exec
