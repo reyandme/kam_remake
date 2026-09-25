@@ -175,10 +175,23 @@ begin
     //Do some house keeping because we have now stepped on a new tile
     fUnit.PositionNext := fNextPos;
     fUnit.Walk(fUnit.PositionPrev, fUnit.PositionNext); //Pre-occupy next tile
-    if KMStepIsDiag(fUnit.PositionPrev,fUnit.PositionNext) then
-      IncVertex(fUnit.PositionPrev,fUnit.PositionNext);
     //Update unit direction so we are facing the way we are going
     fUnit.Direction := KMGetDirection(fUnit.PositionPrev, fUnit.PositionNext);
+
+    //Take the vertex on the next tick, not on this one. Releasing and retaking it within
+    //a single Execute leaves no tick in which anyone else can see it free (animals update
+    //after all the hands), which is how an animal pacing to and fro locks a diagonal forever
+    Exit(arActContinues);
+  end;
+
+  if KMSamePoint(fVertexOccupied, KMPOINT_ZERO)
+  and KMStepIsDiag(fUnit.PositionPrev, fUnit.PositionNext) then
+  begin
+    //Someone is already crossing our diagonal, let them finish
+    if not fUnit.VertexUsageCompatible(fUnit.PositionPrev, fUnit.PositionNext) then
+      Exit(arActContinues);
+
+    IncVertex(fUnit.PositionPrev, fUnit.PositionNext);
   end;
 
   walkX := fNextPos.X - fUnit.PositionF.X;
