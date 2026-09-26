@@ -79,6 +79,7 @@ type
     function DrawEolSymbol: Boolean; override;
     function DoShowMarkup: Boolean; override;
   public
+    IsUpperCase: Boolean; // Applies UpperCase to typed and pasted text
     Masked: Boolean; //Mask entered text as *s
     MaxLen: Word;
     ShowColors: Boolean;
@@ -608,6 +609,9 @@ procedure TKMEdit.ValidateText(aTriggerOnChange: Boolean = True);
 var
   I: Integer;
 begin
+  if IsUpperCase then
+    fText := UpperCase(fText);
+
   //Parse whole text incase user placed it from clipboard
   //Validate contents
   for I := Length(fText) downto 1 do
