@@ -120,15 +120,6 @@ begin
   Image_Background.AnchorsStretch;
   Image_Background.ImageStretch;
 
-  if aCloseIcon then
-  begin
-    Image_Close := TKMImage.Create(Self, Width - MarginCrossRight, MarginCrossTop, 31, 30, 52);
-    Image_Close.Anchors := [anTop, anRight];
-    Image_Close.Hint := gResTexts[TX_MSG_CLOSE_HINT];
-    Image_Close.OnClick := Close;
-    Image_Close.HighlightOnMouseOver := True;
-  end;
-
   ItemsPanel := TKMPanel.Create(Self, MarginMainLeftRight, MarginMainTop, Width - 2*MarginMainLeftRight, Height - MarginMainTop - MarginMainBottom);
   ItemsPanel.AnchorsStretch;
   if aBevelForContents then
@@ -138,6 +129,15 @@ begin
   end;
 
   Label_Caption := TKMLabel.Create(ItemsPanel, 0, -25, ItemsPanel.Width, 20, aCaption, DEFAULT_CAPTION_FONT, taCenter);
+
+  if aCloseIcon then
+  begin
+    Image_Close := TKMImage.Create(Self, Width - MarginCrossRight, MarginCrossTop, 31, 30, 52);
+    Image_Close.Anchors := [anTop, anRight];
+    Image_Close.Hint := gResTexts[TX_MSG_CLOSE_HINT];
+    Image_Close.OnClick := Close;
+    Image_Close.HighlightOnMouseOver := True;
+  end;
 
   AnchorsCenter;
   Hide;
