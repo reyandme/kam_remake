@@ -458,6 +458,16 @@ begin
       serverIndex := fNetRoom[aPlayers[I]].IndexOnServer;
       //Make sure this player is properly disconnected from the server
       PacketSendInd(NET_ADDRESS_SERVER, mkKickPlayer, serverIndex);
+
+      // Until the server has kicked him, a connected player's commands keep coming, and each joiner would stop
+      // playing them at whatever tick our player list reaches it (issue #356). So he is only kicked for now.
+      // Once his connection is gone the game waits for him like for any disconnected player, and he can be dropped
+      if fNetRoom[aPlayers[I]].Connected then
+      begin
+        fNetRoom[aPlayers[I]].Kicked := True;
+        Continue;
+      end;
+
       fNetRoom.DropPlayer(serverIndex);
     end;
     PostMessage(TX_NET_DROPPED, csLeave, fNetRoom[aPlayers[I]].NicknameColoredU);
