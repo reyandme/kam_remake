@@ -35,6 +35,7 @@ uses
   KM_Test_Recruit_EquipWhileEating in 'KM_Test_Recruit_EquipWhileEating.pas',
   KM_Test_Recruit_KilledInside in 'KM_Test_Recruit_KilledInside.pas',
   KM_Test_Recruit_StarvedInside in 'KM_Test_Recruit_StarvedInside.pas',
+  KM_Test_Replay_WithoutAI in 'KM_Test_Replay_WithoutAI.pas',
   KM_Test_SaveLoad_RoundTrip in 'KM_Test_SaveLoad_RoundTrip.pas',
   KM_Test_Sawmill in 'KM_Test_Sawmill.pas',
   KM_Test_Sawmill_DeliveryIn in 'KM_Test_Sawmill_DeliveryIn.pas',
