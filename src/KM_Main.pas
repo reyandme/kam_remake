@@ -36,6 +36,8 @@ type
     fFPS: Single;
     fFPSString: String;
 
+    fIgnoreDeactivate: Boolean;
+
     procedure DoRestore(Sender: TObject);
     procedure DoActivate(Sender: TObject);
     procedure DoDeactivate(Sender: TObject);
@@ -468,7 +470,7 @@ end;
 procedure TKMMain.DoDeactivate(Sender: TObject);
 begin
   //Occurs during Toggle to fullscreen, should be ignored
-  if Application.Active then Exit;
+  if fIgnoreDeactivate or Application.Active then Exit;
 
   //Prevent the game window from being in the way by minimizing when alt-tabbing
   if (gMainSettings <> nil) and gMainSettings.FullScreen then
@@ -720,8 +722,12 @@ begin
   gLog.AddTime('Panel Width/Height: %dx%d', [fFormMain.RenderArea.Width, fFormMain.RenderArea.Height]);
 
   //Hide'n'show will make form go ontop of taskbar
+  //Hiding the only visible form deactivates the app, and FormShow processes that deactivation
+  //before the form is shown again. Minimizing then leaves the app window iconic for good
+  fIgnoreDeactivate := True;
   fFormMain.Hide;
   fFormMain.Show;
+  fIgnoreDeactivate := False;
 
   ForceResize; //Force everything to resize
 
