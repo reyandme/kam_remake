@@ -3101,8 +3101,7 @@ begin
       fScripting.UpdateState;
       gTerrain.UpdateState;
 
-      if gHands.CanHaveAI() then
-        gAIFields.UpdateState(fParams.Tick);
+      gAIFields.UpdateState(fParams.Tick);
 
       gHands.UpdateState(fParams.Tick); // Quite slow
 
@@ -3190,8 +3189,7 @@ begin
 
     fScripting.UpdateState;
     gTerrain.UpdateState;
-    if gHands.CanHaveAI() then
-      gAIFields.UpdateState(fParams.Tick);
+    gAIFields.UpdateState(fParams.Tick);
     gHands.UpdateState(fParams.Tick); // Quite slow
     if gGame = nil then Exit; // Quit the update if game was stopped for some reason
     gMySpectator.UpdateState(fParams.Tick);
