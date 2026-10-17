@@ -1,4 +1,4 @@
-unit KM_Test_Walk_PastWolf;
+unit KM_Test_Walk_PastPacingAnimal;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -6,9 +6,10 @@ uses
 
 
 type
-  // A wolf that paces to and fro over a diagonal should not keep that diagonal
-  // for itself - units walking the crossing diagonal must still get through
-  TKMTest_WalkPastWolf = class(TKMTest)
+  // An animal that paces to and fro over a diagonal should not keep that diagonal
+  // for itself - units walking the crossing diagonal must still get through.
+  // A wolf stands in for them all, every animal walks with TKMUnitActionSteer
+  TKMTest_WalkPastPacingAnimal = class(TKMTest)
   private const
     // The wolf's two tiles, diagonal to each other
     WOLF_X = 16;
@@ -36,8 +37,8 @@ uses
   KM_ResTilesetTypes, KM_UnitGroupTypes;
 
 
-{ TKMTest_WalkPastWolf }
-procedure TKMTest_WalkPastWolf.SetUp;
+{ TKMTest_WalkPastPacingAnimal }
+procedure TKMTest_WalkPastPacingAnimal.SetUp;
 begin
   inherited;
 
@@ -62,7 +63,7 @@ begin
 end;
 
 
-procedure TKMTest_WalkPastWolf.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
+procedure TKMTest_WalkPastPacingAnimal.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
   // Let the wolf take up its pacing, then send the soldier across its path
   if aTick = 20 then
@@ -76,18 +77,18 @@ begin
 end;
 
 
-class function TKMTest_WalkPastWolf.TestTags: TKMTestTagSet;
+class function TKMTest_WalkPastPacingAnimal.TestTags: TKMTestTagSet;
 begin
   Result := [tcWolf, tcAxeFighter, tcPathfinding];
 end;
 
 
-class function TKMTest_WalkPastWolf.TestDescription: string;
+class function TKMTest_WalkPastPacingAnimal.TestDescription: string;
 begin
-  Result := 'A soldier sent across the path of a wolf pacing between two tiles should reach his destination.';
+  Result := 'A soldier sent across the path of an animal pacing between two tiles should reach his destination.';
 end;
 
 
 initialization
-  RegisterTest(TKMTest_WalkPastWolf);
+  RegisterTest(TKMTest_WalkPastPacingAnimal);
 end.
