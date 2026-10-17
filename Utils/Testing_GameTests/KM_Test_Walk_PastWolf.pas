@@ -23,7 +23,6 @@ type
   protected
     procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
     procedure SetUp; override;
-    procedure CheckResult; override;
   public
     class function TestTags: TKMTestTagSet; override;
     class function TestDescription: string; override;
@@ -33,7 +32,7 @@ type
 implementation
 uses
   KM_Defaults, KM_Points,
-  KM_GameApp, KM_HandsCollection, KM_Terrain,
+  KM_GameApp, KM_HandsCollection, KM_HandTypes, KM_Terrain,
   KM_ResTilesetTypes, KM_UnitGroupTypes;
 
 
@@ -45,6 +44,9 @@ begin
   fDuration := 600;
 
   gGameApp.NewGameEmptyMap(32, 32);
+
+  // Player controlled, so that no AI general orders the squads about
+  gHands[0].HandType := hndHuman;
 
   // People walk on sand, wolves need soil. Sanding everything around the two
   // diagonal tiles leaves the wolf nowhere to go but back and forth between them
@@ -68,12 +70,9 @@ begin
 
   // Stop as soon as the soldier is where he was sent
   aKeepGoing := not KMSamePoint(fGroup.FlagBearer.Position, KMPoint(TO_X, TO_Y));
-end;
 
-
-procedure TKMTest_WalkPastWolf.CheckResult;
-begin
-  AssertTrue(KMSamePoint(fGroup.FlagBearer.Position, KMPoint(TO_X, TO_Y)), 'Soldier did not get past the wolf');
+  if aKeepGoing and TimeIsOut then
+    AssertFail('Soldier did not get past the wolf');
 end;
 
 

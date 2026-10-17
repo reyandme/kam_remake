@@ -178,10 +178,11 @@ begin
     //Update unit direction so we are facing the way we are going
     fUnit.Direction := KMGetDirection(fUnit.PositionPrev, fUnit.PositionNext);
 
-    //Take the vertex on the next tick, not on this one. Releasing and retaking it within
-    //a single Execute leaves no tick in which anyone else can see it free (animals update
+    //On a diagonal step take the vertex on the next tick, not on this one. Releasing and retaking it
+    //within a single Execute leaves no tick in which anyone else can see it free (animals update
     //after all the hands), which is how an animal pacing to and fro locks a diagonal forever
-    Exit(arActContinues);
+    if KMStepIsDiag(fUnit.PositionPrev, fUnit.PositionNext) then
+      Exit(arActContinues);
   end;
 
   if KMSamePoint(fVertexOccupied, KMPOINT_ZERO)
