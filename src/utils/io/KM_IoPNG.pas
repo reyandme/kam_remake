@@ -66,6 +66,9 @@ var
   {$IFDEF WDC}
   Png: TPngImage;
   T: Byte;
+  rgbRow: PRGBLine;
+  alphaRow: PNGImage.pByteArray; // pngimage declares its own pByteArray, distinct from SysUtils.PByteArray
+  rowStart: Integer;
   {$ENDIF}
   {$IFDEF FPC}
   Png: TBGRABitmap;
@@ -79,6 +82,30 @@ begin
     aWidth := Png.Width;
     aHeight := Png.Height;
     SetLength(aPixelData, Png.Width * Png.Height);
+
+    // Fast path for the common 24/32-bit RGB(A) files: read the rows directly.
+    // Png.Pixels[] is a slow per-pixel property call, which dominated the load time of big HD sprite sets
+    if Png.Header.ColorType in [COLOR_RGB, COLOR_RGBALPHA] then
+    begin
+      for K := 0 to Png.Height - 1 do
+      begin
+        rgbRow := Png.Scanline[K];
+        rowStart := K * Png.Width;
+        if Png.TransparencyMode = ptmPartial then
+        begin
+          alphaRow := Png.AlphaScanline[K];
+          for I := 0 to Png.Width - 1 do
+            aPixelData[rowStart + I] := Cardinal(rgbRow^[I].rgbtRed) or (Cardinal(rgbRow^[I].rgbtGreen) shl 8)
+                                        or (Cardinal(rgbRow^[I].rgbtBlue) shl 16) or (Cardinal(alphaRow^[I]) shl 24);
+        end
+        else
+          for I := 0 to Png.Width - 1 do
+            aPixelData[rowStart + I] := Cardinal(rgbRow^[I].rgbtRed) or (Cardinal(rgbRow^[I].rgbtGreen) shl 8)
+                                        or (Cardinal(rgbRow^[I].rgbtBlue) shl 16) or $FF000000;
+      end;
+      Png.Free;
+      Exit;
+    end;
 
     //There are ways to process PNG transparency
     case Png.TransparencyMode of

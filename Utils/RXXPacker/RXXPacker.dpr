@@ -53,6 +53,8 @@ uses
 
 {$IFDEF WDC}
 {$R *.res}
+// HD sprite packs (Units at 4x is ~1 GB of raw pixels) do not fit into the default 2 GB address space
+{$SetPEFlags IMAGE_FILE_LARGE_ADDRESS_AWARE}
 {$ENDIF}
 
 var

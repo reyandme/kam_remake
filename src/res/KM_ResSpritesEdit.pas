@@ -698,8 +698,9 @@ begin
                 metadata := '01234567890123456789012345678901';
                 aStream.Write(metadata[1], 32);
               end;
-    rxxTwo:   begin
-                aStream.Write(RXX_HEADER[rxxTwo][1], RXX_HEADER_LENGTH);
+    rxxTwo,
+    rxxThree: begin
+                aStream.Write(RXX_HEADER[aFormat][1], RXX_HEADER_LENGTH);
 
                 // Commentary text data
                 metadata := GAME_REVISION + ' ' + FormatDateTime('yyyy/mm/dd hh:nn:ss', Now);
@@ -754,6 +755,8 @@ begin
 
         InputStream.Write(fRXData.SizeNoShadow[I].Left, SizeOf(fRXData.SizeNoShadow[I]));
       end;
+      if aFormat = rxxThree then
+        InputStream.Write(fRXData.Scale[I], SizeOf(fRXData.Scale[I]));
       InputStream.Write(fRXData.HasMask[I], 1);
     end;
 
@@ -771,6 +774,8 @@ begin
         InputStream.Write(numSprites, 4);
         InputStream.Write(Container.Sprites[0], numSprites * SizeOf(Container.Sprites[0]));
         InputStream.Write(TexType, SizeOf(TKMTexFormat));
+        if aFormat = rxxThree then
+          InputStream.Write(HD, SizeOf(HD));
         numPixels := Length(Data);
         InputStream.Write(numPixels, 4);
         InputStream.Write(Data[0], numPixels * SizeOf(Data[0]));
@@ -785,9 +790,8 @@ end;
 procedure TKMSpritePackEdit.SaveToRXXFile(const aFileName: string; aFormat: TKMRXXFormat);
 var
   I: Integer;
-  InputStream: TMemoryStream;
+  InputStream: TCompressionStream;
   OutputStream: TFileStream;
-  CompressionStream: TCompressionStream;
 begin
   // No image was loaded yet
   //@Rey: Perhaps we should erase the file in such case, otherwise mapmaker will have to go into folder to delete rxx himself if he decided to "clear" it
@@ -795,7 +799,11 @@ begin
 
   ForceDirectories(ExtractFilePath(aFileName));
 
-  InputStream := TMemoryStream.Create;
+  // Write straight through the compressor (like SaveToRXAFile): an uncompressed copy of an HD pack in a
+  // TMemoryStream would be another ~1 GB on top of the sprite data
+  OutputStream := TFileStream.Create(aFileName, fmCreate);
+  WriteRXZHeader(OutputStream, aFormat);
+  InputStream := TCompressionStream.Create(clMax, OutputStream);
 
   InputStream.Write(fRXData.Count, 4);
   InputStream.Write(fRXData.Flag[1], fRXData.Count);
@@ -808,21 +816,16 @@ begin
 
       if fRT = rxUnits then
         InputStream.Write(fRXData.SizeNoShadow[I].Left, SizeOf(fRXData.SizeNoShadow[I]));
+      if aFormat = rxxThree then
+        InputStream.Write(fRXData.Scale[I], SizeOf(fRXData.Scale[I]));
       InputStream.Write(fRXData.RGBA[I, 0], 4 * fRXData.Size[I].X * fRXData.Size[I].Y);
       InputStream.Write(fRXData.HasMask[I], 1);
       if fRXData.HasMask[I] then
         InputStream.Write(fRXData.Mask[I, 0], fRXData.Size[I].X * fRXData.Size[I].Y);
     end;
-  OutputStream := TFileStream.Create(aFileName, fmCreate);
 
-  WriteRXZHeader(OutputStream, aFormat);
-
-  CompressionStream := TCompressionStream.Create(clMax, OutputStream);
-  InputStream.Position := 0;
-  CompressionStream.CopyFrom(InputStream, InputStream.Size);
-  CompressionStream.Free;
+  InputStream.Free; // Flushes the compressed tail
   OutputStream.Free;
-  InputStream.Free;
 end;
 
 

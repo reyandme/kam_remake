@@ -113,6 +113,7 @@ type
 
     //Misc
     fAsyncGameResLoader: Boolean;
+    fHDGraphics: Boolean; // Load the optional HD packs from data/Sprites/hd
 
     //Menu
     fMenu_FavouriteMapsStr: UnicodeString;
@@ -162,6 +163,7 @@ type
     procedure SetSpeedPace(const aValue: Word);
     function GetFavouriteMaps: TKMMapsCRCList;
     function GetAsyncGameResLoader: Boolean;
+    function GetHDGraphics: Boolean;
   public
     GFX: TKMSettingsGFX;
     SFX: TKMSettingsSFX;
@@ -231,6 +233,8 @@ type
 
     //Misc
     property AsyncGameResLoader: Boolean read GetAsyncGameResLoader;
+    // Read at startup (decides what the loader reads), written by the in-game switch so that the next start matches
+    property HDGraphics: Boolean read GetHDGraphics write fHDGraphics;
 
     // Menu
     property MenuMapSPType: Byte read fMenu_MapSPType write fMenu_MapSPType;
@@ -328,6 +332,14 @@ begin
   if Self = nil then Exit(False);
 
   Result := fAsyncGameResLoader;
+end;
+
+
+function TKMGameSettings.GetHDGraphics: Boolean;
+begin
+  if Self = nil then Exit(False);
+
+  Result := fHDGraphics;
 end;
 
 
@@ -520,6 +532,7 @@ begin
   // Misc
   nMisc := nGameSettings.AddOrFindChild('Misc');
     fAsyncGameResLoader := nMisc.Attributes['AsyncGameResLoader'].AsBoolean(True);
+    fHDGraphics         := nMisc.Attributes['HDGraphics'].AsBoolean(False);
 
   // Menu
   nMenu := nGameSettings.AddOrFindChild('Menu');
@@ -711,6 +724,7 @@ begin
   // Misc
   nMisc := nGameSettings.AddOrFindChild('Misc');
     nMisc.Attributes['AsyncGameResLoader'] := fAsyncGameResLoader;
+    nMisc.Attributes['HDGraphics']         := fHDGraphics;
 
   // Menu
   nMenu := nGameSettings.AddOrFindChild('Menu');

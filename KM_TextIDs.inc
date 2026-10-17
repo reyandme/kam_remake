@@ -1655,6 +1655,12 @@ TX_MENU_OPTIONS_LERP_ANIMS = 1526; //HD animations
 TX_GAME_SETTINGS_LERP_ANIMS = 1527; //HD animations
 TX_SETTINGS_LERP_ANIMS_HINT = 1528; //Increase number of frames used in animations
 
+TX_MENU_OPTIONS_HD_GRAPHICS = 1605; //HD sprites
+TX_SETTINGS_HD_GRAPHICS_HINT = 1606; //Use the high resolution graphics, if installed. Switching takes a few seconds
+TX_GAMEPLAY_GRAPHICS_ORIGINAL = 1607; //Graphics: original
+TX_GAMEPLAY_GRAPHICS_HD = 1608; //Graphics: HD (%s)
+TX_GAMEPLAY_GRAPHICS_LOADING = 1609; //Loading graphics ... %s
+
 TX_MENU_SETTINGS_GAME = 1531; //Game Settings
 TX_MENU_SETTINGS_REPLAY = 1532; //Replay Settings
 TX_MENU_SETTINGS_MAPED = 1533; //Map Editor Settings

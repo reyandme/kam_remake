@@ -263,7 +263,7 @@ var
   SaveStream: TKMemoryStream;
 begin
   //Empty list
-  SaveStream := TKMemoryStream.Create;
+  SaveStream := TKMemoryStreamBinary.Create;
   FKMPointList.SaveToStream(SaveStream);
   SaveStream.Position := 0;
   FKMPointList.LoadFromStream(SaveStream);
@@ -272,7 +272,7 @@ begin
 
   //Single entry list
   FKMPointList.Add(KMPoint(7,8));
-  SaveStream := TKMemoryStream.Create;
+  SaveStream := TKMemoryStreamBinary.Create;
   FKMPointList.SaveToStream(SaveStream);
   SaveStream.Position := 0;
   FKMPointList.Clear;
@@ -284,7 +284,7 @@ begin
   //Filled list
   FKMPointList.Clear;
   FillDefaults;
-  SaveStream := TKMemoryStream.Create;
+  SaveStream := TKMemoryStreamBinary.Create;
   FKMPointList.SaveToStream(SaveStream);
   SaveStream.Position := 0;
   FKMPointList.Clear;
@@ -394,7 +394,7 @@ var
   SaveStream: TKMemoryStream;
 begin
   //Empty list
-  SaveStream := TKMemoryStream.Create;
+  SaveStream := TKMemoryStreamBinary.Create;
   FKMPointTagList.SaveToStream(SaveStream);
   SaveStream.Position := 0;
   FKMPointTagList.LoadFromStream(SaveStream);
@@ -403,7 +403,7 @@ begin
 
   //Single entry list
   FKMPointTagList.Add(KMPoint(7,8), 1, 2);
-  SaveStream := TKMemoryStream.Create;
+  SaveStream := TKMemoryStreamBinary.Create;
   FKMPointTagList.SaveToStream(SaveStream);
   SaveStream.Position := 0;
   FKMPointTagList.Clear;
@@ -417,7 +417,7 @@ begin
   //Filled list
   FKMPointTagList.Clear;
   FillDefaults;
-  SaveStream := TKMemoryStream.Create;
+  SaveStream := TKMemoryStreamBinary.Create;
   FKMPointTagList.SaveToStream(SaveStream);
   SaveStream.Position := 0;
   FKMPointTagList.Clear;
@@ -502,7 +502,7 @@ var
   SaveStream: TKMemoryStream;
 begin
   //Empty list
-  SaveStream := TKMemoryStream.Create;
+  SaveStream := TKMemoryStreamBinary.Create;
   FKMPointDirList.SaveToStream(SaveStream);
   SaveStream.Position := 0;
   FKMPointDirList.LoadFromStream(SaveStream);
@@ -511,7 +511,7 @@ begin
 
   //Single entry list
   FKMPointDirList.Add(KMPointDir(7, 8, dirSW));
-  SaveStream := TKMemoryStream.Create;
+  SaveStream := TKMemoryStreamBinary.Create;
   FKMPointDirList.SaveToStream(SaveStream);
   SaveStream.Position := 0;
   FKMPointDirList.Clear;
@@ -523,7 +523,7 @@ begin
   //Filled list
   FKMPointDirList.Clear;
   FillDefaults;
-  SaveStream := TKMemoryStream.Create;
+  SaveStream := TKMemoryStreamBinary.Create;
   FKMPointDirList.SaveToStream(SaveStream);
   SaveStream.Position := 0;
   FKMPointDirList.Clear;

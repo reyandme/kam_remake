@@ -45,8 +45,8 @@ type
 
     class function GetMaxTexSize: Cardinal; static;
     class function GetMaxViewportDim: Cardinal; static;
-    class function GenerateTextureCommon(aMinFilter, aMagFilter: TKMFilterType): GLuint;
-    class function GenTexture(DestX, DestY: Word; const Data: Pointer; Mode: TKMTexFormat; aMinFilter, aMagFilter: TKMFilterType): GLUint;
+    class function GenerateTextureCommon(aMinFilter, aMagFilter: TKMFilterType; aMipLevels: Byte = 0): GLuint;
+    class function GenTexture(DestX, DestY: Word; const Data: Pointer; Mode: TKMTexFormat; aMinFilter, aMagFilter: TKMFilterType; aMipLevels: Byte = 0): GLUint;
     class procedure DeleteTexture(aTex: GLUint);
     class procedure UpdateTexture(aTexture: GLuint; DestX, DestY: Word; Mode: TKMTexFormat; const Data: Pointer);
     class procedure BindTexture(aTexId: Cardinal);
@@ -214,9 +214,10 @@ begin
 end;
 
 
-class function TKMRender.GenerateTextureCommon(aMinFilter, aMagFilter: TKMFilterType): GLuint;
+class function TKMRender.GenerateTextureCommon(aMinFilter, aMagFilter: TKMFilterType; aMipLevels: Byte = 0): GLuint;
 var
   texture: GLuint;
+  minFilter: GLint;
 begin
   Result := 0;
   if not Assigned(glGenTextures) then Exit;
@@ -231,9 +232,16 @@ begin
   //can't use GL_REPLACE cos it disallows blending of texture with custom color (e.g. trees in FOW)
 
   {Use nearest filter to keep original KaM grainy look}
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, TEX_FILTER[aMinFilter]);
+  minFilter := TEX_FILTER[aMinFilter];
+  // Limited mip chain (HD tiles): minification samples the mip levels, magnification keeps aMagFilter
+  if aMipLevels > 0 then
+    if aMinFilter = ftLinear then
+      minFilter := GL_LINEAR_MIPMAP_LINEAR
+    else
+      minFilter := GL_NEAREST_MIPMAP_NEAREST;
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, TEX_FILTER[aMagFilter]);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, aMipLevels);
 
   {Clamping UVs solves edge artifacts}
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
@@ -243,16 +251,27 @@ end;
 
 
 //Generate texture out of TCardinalArray
-class function TKMRender.GenTexture(DestX, DestY: Word; const Data: Pointer; Mode: TKMTexFormat; aMinFilter, aMagFilter: TKMFilterType): GLUint;
+class function TKMRender.GenTexture(DestX, DestY: Word; const Data: Pointer; Mode: TKMTexFormat; aMinFilter, aMagFilter: TKMFilterType; aMipLevels: Byte = 0): GLUint;
 begin
-  Result := GenerateTextureCommon(aMinFilter, aMagFilter);
+  Result := GenerateTextureCommon(aMinFilter, aMagFilter, aMipLevels);
   UpdateTexture(Result, DestX, DestY, Mode, Data);
+
+  // Generate the (limited, see GL_TEXTURE_MAX_LEVEL above) mip chain on the GPU
+  if (aMipLevels > 0) and Assigned(glGenerateMipmap) then
+  begin
+    BindTexture(Result);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    BindTexture(0);
+  end;
 end;
 
 
 class procedure TKMRender.DeleteTexture(aTex: GLUint);
 begin
   glDeleteTextures(1, @aTex);
+  // OpenGL hands deleted names out again, so the next texture may get this very id.
+  // BindTexture would then believe it is already bound and skip the call -> wrong or white sprites
+  fLastBindedTextureId := 0;
 end;
 
 

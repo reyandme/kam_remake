@@ -1549,3 +1549,8 @@
 1602:%s|use LMB to block delivery / RMB to block take out in 'take out' mode and Shift to apply it to all wares
 1603:Citizens|dismissed
 1604:Citizens dismissed:
+1605:HD sprites
+1606:Use the high resolution graphics, if installed. Switching takes a few seconds
+1607:Graphics: original
+1608:Graphics: HD (%s)
+1609:Loading graphics ... %s

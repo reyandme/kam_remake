@@ -36,8 +36,9 @@ end;
 // Return cursor offset for given direction, which is a signed(!) value
 function TKMResCursors.CursorOffset(aDir: TKMDirection): TKMPoint;
 begin
-  Result.X := fRXData.Pivot[CURSOR_SPRITE_INDEX[DIRECTION_CURSOR[aDir]]].X;
-  Result.Y := fRXData.Pivot[CURSOR_SPRITE_INDEX[DIRECTION_CURSOR[aDir]]].Y;
+  // Screen pixels -> logical (HD-scaled) pivot
+  Result.X := Round(fRXData.PivotXf(CURSOR_SPRITE_INDEX[DIRECTION_CURSOR[aDir]]));
+  Result.Y := Round(fRXData.PivotYf(CURSOR_SPRITE_INDEX[DIRECTION_CURSOR[aDir]]));
 end;
 
 

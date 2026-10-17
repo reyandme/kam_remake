@@ -14,6 +14,7 @@ uses
   TestKM_CommonClasses in 'TestKM_CommonClasses.pas',
   TestKM_CommonUtils in 'TestKM_CommonUtils.pas',
   TestKM_Points in 'TestKM_Points.pas',
+  TestKM_ResSprites in 'TestKM_ResSprites.pas',
   TestKM_Utils in 'TestKM_Utils.pas';
 
 {$R *.RES}

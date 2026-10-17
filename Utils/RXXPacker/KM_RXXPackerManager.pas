@@ -11,6 +11,7 @@ type
   private
     fSourcePathRX: string;
     fSourcePathInterp: string;
+    fSourcePathHD: string;
     fDestinationPath: string;
 
     fPalettes: TKMResPalettes;
@@ -22,6 +23,7 @@ type
 
     procedure SetDestinationPath(const aValue: string);
     procedure SetSourcePathInterp(const aValue: string);
+    procedure SetSourcePathHD(const aValue: string);
     procedure SetSourcePathRX(const aValue: string);
     procedure PackAsync(aRxSet: TRXTypeSet);
     procedure PackSync(aRxSet: TRXTypeSet);
@@ -33,9 +35,12 @@ type
     constructor Create(aPalettes: TKMResPalettes; aOnMessage: TProc<string>);
 
     procedure PackSet(aRxSet: TRXTypeSet);
+    // Applies the HD replacement PNGs from SourcePathHD onto the RXX files in SourcePathRX, see TKMRXXPacker.PackHD
+    procedure PackHDSet(aRxSet: TRXTypeSet);
 
     property SourcePathRX: string read fSourcePathRX write SetSourcePathRX;
     property SourcePathInterp: string read fSourcePathInterp write SetSourcePathInterp;
+    property SourcePathHD: string read fSourcePathHD write SetSourcePathHD;
     property DestinationPath: string read fDestinationPath write SetDestinationPath;
 
     class function GetAvailableToPack(const aPath: string): TRXTypeSet;
@@ -152,6 +157,40 @@ begin
 end;
 
 
+procedure TKMRXXPackerManager.PackHDSet(aRxSet: TRXTypeSet);
+begin
+  if not DirectoryExists(SourcePathRX) then
+  begin
+    fOnMessage('Cannot find "' + SourcePathRX + '" folder.' + sLineBreak + 'It should contain the RXX files to start from (e.g. data\Sprites).');
+    Exit;
+  end;
+
+  if not DirectoryExists(SourcePathHD) then
+  begin
+    fOnMessage('Cannot find "' + SourcePathHD + '" folder.' + sLineBreak + 'It should contain the HD replacement PNGs (e.g. Modding graphics).');
+    Exit;
+  end;
+
+  fTimeBegin := Now;
+
+  // One RX after another, not in threads like PackSet: a 4x pack is up to ~1 GB of pixels, several of them do not fit
+  // into the 32-bit packer at once, and the PNG overload path has never been checked for thread safety
+  for var I := Low(TRXType) to High(TRXType) do
+  if I in aRxSet then
+  begin
+    var rxxPacker := TKMRXXPacker.Create(I, fSourcePathRX, fSourcePathInterp, fDestinationPath, PackToRXX, PackToRXA, RXXFormat, fPalettes, DoLog);
+    try
+      rxxPacker.SourcePathHD := fSourcePathHD;
+      rxxPacker.PackHD;
+    finally
+      rxxPacker.Free;
+    end;
+  end;
+
+  fOnMessage(Format('Everything packed in %dsec', [Round((Now - fTimeBegin) * SecsPerDay)]));
+end;
+
+
 procedure TKMRXXPackerManager.SetDestinationPath(const aValue: string);
 begin
   fDestinationPath := IncludeTrailingPathDelimiter(aValue);
@@ -161,6 +200,12 @@ end;
 procedure TKMRXXPackerManager.SetSourcePathInterp(const aValue: string);
 begin
   fSourcePathInterp := IncludeTrailingPathDelimiter(aValue);
+end;
+
+
+procedure TKMRXXPackerManager.SetSourcePathHD(const aValue: string);
+begin
+  fSourcePathHD := IncludeTrailingPathDelimiter(aValue);
 end;
 
 

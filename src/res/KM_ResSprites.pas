@@ -21,23 +21,37 @@ type
     rxxUnknown, // Unknown header, probably not an RXX file at all
     rxxZero,    // Legacy KMR format
     rxxOne,     // Same as previous, but with an explicit header and SizeNoShadow
-    rxxTwo      // Same as previous, but with dynamic length text in header
+    rxxTwo,     // Same as previous, but with dynamic length text in header
+    rxxThree    // Same as previous, plus per-sprite Scale (HD multiplier, Single) and per-atlas HD flag in RXA
   );
 
 const
   RXX_HEADER_LENGTH = 4;
-  RXX_HEADER: array [TKMRXXFormat] of AnsiString = ('', '', 'RXX1', 'RXX2');
+  RXX_HEADER: array [TKMRXXFormat] of AnsiString = ('', '', 'RXX1', 'RXX2', 'RXX3');
 
 type
   {$IFDEF LOAD_GAME_RES_ASYNC}
   TTGameResourceLoader = class;
   {$ENDIF}
 
+  TKMTexCoords = record
+    TexID: Cardinal;
+    u1,v1,u2,v2: Single; //Top-Left, Bottom-Right uv coords
+  end;
+
+  TKMGFXDataItem = record
+    Tex, Alt: TKMTexCoords; //AltID used for team colors and house building steps
+    PxWidth, PxHeight: Word; // Real texture pixels
+    Scale: Single;           // HD multiplier, copy of TRXData.Scale for consumers without an RXData at hand. Logical size = Px / Scale
+  end;
+  TKMGFXDataArray = array of TKMGFXDataItem;
+
   // Atlas data, needed for Texture Atlas Generation
   TKMSpriteAtlasData = record
     Container: TKMBinItem;
     TexType: TKMTexFormat;
     Data: TKMCardinalArray;
+    HD: Boolean; // Atlas holds only HD (Scale > 1) sprites -> linear filter + mips. Not stored in RXA (RXA atlases are SD)
   end;
 
   TKMSpriteAtlases = array [TKMSpriteAtlasType] of array {atlas number} of TKMSpriteAtlasData;
@@ -47,10 +61,14 @@ type
   private
     fTemp: Boolean;
     fPad: Byte; // Padding between sprites to avoid neighbour edge visibility
+    fTilePx: Integer;  // rxTiles only: biggest tile edge in the loaded data (32 = SD, more = HD)
+    fMipLevels: Byte;  // rxTiles only: extra mip levels to generate for the atlases (0 = none)
 
     {$IFNDEF NO_OGL}
+    function GetTexFilter(aHD: Boolean; out aMipLevels: Byte): TKMFilterType;
     procedure SetGFXData(aTexID: Cardinal; aSpriteInfo: TKMBinItem; aAtlasType: TKMSpriteAtlasType);
     procedure PrepareAtlases(aSpriteInfo: TBinArray; aMode: TKMSpriteAtlasType; aTexType: TKMTexFormat; var aBaseRAM, aColorRAM, aTexCount: Cardinal;
+                             aPad: Byte; aHD: Boolean; aAtlasOffset: Integer;
                              aFillGFXData: Boolean = True; aOnCheckTerminated: TBooleanFuncSimple = nil);
     {$ENDIF}
   protected
@@ -71,10 +89,12 @@ type
   public
     constructor Create(aRT: TRXType; aTemp: Boolean = False);
 
-    procedure AddImage(const aFolder, aFilename: string; aIndex: Integer; aEnlargeOnly: Boolean = False);
+    procedure AddImage(const aFolder, aFilename: string; aIndex: Integer; aEnlargeOnly: Boolean = False; aExplicitScale: Integer = 0);
 
     property RT: TRXType read fRT;
     property RXData: TRXData read fRXData;
+    // No record copy (TRXData has ~10 managed arrays). Re-read it per use: the HD/SD compare swap replaces the pack
+    function RXDataP: PRXData;
     property Padding: Byte read fPad write fPad;
     property Atlases: TKMSpriteAtlases read fAtlases;
 
@@ -156,12 +176,37 @@ type
   //                                        of array[0..3] //Terrain Rotation
                                             of Word;
 
+    // HD/SD live switch: the set that is currently NOT displayed, per RX.
+    // Loaded lazily on the first switch, so it costs nothing unless used
+    fAltSprites: array [TRXType] of TKMSpritePack;
+    fAltGFXData: array [TRXType] of TKMGFXDataArray;
+    fAltAllTilesOneAtlas: Boolean;   // AllTilesInOneTexture of the set that is not displayed
+    // Per RX, never one flag for all of them: an HD pack may cover only some RX (e.g. houses only)
+    fIsHDDisplayed: array [TRXType] of Boolean; // the set on screen
+    fIsHDParked: array [TRXType] of Boolean;    // the one in fAltSprites
+    fIsHDLoaded: array [TRXType] of Boolean;    // the one the loader put into fSprites
+
     function GetGenTerrainTransitions(aTerKind: TKMTerrainKind; aMaskKind: TKMTileMaskKind; aMaskType: TKMTileMaskType; aMaskSubtype: TKMTileMaskSubType): Word;
 
     function GetRXFileName(aRX: TRXType): string;
     function GetSprites(aRT: TRXType): TKMSpritePack;
 
-    function GetSpritesRXAFilePath(aRT: TRXType): string;
+    function GetSpritesFolder(aHD: Boolean): string;
+    function GetSpritesRXAFilePath(aRT: TRXType; aHD: Boolean = False): string;
+    function GetSpritesRXXFilePath(aRT: TRXType; aAlphaShadows, aHD: Boolean): string;
+    procedure SetHDLoaded(aRT: TRXType; aHD: Boolean);
+
+    function IsHDWanted(aRT: TRXType): Boolean;
+    function HasPackFor(aRT: TRXType; aHD: Boolean): Boolean;
+    function GetHDActive: Boolean;
+    function GetHDAvailable: Boolean;
+    function GetHDState(aRT: TRXType): Boolean;
+    function FirstSpritePx(aRT: TRXType): Integer;
+    procedure GenerateAltTransitions(aPack: TKMSpritePack);
+    function LoadAltSet(aRT: TRXType; aHD: Boolean): Boolean;
+    procedure SwapAltSets(aRXs: TRXTypeSet);
+    procedure FreeAltSets(aRXs: TRXTypeSet);
+    procedure ResetHDSwap;
 
     {$IFDEF LOAD_GAME_RES_ASYNC}
     procedure ManageAsyncResLoader(const aCallerName: String);
@@ -199,6 +244,16 @@ type
     property AlphaShadows: Boolean read fAlphaShadows;
     property FileName[aRX: TRXType]: string read GetRXFileName;
 
+    // Switch the displayed graphics (terrain, trees, houses, units) between the stock and the HD packs.
+    // aOnProgress is called with the translated RX name before each (slow) load. Returns True if anything changed
+    function SetHDGraphics(aHD: Boolean; aOnProgress: TUnicodeStringEvent): Boolean;
+    procedure ReleaseHiddenSets;
+    function RXAAvailable(aRT: TRXType): Boolean;
+
+    property HDActive: Boolean read GetHDActive;         // any RX showing its HD pack
+    property HDAvailable: Boolean read GetHDAvailable;   // any HD pack installed
+    property HDState[aRT: TRXType]: Boolean read GetHDState;
+
     procedure UpdateStateIdle;
   end;
 
@@ -224,16 +279,15 @@ type
   end;
   {$ENDIF}
 
-  TKMTexCoords = record
-    TexID: Cardinal;
-    u1,v1,u2,v2: Single; //Top-Left, Bottom-Right uv coords
-  end;
-
 var
-  gGFXData: array [TRXType] of array of record
-    Tex, Alt: TKMTexCoords; //AltID used for team colors and house building steps
-    PxWidth, PxHeight: Word;
-  end;
+  gGFXData: array [TRXType] of TKMGFXDataArray;
+
+  // Overload file name 'X_nnnn.png' / 'X_nnnn@Nx.png' -> id and explicit HD scale (0 = none). Exposed for unit tests
+  function ParseOverloadFileName(const aFileName: string; out aId, aScale: Integer): Boolean;
+  // Replicate the outermost sprite pixels into the aPad wide ring around it (atlas edge padding). Exposed for unit tests
+  procedure ExtendSpriteEdges(var aAtlas: TKMCardinalArray; aAtlasW, aX, aY, aW, aH, aPad: Integer);
+  // Bilinear, border-clamped, per byte channel sample (transition masks on HD tiles). Exposed for unit tests
+  function SampleBilinearClamped(const aPixels: array of Cardinal; aSrcW, aSrcH, aDstW, aDstH, aX, aY: Integer): Cardinal;
 
 
 implementation
@@ -259,9 +313,21 @@ uses
 
 const
   MAX_GAME_ATLAS_SIZE = 2048; //Max atlas size for KaM. No need for bigger atlases
+  // HD terrain tiles
+  TILE_SD_PX = 32;             // Original tile size. Anything bigger is treated as HD
+  MAX_TILES_ATLAS_SIZE = 8192; // Tiles-only ceiling: 1646 tiles at 128px + padding need 8192. Other RX keep MAX_GAME_ATLAS_SIZE
+  TILES_HD_MIP_LEVELS = 2;     // Extra mip levels for HD tiles (D6: limited chain). Atlas padding = 2^levels
+  // HD sprites: Scale > 1 sprites are packed into their own atlases with linear filtering
+  // and a short mip chain, so that the untouched SD sprites keep their nearest-filtered look
+  SPRITES_HD_MIP_LEVELS = 2;
+  SPRITES_HD_PAD = 1 shl SPRITES_HD_MIP_LEVELS;
   SPRITE_TYPE_EXPORT_NAME: array [TKMSpriteAtlasType] of string = ('Base', 'Mask');
   LOG_EXTRA_GFX: Boolean = False;
   OVERLOAD_SKIP_MASK = 'skip';
+  // HD graphics: opt-in packs in data/Sprites/hd, switchable at runtime. Everything else stays stock
+  HD_SPRITES_FOLDER = 'hd';
+  HD_SWAP_RX: TRXTypeSet = [rxTiles, rxTrees, rxHouses, rxUnits];
+  HD_SET_NAME: array [Boolean] of string = ('stock', 'HD'); // One wording for all the HD swap log lines
 
 var
   AllTilesInOneTexture: Boolean = False;
@@ -274,6 +340,118 @@ begin
   if gRender <> nil then
     Result := Min(Result, TKMRender.MaxTextureSize);
   {$ENDIF}
+end;
+
+
+// Tiles have their own ceiling, so that the bigger atlas is not paid for by every other RX (bins are always full-size)
+function GetMaxTilesAtlasSize: Integer;
+begin
+  Result := MAX_TILES_ATLAS_SIZE;
+  {$IFNDEF NO_OGL}
+  if gRender <> nil then
+    Result := Min(Result, TKMRender.MaxTextureSize);
+  {$ENDIF}
+end;
+
+
+// Replicate the outermost sprite pixels into the aPad wide ring around it.
+// Needed so that linear filtering and mip levels never sample the neighbouring sprite.
+procedure ExtendSpriteEdges(var aAtlas: TKMCardinalArray; aAtlasW, aX, aY, aW, aH, aPad: Integer);
+var
+  P, I: Integer;
+begin
+  if (aW = 0) or (aH = 0) or (aPad = 0) then Exit;
+
+  // Rows above and below
+  for P := 1 to aPad do
+    for I := 0 to aW - 1 do
+    begin
+      aAtlas[(aY - P) * aAtlasW + aX + I]          := aAtlas[aY * aAtlasW + aX + I];
+      aAtlas[(aY + aH - 1 + P) * aAtlasW + aX + I] := aAtlas[(aY + aH - 1) * aAtlasW + aX + I];
+    end;
+
+  // Columns left and right, over the already extended row range (this fills the corners too)
+  for P := 1 to aPad do
+    for I := -aPad to aH - 1 + aPad do
+    begin
+      aAtlas[(aY + I) * aAtlasW + aX - P]          := aAtlas[(aY + I) * aAtlasW + aX];
+      aAtlas[(aY + I) * aAtlasW + aX + aW - 1 + P] := aAtlas[(aY + I) * aAtlasW + aX + aW - 1];
+    end;
+end;
+
+
+// Bilinear sample of an aSrcW x aSrcH image at the centre of pixel (aX, aY) of an aDstW x aDstH grid, per byte channel.
+// Used to put the 32px transition masks on HD tiles: nearest sampling turned every dithered mask pixel into a hard block.
+// Clamped, not wrapped: a mask edge has to stay its original edge, because the neighbouring tile's mask continues it
+function SampleBilinearClamped(const aPixels: array of Cardinal; aSrcW, aSrcH, aDstW, aDstH, aX, aY: Integer): Cardinal;
+const
+  PIXEL_CENTER = 0.5;
+  CHANNEL_COUNT = 4;
+  CHANNEL_BITS = 8;
+  CHANNEL_MASK = $FF;
+var
+  srcX, srcY, fracX, fracY, top, bottom: Single;
+  x0, y0, x1, y1, C, shift: Integer;
+  p00, p10, p01, p11: Cardinal;
+begin
+  // Only the low side needs a clamp: x1 / y1 below never step past the last pixel
+  srcX := (aX + PIXEL_CENTER) * aSrcW / aDstW - PIXEL_CENTER;
+  srcY := (aY + PIXEL_CENTER) * aSrcH / aDstH - PIXEL_CENTER;
+  if srcX < 0 then srcX := 0;
+  if srcY < 0 then srcY := 0;
+  x0 := Trunc(srcX);
+  y0 := Trunc(srcY);
+  x1 := Min(x0 + 1, aSrcW - 1);
+  y1 := Min(y0 + 1, aSrcH - 1);
+  fracX := srcX - x0;
+  fracY := srcY - y0;
+
+  p00 := aPixels[y0 * aSrcW + x0];
+  p10 := aPixels[y0 * aSrcW + x1];
+  p01 := aPixels[y1 * aSrcW + x0];
+  p11 := aPixels[y1 * aSrcW + x1];
+
+  Result := 0;
+  for C := 0 to CHANNEL_COUNT - 1 do
+  begin
+    shift := C * CHANNEL_BITS;
+    top    := ((p00 shr shift) and CHANNEL_MASK) * (1 - fracX) + ((p10 shr shift) and CHANNEL_MASK) * fracX;
+    bottom := ((p01 shr shift) and CHANNEL_MASK) * (1 - fracX) + ((p11 shr shift) and CHANNEL_MASK) * fracX;
+    Result := Result or (Cardinal(Trunc(top + (bottom - top) * fracY + PIXEL_CENTER)) shl shift);
+  end;
+end;
+
+
+// Parse an overload file name: 'X_nnnn.png' or 'X_nnnn@Nx.png'.
+// aScale = N for the '@Nx' form, 0 when there is no explicit HD marker. Companion files (a/m.png, .txt) are not accepted here
+function ParseOverloadFileName(const aFileName: string; out aId, aScale: Integer): Boolean;
+var
+  s: string;
+  p: Integer;
+begin
+  aId := 0;
+  aScale := 0;
+  s := ChangeFileExt(ExtractFileName(aFileName), '');
+  p := Pos('@', s);
+  if p > 0 then
+  begin
+    // '...@4x' -> 4
+    if ((s[Length(s)] <> 'x') and (s[Length(s)] <> 'X'))
+    or not TryStrToInt(Copy(s, p + 1, Length(s) - p - 1), aScale)
+    or (aScale < 1) then
+      Exit(False);
+    Delete(s, p, Length(s));
+  end;
+  // 'X_' prefix, then only digits
+  Result := (Length(s) > 2) and TryStrToInt(Copy(s, 3, Length(s) - 2), aId);
+end;
+
+
+// TThread.CheckTerminated raises EThreadExternalException when called from a thread that was not created by TThread
+// (the main thread included). The loaders run both in the async loader thread and, in the sync path, on the main thread
+function LoaderThreadTerminated: Boolean;
+begin
+  Result := not TThread.CurrentThread.ExternalThread and TThread.CheckTerminated;
 end;
 
 
@@ -292,6 +470,12 @@ end;
 
 
 //This is a crude solution to allow Campaigns to delete sprites they add
+function TKMSpritePack.RXDataP: PRXData;
+begin
+  Result := @fRXData;
+end;
+
+
 procedure TKMSpritePack.DeleteSpriteTexture(aIndex: Integer);
 begin
   {$IFNDEF NO_OGL}
@@ -361,7 +545,10 @@ begin
     for I := 0 to aIdList.Count - 1 do
     begin
       id := aIdList[I];
-      if fRXData.Flag[id] <> 0 then
+      // HD replacements (Scale > 1) are used as they are: they come with real alpha, the legacy checkerboard-shadow
+      // converter has nothing to detect on them, it would only zero the RGB of transparent pixels (breaking the
+      // colour bleed needed for linear filtering) and cost a 5x5 blur pass per pixel on 16x the pixels
+      if (fRXData.Flag[id] <> 0) and (fRXData.ScaleOf(id) <= 1) then
       begin
         spriteSoftening := GetSoftenShadowType(id);
         case spriteSoftening of
@@ -571,15 +758,27 @@ end;
 
 
 procedure TKMSpritePack.Allocate(aCount: Integer);
+var
+  I, oldLen: Integer;
 begin
   fRXData.Count := aCount;
 
   aCount := fRXData.Count + 1;
   if not fTemp then
+  begin
+    oldLen := Length(gGFXData[fRT]);
     SetLength(gGFXData[fRT],      aCount);
+    for I := oldLen to aCount - 1 do
+      gGFXData[fRT, I].Scale := 1;
+  end;
   SetLength(fRXData.Flag,         aCount);
   SetLength(fRXData.Size,         aCount);
   SetLength(fRXData.Pivot,        aCount);
+  // Scale defaults to 1 (original resolution); SetLength zero-fills, so init the new tail explicitly
+  oldLen := Length(fRXData.Scale);
+  SetLength(fRXData.Scale,        aCount);
+  for I := oldLen to aCount - 1 do
+    fRXData.Scale[I] := 1;
   //SizeNoShadow is used only for Units
   if fRT = rxUnits then
     SetLength(fRXData.SizeNoShadow, aCount);
@@ -620,7 +819,7 @@ end;
 
 
 //Add PNG images to spritepack if user has any addons in Sprites folder
-procedure TKMSpritePack.AddImage(const aFolder, aFilename: string; aIndex: Integer; aEnlargeOnly: Boolean = False);
+procedure TKMSpritePack.AddImage(const aFolder, aFilename: string; aIndex: Integer; aEnlargeOnly: Boolean = False; aExplicitScale: Integer = 0);
 type
   TKMSpriteMaskType = (smtNone, smtPlain, smtSmart);
 var
@@ -633,9 +832,12 @@ var
   pngWidth, pngHeight: Word;
   pngData: TKMCardinalArray;
   txtFileName: string;
+  oldCount: Integer;
+  oldScale, scale, sx, sy: Single;
 begin
   Assert(SameText(ExtractFileExt(aFilename), '.png'));
 
+  oldCount := fRXData.Count;
   if aIndex > fRXData.Count then
     Allocate(aIndex)
   else
@@ -646,6 +848,36 @@ begin
   LoadFromPng(aFolder + aFilename, pngWidth, pngHeight, pngData);
   Assert((pngWidth <= MAX_GAME_ATLAS_SIZE) and (pngHeight <= MAX_GAME_ATLAS_SIZE),
          Format('Image size should be less than %dx%d pixels', [MAX_GAME_ATLAS_SIZE, MAX_GAME_ATLAS_SIZE]));
+
+  // HD scale derivation: a replacement PNG that is an integer multiple
+  // (2x..) of the original sprite's *logical* size in both axes is an HD version of it, not a bigger object.
+  // Compared against the logical size so that re-loading the same file from a second overload folder is stable.
+  scale := 1;
+  oldScale := fRXData.ScaleOf(aIndex);
+  if aExplicitScale > 0 then
+    // Stage 2: an explicit '@Nx' in the file name wins over derivation (the only option for brand-new sprites)
+    scale := aExplicitScale
+  else
+  if (aIndex <= oldCount) and (fRXData.Size[aIndex].X > 0) and (fRXData.Size[aIndex].Y > 0) then
+  begin
+    sx := pngWidth  / (fRXData.Size[aIndex].X / oldScale);
+    sy := pngHeight / (fRXData.Size[aIndex].Y / oldScale);
+    if (Round(sx) >= 2) and (Round(sx) = Round(sy))
+    and (Abs(sx - Round(sx)) <= 0.02) and (Abs(sy - Round(sy)) <= 0.02) then
+      scale := Round(sx)
+    else
+    if (Abs(sx - 1) > 0.02) or (Abs(sy - 1) > 0.02) then
+      gLog.AddTime(Format('Overload %s: %dx%d replaces logical %dx%d - not a uniform HD multiple, using scale 1 (object will change size)',
+                          [aFilename, pngWidth, pngHeight,
+                           Round(fRXData.Size[aIndex].X / oldScale), Round(fRXData.Size[aIndex].Y / oldScale)]));
+  end;
+  fRXData.Scale[aIndex] := scale;
+  // Keep the pivot in real texels of the new image. A .txt next to the PNG overrides this below (in the PNG's own pixels)
+  if scale <> oldScale then
+  begin
+    fRXData.Pivot[aIndex].X := Round(fRXData.Pivot[aIndex].X / oldScale * scale);
+    fRXData.Pivot[aIndex].Y := Round(fRXData.Pivot[aIndex].Y / oldScale * scale);
+  end;
 
   fRXData.Flag[aIndex] := Byte(pngWidth * pngHeight <> 0); //Mark as used (required for saving RXX)
   fRXData.Size[aIndex].X := pngWidth;
@@ -758,9 +990,12 @@ begin
     // Skip 32 bytes of metadata
     aStream.Seek(32, soFromCurrent);
   end else
-  if strFormat = RXX_HEADER[rxxTwo] then
+  if (strFormat = RXX_HEADER[rxxTwo]) or (strFormat = RXX_HEADER[rxxThree]) then
   begin
-    aFormat := rxxTwo;
+    if strFormat = RXX_HEADER[rxxTwo] then
+      aFormat := rxxTwo
+    else
+      aFormat := rxxThree;
 
     // For now we just skip metadata (but in the future we could show it in e.g. RXXEditor)
     aStream.Read(metadataLen, SizeOf(metadataLen));
@@ -821,6 +1056,9 @@ begin
           //SizeNoShadow is used only for Units
           if fRT = rxUnits then
             decompressionStream.Read(fRXData.SizeNoShadow[I].Left, SizeOf(fRXData.SizeNoShadow[I]));
+          // HD scale (RXX3). Older formats have none: Allocate defaulted it to 1
+          if rxxFormat = rxxThree then
+            decompressionStream.Read(fRXData.Scale[I], SizeOf(fRXData.Scale[I]));
           //Data part of each sprite is 32BPP RGBA in Remake RXX files
           SetLength(fRXData.RGBA[I], fRXData.Size[I].X * fRXData.Size[I].Y);
           SetLength(fRXData.Mask[I], fRXData.Size[I].X * fRXData.Size[I].Y);
@@ -887,10 +1125,13 @@ begin
           //SizeNoShadow is used only for Units
           if fRT = rxUnits then
             decompressionStream.Read(fRXData.SizeNoShadow[I].Left, SizeOf(fRXData.SizeNoShadow[I]));
+          // HD scale (RXA3). Older formats have none: Allocate defaulted it to 1
+          if rxxFormat = rxxThree then
+            decompressionStream.Read(fRXData.Scale[I], SizeOf(fRXData.Scale[I]));
           decompressionStream.Read(fRXData.HasMask[I], 1);
 
           // Check if our load resource thread was terminated
-          if TThread.CheckTerminated then Exit;
+          if LoaderThreadTerminated then Exit;
         end;
 
       //Atlases
@@ -907,12 +1148,15 @@ begin
             SetLength(Container.Sprites, spriteCount);
             decompressionStream.Read(Container.Sprites[0], spriteCount * SizeOf(Container.Sprites[0]));
             decompressionStream.Read(TexType, SizeOf(TKMTexFormat));
+            // HD atlas flag (RXA3): decides linear filtering + mips at texture generation. Older RXA are all SD (False)
+            if rxxFormat = rxxThree then
+              decompressionStream.Read(HD, SizeOf(HD));
             decompressionStream.Read(dataCount, 4);
             SetLength(Data, dataCount);
             decompressionStream.Read(Data[0], dataCount*SizeOf(Data[0]));
 
             // Check if our load resource thread was terminated
-            if TThread.CheckTerminated then Exit;
+            if LoaderThreadTerminated then Exit;
           end;
       end;
     finally
@@ -945,13 +1189,13 @@ begin
   filterPredicate :=
     function(const aPath: string; const aSearchRec: TSearchRec): Boolean
     var
-      tmp: Integer;
+      tmp, tmpScale: Integer;
     begin
       if ExtractRelativePath(aFolder, aPath).Contains(OVERLOAD_SKIP_MASK) then Exit(False);
 
       // Search filter we are using makes sure we get only X_*****.png filenames
-      // Hence we need to check only for the ***** being digits
-      Result := TryStrToInt(Copy(aSearchRec.Name, 3, Length(aSearchRec.Name)-6), tmp);
+      // Hence we need to check only for the ***** being digits (optionally followed by '@Nx')
+      Result := ParseOverloadFileName(aSearchRec.Name, tmp, tmpScale);
     end;
 
   for filePath in TDirectory.GetFiles(aFolder, IntToStr(Ord(fRT) + 1) + '_*.png', TSearchOption.soAllDirectories, filterPredicate) do
@@ -966,9 +1210,8 @@ procedure TKMSpritePack.OverloadGeneratedFromFolder(aAlphaShadows: Boolean; cons
   // Pattern is X_nnnn.png, where nnnn is dynamic (1..n chars) for modders convenience
   procedure AppendFolder(idList: TList<Integer>);
   var
-    I, id: Integer;
+    I, id, scale: Integer;
     fileList: TStringList;
-    s: string;
   begin
     fileList := TStringList.Create;
     CollectSpriteFilesToOverloadInFolder(aFolder, fileList);
@@ -976,10 +1219,9 @@ procedure TKMSpritePack.OverloadGeneratedFromFolder(aAlphaShadows: Boolean; cons
       // Going in reverse allows us to allocate max required sprites early on (since filesnames usually come sorted by name)
       for I := fileList.Count - 1 downto 0 do
       begin
-        s := ExtractFileName(fileList.Strings[I]);
-        if TryStrToInt(Copy(s, 3, Length(s)-6), id) then
+        if ParseOverloadFileName(fileList.Strings[I], id, scale) then
         begin
-          AddImage(aFolder, fileList.Strings[I], id, True);
+          AddImage(aFolder, fileList.Strings[I], id, True, scale);
           idList.Add(id);
         end;
       end;
@@ -1026,10 +1268,9 @@ procedure TKMSpritePack.OverloadRXDataFromFolder(const aFolder: string; aOnProgr
   // Pattern is X_nnnn.png, where nnnn is dynamic (1..n chars) for modders convenience
   procedure AppendFolder;
   var
-    I, id: Integer;
+    I, id, scale: Integer;
     fileList: TStringList;
     idList: TList<Integer>;
-    s: string;
   begin
     idList := TList<Integer>.Create;
     fileList := TStringList.Create;
@@ -1038,10 +1279,9 @@ procedure TKMSpritePack.OverloadRXDataFromFolder(const aFolder: string; aOnProgr
       // Going in reverse allows us to allocate max required sprites early on (since filesnames usually come sorted by name)
       for I := fileList.Count - 1 downto 0 do
       begin
-        s := ExtractFileName(fileList.Strings[I]);
-        if TryStrToInt(Copy(s, 3, Length(s)-6), id) then
+        if ParseOverloadFileName(fileList.Strings[I], id, scale) then
         begin
-          AddImage(aFolder, fileList.Strings[I], id);
+          AddImage(aFolder, fileList.Strings[I], id, False, scale);
           idList.Add(id);
         end;
 
@@ -1051,14 +1291,25 @@ procedure TKMSpritePack.OverloadRXDataFromFolder(const aFolder: string; aOnProgr
             aOnProgress(Format('Appending from folder %d/%d', [fileList.Count - I, fileList.Count]));
       end;
 
+      if LOG_EXTRA_GFX and (idList.Count > 0) then
+        gLog.AddTime(Format('Overload %s: %d PNGs loaded from %s', [RX_INFO[fRT].FileName, idList.Count, aFolder]));
+
       // Soften shadows for overloaded sprites
       if aSoftenShadows then
+      begin
         SoftenShadowsList(idList);
+        if LOG_EXTRA_GFX and (idList.Count > 0) then
+          gLog.AddTime(Format('Overload %s: shadows softened', [RX_INFO[fRT].FileName]));
+      end;
 
       // Determine objects size only for units (used for hitbox)
       //todo -cComplicated: do we need it for houses too ?
       if fRT = rxUnits then
+      begin
         DetermineImagesObjectSizeList(idList);
+        if LOG_EXTRA_GFX and (idList.Count > 0) then
+          gLog.AddTime(Format('Overload %s: object sizes determined', [RX_INFO[fRT].FileName]));
+      end;
     finally
       idList.Free;
       fileList.Free;
@@ -1113,7 +1364,7 @@ begin
   ForceDirectories(aFolder);
 
   for I := 1 to fRXData.Count do
-  if not TThread.CheckTerminated then
+  if not LoaderThreadTerminated then
     ExportFullImageData(aFolder, I);
 end;
 
@@ -1323,6 +1574,34 @@ end;
 
 
 
+// Texture filtering for this pack's atlases. HD tiles get linear filtering with a short mip chain,
+// everything else keeps the original nearest look.
+function TKMSpritePack.GetTexFilter(aHD: Boolean; out aMipLevels: Byte): TKMFilterType;
+begin
+  Result := ftNearest;
+  aMipLevels := 0;
+
+  if LINEAR_FILTER_SPRITES and (fRT in [rxTrees, rxHouses, rxUnits]) then
+    Result := ftLinear;
+
+  if fRT = rxTiles then
+  begin
+    if fMipLevels > 0 then
+    begin
+      Result := ftLinear;
+      aMipLevels := fMipLevels;
+    end;
+  end
+  else
+  if aHD then
+  begin
+    // HD sprite atlas: drawn minified ~Scale times at 100% zoom, so it needs linear filtering and a mip chain
+    Result := ftLinear;
+    aMipLevels := SPRITES_HD_MIP_LEVELS;
+  end;
+end;
+
+
 //Set GFXData from SpriteInfo
 procedure TKMSpritePack.SetGFXData(aTexID: Cardinal; aSpriteInfo: TKMBinItem; aAtlasType: TKMSpriteAtlasType);
 var
@@ -1345,6 +1624,7 @@ begin
       gGFXData[fRT, spriteID].Tex := txCoords;
       gGFXData[fRT, spriteID].PxWidth := fRXData.Size[spriteID].X;
       gGFXData[fRT, spriteID].PxHeight := fRXData.Size[spriteID].Y;
+      gGFXData[fRT, spriteID].Scale := fRXData.ScaleOf(spriteID);
     end
     else
       gGFXData[fRT, spriteID].Alt := txCoords;
@@ -1370,7 +1650,11 @@ begin
 end;
 
 
+// aPad: padding ring the sprites were bin-packed with (edge-extended here)
+// aHD: atlases hold HD sprites only -> linear filtering + mips (see GetTexFilter)
+// aAtlasOffset: index of the first of these atlases in fAtlases[aMode] (SD and HD groups are appended one after another)
 procedure TKMSpritePack.PrepareAtlases(aSpriteInfo: TBinArray; aMode: TKMSpriteAtlasType; aTexType: TKMTexFormat; var aBaseRAM, aColorRAM, aTexCount: Cardinal;
+                                       aPad: Byte; aHD: Boolean; aAtlasOffset: Integer;
                                        aFillGFXData: Boolean = True; aOnCheckTerminated: TBooleanFuncSimple = nil);
 var
   I, K, L, M: Integer;
@@ -1379,6 +1663,7 @@ var
   ID: Integer;
   atlasData: TKMCardinalArray;
   texFilter: TKMFilterType;
+  mipLevels: Byte;
 begin
 //  gLog.AddTime('Length(aSpriteInfo) = ' + IntToStr(Length(aSpriteInfo)));
   //Prepare atlases
@@ -1395,43 +1680,16 @@ begin
     for K := 0 to High(aSpriteInfo[I].Sprites) do
     begin
       ID := aSpriteInfo[I].Sprites[K].SpriteID;
+      CT := aSpriteInfo[I].Sprites[K].OriginY;
+      CL := aSpriteInfo[I].Sprites[K].OriginX;
       for L := 0 to fRXData.Size[ID].Y - 1 do
       for M := 0 to fRXData.Size[ID].X - 1 do
       begin
-        CT := aSpriteInfo[I].Sprites[K].OriginY;
-        CL := aSpriteInfo[I].Sprites[K].OriginX;
         Pixel := (CT + L) * aSpriteInfo[I].Width + CL + M;
         if aMode = saBase then
           atlasData[Pixel] := fRXData.RGBA[ID, L * fRXData.Size[ID].X + M]
         else
           atlasData[Pixel] := $FFFFFF or (fRXData.Mask[ID, L * fRXData.Size[ID].X + M] shl 24);
-
-        //Fill padding with edge pixels
-        if fPad > 0 then
-        begin
-          if (M = 0) then
-          begin
-            atlasData[Pixel - 1] := atlasData[Pixel];
-            if (L = 0) then
-              atlasData[Pixel - aSpriteInfo[I].Width - 1] := atlasData[Pixel]
-            else
-            if (L = fRXData.Size[ID].Y - 1) then
-              atlasData[Pixel + aSpriteInfo[I].Width - 1] := atlasData[Pixel];
-          end;
-
-          if (M = fRXData.Size[ID].X - 1) then
-          begin
-            atlasData[Pixel + 1] := atlasData[Pixel];
-            if (L = 0) then
-              atlasData[Pixel - aSpriteInfo[I].Width + 1] := atlasData[Pixel]
-            else
-            if (L = fRXData.Size[ID].Y - 1) then
-              atlasData[Pixel + aSpriteInfo[I].Width + 1] := atlasData[Pixel];
-          end;
-
-          if (L = 0) then                       atlasData[Pixel - aSpriteInfo[I].Width] := atlasData[Pixel];
-          if (L = fRXData.Size[ID].Y - 1) then  atlasData[Pixel + aSpriteInfo[I].Width] := atlasData[Pixel];
-        end;
 
         //Sprite outline
         if OUTLINE_ALL_SPRITES and (
@@ -1440,27 +1698,30 @@ begin
           or (M = fRXData.Size[ID].X - 1)) then
           atlasData[Pixel] := $FF0000FF;
       end;
+
+      //Fill padding with edge pixels (aPad wide ring; HD needs more than 1px because of linear filtering + mipmaps)
+      if aPad > 0 then
+        ExtendSpriteEdges(atlasData, aSpriteInfo[I].Width, CL, CT, fRXData.Size[ID].X, fRXData.Size[ID].Y, aPad);
     end;
 
     if aFillGFXData then
     begin
       //Generate texture once
-      texFilter := ftNearest;
-      if LINEAR_FILTER_SPRITES and (fRT in [rxTrees, rxHouses, rxUnits]) then
-        texFilter := ftLinear;
+      texFilter := GetTexFilter(aHD, mipLevels);
 
-      texID := TKMRender.GenTexture(aSpriteInfo[I].Width, aSpriteInfo[I].Height, @atlasData[0], aTexType, texFilter, texFilter);
+      texID := TKMRender.GenTexture(aSpriteInfo[I].Width, aSpriteInfo[I].Height, @atlasData[0], aTexType, texFilter, texFilter, mipLevels);
 
       //Now that we know texture IDs we can fill GFXData structure
       SetGFXData(texID, aSpriteInfo[I], aMode);
     end else
     begin
-      Assert(InRange(I, Low(fAtlases[aMode]), High(fAtlases[aMode])),
-             Format('Preloading sprite index out of range: %d, range [%d;%d]', [I, Low(fAtlases[aMode]), High(fAtlases[aMode])]));
+      Assert(InRange(aAtlasOffset + I, Low(fAtlases[aMode]), High(fAtlases[aMode])),
+             Format('Preloading sprite index out of range: %d, range [%d;%d]', [aAtlasOffset + I, Low(fAtlases[aMode]), High(fAtlases[aMode])]));
       // Save prepared data for generating later (in main thread)
-      fAtlases[aMode, I].Container := aSpriteInfo[I];
-      fAtlases[aMode, I].TexType := aTexType;
-      fAtlases[aMode, I].Data := atlasData;
+      fAtlases[aMode, aAtlasOffset + I].Container := aSpriteInfo[I];
+      fAtlases[aMode, aAtlasOffset + I].TexType := aTexType;
+      fAtlases[aMode, aAtlasOffset + I].Data := atlasData;
+      fAtlases[aMode, aAtlasOffset + I].HD := aHD;
     end;
 
     if aMode = saBase then
@@ -1472,7 +1733,7 @@ begin
 
     if aFillGFXData and DBG_EXPORT_SPRITE_ATLASES and (fRT in EXPORT_SPRITE_ATLASES_LIST) then
       SaveToPng(aSpriteInfo[I].Width, aSpriteInfo[I].Height, atlasData,
-        ExeDir + 'Export\GenTextures\' + RX_INFO[fRT].FileName + '_' + SPRITE_TYPE_EXPORT_NAME[aMode] + IntToStr(I) + '.png');
+        ExeDir + 'Export\GenTextures\' + RX_INFO[fRT].FileName + '_' + SPRITE_TYPE_EXPORT_NAME[aMode] + IntToStr(aAtlasOffset + I) + '.png');
   end;
 end;
 
@@ -1486,13 +1747,60 @@ procedure TKMSpritePack.MakeGFX_BinPacking(aTexType: TKMTexFormat; aIDList: TLis
   end;
 
 var
+  atlasSize: Integer;
+
+  // Split the sprites by resolution class: SD (Scale = 1) and HD (Scale > 1) go into separate atlases,
+  // because filtering and padding are per-texture. Tiles are never split (their whole pack is one class)
+  procedure SplitByScale(const aAll: TIndexSizeArray; out aSD, aHD: TIndexSizeArray);
+  var
+    I, nSD, nHD: Integer;
+  begin
+    SetLength(aSD, Length(aAll));
+    SetLength(aHD, Length(aAll));
+    nSD := 0;
+    nHD := 0;
+    for I := 0 to High(aAll) do
+      if (fRT <> rxTiles) and (fRXData.ScaleOf(aAll[I].ID) > 1) then
+      begin
+        aHD[nHD] := aAll[I];
+        Inc(nHD);
+      end else
+      begin
+        aSD[nSD] := aAll[I];
+        Inc(nSD);
+      end;
+    SetLength(aSD, nSD);
+    SetLength(aHD, nHD);
+  end;
+
+  // Bin-pack one resolution class and append its atlases to fAtlases[aMode]
+  procedure PackGroup(const aSizes: TIndexSizeArray; aMode: TKMSpriteAtlasType; aGroupTexType: TKMTexFormat; aPad: Byte; aHD: Boolean);
+  var
+    spriteInfo: TBinArray;
+    offset: Integer;
+  begin
+    if Length(aSizes) = 0 then Exit;
+
+    SetLength(spriteInfo, 0);
+    BinPack(aSizes, atlasSize, aPad, spriteInfo);
+
+    if CheckTerminated then Exit; //Our thread could be terminated and asked to stop. Exit immediately then
+
+    offset := Length(fAtlases[aMode]);
+    SetLength(fAtlases[aMode], offset + Length(spriteInfo));
+
+    PrepareAtlases(spriteInfo, aMode, aGroupTexType, aBaseRAM, aColorRAM, aTexCount, aPad, aHD, offset, aFillGFXData, aOnCheckTerminated);
+  end;
+
+var
   I, J, K: Integer;
-  spriteSizes: TIndexSizeArray;
-  spriteInfo: TBinArray;
-  atlasSize, allTilesAtlasSize: Integer;
+  spriteSizes, sdSizes, hdSizes: TIndexSizeArray;
+  allTilesAtlasSize: Integer;
 begin
   aBaseRAM := 0;
   aColorRAM := 0;
+  SetLength(fAtlases[saBase], 0);
+  SetLength(fAtlases[saMask], 0);
   //Prepare base atlases
   SetLength(spriteSizes, aIDList.Count);// fRXData.Count - aStartingIndex + 1);
   K := 0;
@@ -1514,22 +1822,36 @@ begin
     atlasSize := 512
   else if fRT = rxTiles then
   begin
-    allTilesAtlasSize := MakePOT(Ceil(sqrt(K))*(32+2*fPad)); //Tiles are 32x32
-    atlasSize := Min(GetMaxAtlasSize, allTilesAtlasSize);       //Use smallest possible atlas size for tiles (should be 1024, until many new tiles were added)
-    if atlasSize = allTilesAtlasSize then
-      AllTilesInOneTexture := True;
+    // Tile size is derived from the loaded data, not hardcoded: after a PNG overload tiles may be mixed (32 px and HD)
+    fTilePx := TILE_SD_PX;
+    for J := 0 to K - 1 do
+      fTilePx := Max(fTilePx, Max(spriteSizes[J].X, spriteSizes[J].Y));
+
+    // Padding is decided first (from the mip chain), then the atlas size is computed from it
+    if fTilePx > TILE_SD_PX then
+    begin
+      fMipLevels := TILES_HD_MIP_LEVELS;
+      fPad := 1 shl TILES_HD_MIP_LEVELS;
+    end else
+    begin
+      fMipLevels := 0;
+      fPad := 1;
+    end;
+
+    allTilesAtlasSize := MakePOT(Ceil(sqrt(K))*(fTilePx + 2*fPad));
+    atlasSize := Min(GetMaxTilesAtlasSize, allTilesAtlasSize); //Use smallest possible atlas size for tiles
+    AllTilesInOneTexture := (atlasSize = allTilesAtlasSize);
+    if not AllTilesInOneTexture then
+      gLog.AddTime(Format('WARNING: %d tiles of %dpx do not fit into one atlas (need %d, max %d) - terrain falls back to per-tile texture binds',
+                          [K, fTilePx, allTilesAtlasSize, GetMaxTilesAtlasSize]));
   end else
     atlasSize := GetMaxAtlasSize;
 
-  SetLength(spriteInfo, 0);
-  BinPack(spriteSizes, atlasSize, fPad, spriteInfo);
+  SplitByScale(spriteSizes, sdSizes, hdSizes);
 
-  if CheckTerminated then Exit; //Our thread could be terminated and asked to stop. Exit immediately then
-
-  SetLength(fAtlases[saBase], Length(spriteInfo));
-
-  PrepareAtlases(spriteInfo, saBase, aTexType, aBaseRAM, aColorRAM, aTexCount, aFillGFXData, aOnCheckTerminated);
-
+  PackGroup(sdSizes, saBase, aTexType, fPad, False);
+  if CheckTerminated then Exit;
+  PackGroup(hdSizes, saBase, aTexType, SPRITES_HD_PAD, True);
   if CheckTerminated then Exit;
 
   //Prepare masking atlases
@@ -1548,11 +1870,10 @@ begin
   end;
   SetLength(spriteSizes, K);
 
-  SetLength(spriteInfo, 0);
-  BinPack(spriteSizes, atlasSize, fPad, spriteInfo);
+  SplitByScale(spriteSizes, sdSizes, hdSizes);
+  PackGroup(sdSizes, saMask, tfAlpha8, fPad, False);
   if CheckTerminated then Exit;
-  SetLength(fAtlases[saMask], Length(spriteInfo));
-  PrepareAtlases(spriteInfo, saMask, tfAlpha8, aBaseRAM, aColorRAM, aTexCount, aFillGFXData, aOnCheckTerminated);
+  PackGroup(hdSizes, saMask, tfAlpha8, SPRITES_HD_PAD, True);
 end;
 {$ENDIF}
 
@@ -1578,6 +1899,7 @@ var
   SAT: TKMSpriteAtlasType;
   texID: Cardinal;
   texFilter: TKMFilterType;
+  mipLevels: Byte;
 {$ENDIF}
 begin
   {$IFNDEF NO_OGL}
@@ -1586,11 +1908,9 @@ begin
     begin
       with fAtlases[SAT,I] do
       begin
-        texFilter := ftNearest;
-        if LINEAR_FILTER_SPRITES and (fRT in [rxTrees, rxHouses, rxUnits]) then
-          texFilter := ftLinear;
+        texFilter := GetTexFilter(HD, mipLevels);
 
-        texID := TKMRender.GenTexture(Container.Width, Container.Height, @Data[0], TexType, texFilter, texFilter);
+        texID := TKMRender.GenTexture(Container.Width, Container.Height, @Data[0], TexType, texFilter, texFilter, mipLevels);
         //Now that we know texture IDs we can fill GFXData structure
         SetGFXData(texID, Container, SAT);
 
@@ -1639,7 +1959,10 @@ begin
   {$ENDIF}
 
   for RT := Low(TRXType) to High(TRXType) do
+  begin
     fSprites[RT].Free;
+    fAltSprites[RT].Free;
+  end;
 
   inherited;
 end;
@@ -1716,7 +2039,9 @@ var
 
   texId,{ K,} L, M, tmp, totalTex, uniqueTex: Integer;
   genTilesCnt, genTilesCntTemp: Integer;
-  straightPx{, RotatePixel}, maskCol: Cardinal;
+  tileW, tileH, maskW, maskH: Integer;
+  sameRes: Boolean;
+  straightPx{, RotatePixel}, maskSample, maskCol: Cardinal;
   generatedMasks: TDictionary<Integer, TKMMaskFullType>;
 begin
   Assert(not aLegacyGeneration or (aSprites = nil));
@@ -1829,16 +2154,28 @@ begin
     //            GetEnumName(TypeInfo(TKMTileMaskType), Integer(J)), TexId]);
 
     //          fGenTerrainToTerKind.Add(IntToStr(TexId) + '=' + IntToStr(Integer(I)));
-                for L := 0 to aSprites.fRXData.Size[terrainId].Y - 1 do
-                  for M := 0 to aSprites.fRXData.Size[terrainId].X - 1 do
+                // Mask and base tile may differ in resolution (HD base tile + original 32px mask):
+                // sample the mask bilinear in the base tile's pixel grid
+                tileW := aSprites.fRXData.Size[terrainId].X;
+                tileH := aSprites.fRXData.Size[terrainId].Y;
+                maskW := aSprites.fRXData.Size[maskId].X;
+                maskH := aSprites.fRXData.Size[maskId].Y;
+                sameRes := (tileW = maskW) and (tileH = maskH);
+
+                for L := 0 to tileH - 1 do
+                  for M := 0 to tileW - 1 do
                   begin
       //              Rotate(K, L, M, P, Q, aSprites.fRXData.Size[TerrainId].X - 1);
-                    straightPx := L * aSprites.fRXData.Size[terrainId].X  + M;
+                    straightPx := L * tileW + M;
       //              RotatePixel := StraightPixel; //P * aSprites.fRXData.Size[TerrainId].X  + Q;
+                    if sameRes then
+                      maskSample := aSprites.fRXData.RGBA[maskId, straightPx]
+                    else
+                      maskSample := SampleBilinearClamped(aSprites.fRXData.RGBA[maskId], maskW, maskH, tileW, tileH, M, L);
 
                     case TILE_MASK_KIND_USAGE[MK] of
-                      mkuPixel: maskCol := ($FFFFFF or (aSprites.fRXData.RGBA[maskId, straightPx] shl 24));
-                      mkuAlpha: maskCol := aSprites.fRXData.RGBA[maskId, straightPx];
+                      mkuPixel: maskCol := ($FFFFFF or (maskSample shl 24));
+                      mkuAlpha: maskCol := maskSample;
                     else
                       raise Exception.Create('Unexpected type');
                     end;
@@ -1907,9 +2244,71 @@ begin
 end;
 
 
-function TKMResSprites.GetSpritesRXAFilePath(aRT: TRXType): string;
+// data/Sprites holds the stock (SD) packs, data/Sprites/hd the optional HD ones
+function TKMResSprites.GetSpritesFolder(aHD: Boolean): string;
 begin
-  Result := ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim + RX_INFO[aRT].FileName + '.rxa';
+  Result := ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim;
+  if aHD then
+    Result := Result + HD_SPRITES_FOLDER + PathDelim;
+end;
+
+
+function TKMResSprites.GetSpritesRXAFilePath(aRT: TRXType; aHD: Boolean = False): string;
+begin
+  Result := GetSpritesFolder(aHD) + RX_INFO[aRT].FileName + '.rxa';
+end;
+
+
+// Alpha shadows have their own '_a.rxx'. Returns '' if neither file exists
+function TKMResSprites.GetSpritesRXXFilePath(aRT: TRXType; aAlphaShadows, aHD: Boolean): string;
+var
+  folder: string;
+begin
+  folder := GetSpritesFolder(aHD);
+
+  if aAlphaShadows and FileExists(folder + RX_INFO[aRT].FileName + '_a.rxx') then
+    Result := folder + RX_INFO[aRT].FileName + '_a.rxx'
+  else
+  if FileExists(folder + RX_INFO[aRT].FileName + '.rxx') then
+    Result := folder + RX_INFO[aRT].FileName + '.rxx'
+  else
+    Result := '';
+end;
+
+
+// Does the player want the HD pack for this RX? Says nothing about it being installed, see HasPackFor
+function TKMResSprites.IsHDWanted(aRT: TRXType): Boolean;
+begin
+  Result := gGameSettings.HDGraphics and (aRT in HD_SWAP_RX);
+end;
+
+
+// Is there an RXA (prepacked atlases) for the set we are going to load?
+function TKMResSprites.RXAAvailable(aRT: TRXType): Boolean;
+begin
+  Result := FileExists(GetSpritesRXAFilePath(aRT, False))
+            or (IsHDWanted(aRT) and FileExists(GetSpritesRXAFilePath(aRT, True)));
+end;
+
+
+// Is there a pack of this kind for this RX? HD is opt-in and may cover only some of them
+function TKMResSprites.HasPackFor(aRT: TRXType; aHD: Boolean): Boolean;
+begin
+  Result := (fAlphaShadows and (aRT <> rxTiles) and FileExists(GetSpritesRXAFilePath(aRT, aHD)))
+            or (GetSpritesRXXFilePath(aRT, fAlphaShadows, aHD) <> '');
+end;
+
+
+// Remember which set the loader actually put into fSprites, so that the live swap knows what the other one is.
+// Right after a load the displayed set IS the loaded one
+procedure TKMResSprites.SetHDLoaded(aRT: TRXType; aHD: Boolean);
+begin
+  if not (aRT in HD_SWAP_RX) then Exit;
+
+  fIsHDLoaded[aRT] := aHD;
+  fIsHDDisplayed[aRT] := aHD;
+
+  gLog.AddTime(Format('HD state: %s loaded as %s', [RX_INFO[aRT].FileName, HD_SET_NAME[aHD]]));
 end;
 
 
@@ -1965,7 +2364,7 @@ procedure TKMResSprites.LoadGameResources(aAlphaShadows: Boolean; aForceReload: 
         if Assigned(fStepCaption) then
           fStepCaption(gResTexts[RX_INFO[RT].LoadingTextID]);
 
-        if fAlphaShadows and FileExists(GetSpritesRXAFilePath(RT)) then
+        if fAlphaShadows and RXAAvailable(RT) then
         begin
           gLog.AddTime('Reading ' + RX_INFO[RT].FileName + '.rxa');
           LoadRXASpritesAndGenTextures(RT);
@@ -1990,6 +2389,8 @@ procedure TKMResSprites.LoadGameResources(aAlphaShadows: Boolean; aForceReload: 
 
 begin
   gLog.AddTime('TKMResSprites.LoadGameResources');
+  // The loader writes into fSprites / gGFXData: put the loaded set back and drop the alternate ones (reloaded lazily)
+  ResetHDSwap;
   //Remember which version we load, so if it changes inbetween games we reload it
   fAlphaShadows := aAlphaShadows;
   {$IFDEF LOAD_GAME_RES_ASYNC}
@@ -2027,22 +2428,21 @@ end;
 
 //Try to load RXX first, then RX, then use Folder
 function TKMResSprites.LoadSprites(aRT: TRXType; aAlphaShadows: Boolean): Boolean;
+var
+  isHD: Boolean;
+  rxxFile: string;
 begin
   gLog.AddTime('Load Sprites started');
   Result := False;
-  if aAlphaShadows and FileExists(ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim + RX_INFO[aRT].FileName + '_a.rxx') then
-  begin
-    fSprites[aRT].LoadFromRXXFile(ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim + RX_INFO[aRT].FileName + '_a.rxx');
-    Result := True;
-  end
-  else
-  if FileExists(ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim + RX_INFO[aRT].FileName + '.rxx') then
-  begin
-    fSprites[aRT].LoadFromRXXFile(ExeDir + 'data' + PathDelim + 'Sprites' + PathDelim + RX_INFO[aRT].FileName + '.rxx');
-    Result := True;
-  end
-  else
-    Exit;
+
+  // HD pack if the player asked for it and it exists, stock otherwise
+  isHD := IsHDWanted(aRT) and (GetSpritesRXXFilePath(aRT, aAlphaShadows, True) <> '');
+  rxxFile := GetSpritesRXXFilePath(aRT, aAlphaShadows, isHD);
+  if rxxFile = '' then Exit;
+
+  fSprites[aRT].LoadFromRXXFile(rxxFile);
+  SetHDLoaded(aRT, isHD);
+  Result := True;
 
   fSprites[aRT].OverloadRXDataFromFolder(ExeDir + 'Sprites' + PathDelim, nil); // Legacy support
   // 'Sprites' folder name confused some of the players, cause there is already data/Sprites folder
@@ -2072,15 +2472,18 @@ end;
 
 function TKMResSprites.LoadRXASprites(aRT: TRXType): Boolean;
 var
+  isHD: Boolean;
   rxaFile: string;
 begin
   Result := False;
 
-  rxaFile := GetSpritesRXAFilePath(aRT);
+  isHD := IsHDWanted(aRT) and FileExists(GetSpritesRXAFilePath(aRT, True));
+  rxaFile := GetSpritesRXAFilePath(aRT, isHD);
 
   if not FileExists(rxaFile) then Exit;
 
   fSprites[aRT].LoadFromRXAFile(rxaFile);
+  SetHDLoaded(aRT, isHD);
 
   Result := True;
 end;
@@ -2089,6 +2492,308 @@ end;
 class function TKMResSprites.AllTilesOnOneAtlas: Boolean;
 begin
   Result := AllTilesInOneTexture;
+end;
+
+
+// Transition tiles are generated from the base tiles, so each tileset needs its own generation pass.
+// The index tables it fills are expected to be the same for both sets, since the generated ids start after
+// the base tiles and both tilesets hold the same number of them. Verify it: a shifted start id would
+// silently point the map's terrain ids at the wrong transitions
+procedure TKMResSprites.GenerateAltTransitions(aPack: TKMSpritePack);
+var
+  genTexIdStartWas: Integer;
+begin
+  genTexIdStartWas := fGenTexIdStartI;
+  GenerateTerrainTransitions(aPack);
+
+  if (genTexIdStartWas <> 0) and (genTexIdStartWas <> fGenTexIdStartI) then
+    raise Exception.CreateFmt('HD swap: tileset sprite count differs (generated tiles start at %d, was %d)',
+                              [fGenTexIdStartI, genTexIdStartWas]);
+end;
+
+
+// Load the "other" set of aRT (HD if SD is live, SD if HD is live) into fAltSprites / fAltGFXData.
+// Modding graphics overloads are NOT applied here: both sides come straight from the packed files
+function TKMResSprites.LoadAltSet(aRT: TRXType; aHD: Boolean): Boolean;
+var
+  altPack: TKMSpritePack;
+  liveGFX: TKMGFXDataArray;
+  rxaFile, rxxFile: string;
+  isRXASource: Boolean;
+  allTilesOneAtlasLive: Boolean;
+begin
+  Result := False;
+
+  rxaFile := GetSpritesRXAFilePath(aRT, aHD);
+  rxxFile := GetSpritesRXXFilePath(aRT, fAlphaShadows, aHD);
+  // Tiles are always packed from RXX, the other RX prefer the ready-made atlases
+  isRXASource := fAlphaShadows and (aRT <> rxTiles) and FileExists(rxaFile);
+
+  if not isRXASource and (rxxFile = '') then
+  begin
+    gLog.AddTime(Format('HD swap: no %s source for %s', [HD_SET_NAME[aHD], RX_INFO[aRT].FileName]));
+    Exit;
+  end;
+
+  if isRXASource then
+    gLog.AddTime('HD swap: loading ' + rxaFile)
+  else
+    gLog.AddTime('HD swap: loading ' + rxxFile);
+
+  // Packs write their texture coords into the global gGFXData[aRT], so park the live array while the
+  // new pack fills a fresh one. Nothing may render while it is parked
+  altPack := TKMSpritePack.Create(aRT);
+  try
+    liveGFX := gGFXData[aRT];
+    gGFXData[aRT] := nil;
+    allTilesOneAtlasLive := AllTilesInOneTexture;
+    try
+      if isRXASource then
+        altPack.LoadFromRXAAndGenTextures(rxaFile)
+      else
+      begin
+        altPack.LoadFromRXXFile(rxxFile);
+        if aRT = rxTiles then
+          GenerateAltTransitions(altPack);
+        {$IFNDEF NO_OGL}
+        altPack.MakeGFX(fAlphaShadows or (aRT = rxTiles));
+        {$ENDIF}
+      end;
+      altPack.ClearTemp;
+      altPack.ClearGameResGenTemp;
+
+      fAltGFXData[aRT] := gGFXData[aRT];
+      if aRT = rxTiles then
+      begin
+        // MakeGFX set the unit-wide flag for the pack it just packed. Keep both values, swap them along with the sets
+        fAltAllTilesOneAtlas := AllTilesInOneTexture;
+        AllTilesInOneTexture := allTilesOneAtlasLive;
+      end;
+    finally
+      gGFXData[aRT] := liveGFX;
+    end;
+  except
+    altPack.Free;
+    fAltGFXData[aRT] := nil;
+    raise;
+  end;
+
+  if altPack.IsEmpty then
+  begin
+    gLog.AddTime('HD swap: source for ' + RX_INFO[aRT].FileName + ' is empty');
+    altPack.Free;
+    fAltGFXData[aRT] := nil;
+    Exit;
+  end;
+
+  fAltSprites[aRT] := altPack;
+  fIsHDParked[aRT] := aHD;
+  Result := True;
+end;
+
+
+// Texture width of the first valid sprite of aRT, as the renderer sees it right now (diagnostics)
+function TKMResSprites.FirstSpritePx(aRT: TRXType): Integer;
+var
+  I: Integer;
+begin
+  for I := 1 to High(gGFXData[aRT]) do
+    if gGFXData[aRT, I].PxWidth > 0 then
+      Exit(gGFXData[aRT, I].PxWidth);
+
+  Result := 0;
+end;
+
+
+// Exchange live and alternate sets (packs and their gGFXData arrays). O(1): dynamic arrays and objects swap by reference
+procedure TKMResSprites.SwapAltSets(aRXs: TRXTypeSet);
+var
+  RT: TRXType;
+  tmpPack: TKMSpritePack;
+  tmpGFX: TKMGFXDataArray;
+  tmpBool: Boolean;
+begin
+  for RT in aRXs do
+  begin
+    if fAltSprites[RT] = nil then Continue;
+
+    tmpPack := fSprites[RT];
+    fSprites[RT] := fAltSprites[RT];
+    fAltSprites[RT] := tmpPack;
+
+    tmpGFX := gGFXData[RT];
+    gGFXData[RT] := fAltGFXData[RT];
+    fAltGFXData[RT] := tmpGFX;
+
+    if RT = rxTiles then
+    begin
+      tmpBool := AllTilesInOneTexture;
+      AllTilesInOneTexture := fAltAllTilesOneAtlas;
+      fAltAllTilesOneAtlas := tmpBool;
+    end;
+
+    // The two sets exchanged roles
+    tmpBool := fIsHDDisplayed[RT];
+    fIsHDDisplayed[RT] := fIsHDParked[RT];
+    fIsHDParked[RT] := tmpBool;
+  end;
+end;
+
+
+// Bring every RX to aHD, as far as the installed packs allow. Works per RX, because an HD set may cover
+// only some of them, and because a game resource reload rebuilds the sprites but not the tiles.
+// The first call loads the other set, which takes seconds - the caller shows a loading screen and gets
+// a progress call before each RX. Returns True if anything actually changed
+function TKMResSprites.SetHDGraphics(aHD: Boolean; aOnProgress: TUnicodeStringEvent): Boolean;
+var
+  RT: TRXType;
+  toSwap: TRXTypeSet;
+begin
+  Result := False;
+  toSwap := [];
+
+  {$IFDEF LOAD_GAME_RES_ASYNC}
+  // The loader thread fills fSprites / gGFXData, don't touch them until it is done
+  if not fGameResLoadCompleted then Exit;
+  {$ENDIF}
+
+  for RT in HD_SWAP_RX do
+  begin
+    if fIsHDDisplayed[RT] = aHD then Continue; // Already showing the wanted set
+
+    // An HD set may cover only some RX (e.g. houses only). Those without one stay as they are
+    if not HasPackFor(RT, aHD) then
+    begin
+      gLog.AddTime(Format('HD swap: no %s pack for %s, it stays as it is',
+                          [HD_SET_NAME[aHD], RX_INFO[RT].FileName]));
+      Continue;
+    end;
+
+    // A parked set of the wrong kind is of no use (can happen after a partial switch)
+    if (fAltSprites[RT] <> nil) and (fIsHDParked[RT] <> aHD) then
+      FreeAltSets([RT]);
+
+    if fAltSprites[RT] = nil then
+    begin
+      if Assigned(aOnProgress) then
+        aOnProgress(gResTexts[RX_INFO[RT].LoadingTextID]);
+      try
+        if not LoadAltSet(RT, aHD) then Continue;
+      except
+        // Graphics switching must not take the game down: log and leave this RX alone
+        on E: Exception do
+        begin
+          gLog.AddTime('HD swap: loading ' + RX_INFO[RT].FileName + ' failed: ' + E.Message);
+          Continue;
+        end;
+      end;
+    end;
+
+    toSwap := toSwap + [RT];
+  end;
+
+  if toSwap = [] then Exit;
+
+  SwapAltSets(toSwap);
+  // The px sizes come from live sprites: that is what is on screen, independent of the flags
+  gLog.AddTime(Format('HD swap: houses = %s (%d px), tiles = %s (%d px)',
+                      [HD_SET_NAME[fIsHDDisplayed[rxHouses]], FirstSpritePx(rxHouses),
+                       HD_SET_NAME[fIsHDDisplayed[rxTiles]], FirstSpritePx(rxTiles)]));
+  Result := True;
+end;
+
+
+// Free the not displayed sets of aRXs, textures included
+procedure TKMResSprites.FreeAltSets(aRXs: TRXTypeSet);
+var
+  RT: TRXType;
+  I: Integer;
+begin
+  for RT in aRXs do
+  begin
+    if fAltSprites[RT] = nil then Continue;
+
+    {$IFNDEF NO_OGL}
+    if gRender <> nil then
+      for I := 1 to High(fAltGFXData[RT]) do
+      begin
+        if fAltGFXData[RT, I].Tex.TexID <> 0 then
+          TKMRender.DeleteTexture(fAltGFXData[RT, I].Tex.TexID);
+        if fAltGFXData[RT, I].Alt.TexID <> 0 then
+          TKMRender.DeleteTexture(fAltGFXData[RT, I].Alt.TexID);
+      end;
+    {$ENDIF}
+
+    FreeAndNil(fAltSprites[RT]);
+    fAltGFXData[RT] := nil;
+    gLog.AddTime('HD swap: released the hidden ' + RX_INFO[RT].FileName + ' set');
+  end;
+end;
+
+
+// Drop the alternate sets before game resources are (re)loaded: the loader writes into fSprites, which must be the live set.
+// Tiles are a MENU resource (LoadMenuResources), the game resource loader never touches them - so their swap stays as it is
+procedure TKMResSprites.ResetHDSwap;
+var
+  RT: TRXType;
+  toSwap: TRXTypeSet;
+begin
+  // Put the sets the loader owns back on screen before we free the other ones
+  toSwap := [];
+  for RT in HD_SWAP_RX - [rxTiles] do
+    if fIsHDDisplayed[RT] <> fIsHDLoaded[RT] then
+      toSwap := toSwap + [RT];
+
+  SwapAltSets(toSwap);
+  FreeAltSets(HD_SWAP_RX - [rxTiles]);
+
+  for RT in HD_SWAP_RX - [rxTiles] do
+    fIsHDDisplayed[RT] := fIsHDLoaded[RT];
+end;
+
+
+// Leaving the map: keep what is on screen, free the other set (~1.6 GB of textures for a full HD set).
+// Switching inside a game stays instant, the next one after a menu trip loads again
+procedure TKMResSprites.ReleaseHiddenSets;
+var
+  RT: TRXType;
+begin
+  FreeAltSets(HD_SWAP_RX);
+
+  // What is displayed is now the only set we have. The game RX get rebuilt from the setting, which the
+  // switch keeps in sync with the display, and the tiles are not reloaded at all - so this stays true
+  for RT in HD_SWAP_RX do
+    fIsHDLoaded[RT] := fIsHDDisplayed[RT];
+end;
+
+
+// Is any part of the graphics the HD one? Drives the options checkbox and the in-game label
+function TKMResSprites.GetHDActive: Boolean;
+var
+  RT: TRXType;
+begin
+  for RT in HD_SWAP_RX do
+    if fIsHDDisplayed[RT] then Exit(True);
+
+  Result := False;
+end;
+
+
+// Is an HD pack installed at all? Without one the switch has nothing to offer
+function TKMResSprites.GetHDAvailable: Boolean;
+var
+  RT: TRXType;
+begin
+  for RT in HD_SWAP_RX do
+    if HasPackFor(RT, True) then Exit(True);
+
+  Result := False;
+end;
+
+
+function TKMResSprites.GetHDState(aRT: TRXType): Boolean;
+begin
+  Result := fIsHDDisplayed[aRT];
 end;
 
 
@@ -2222,7 +2927,7 @@ begin
 
       case LoadStage of
         lsLoad:         begin
-                          if fAlphaShadows and FileExists(fResSprites.GetSpritesRXAFilePath(RXType)) then
+                          if fAlphaShadows and fResSprites.RXAAvailable(RXType) then
                           begin
                             Log('Start Load RXA ''' + RX_INFO[RXType].FileName + '.rxa''');
                             fResSprites.LoadRXASprites(RXType);
@@ -2247,11 +2952,20 @@ begin
                         end;
         lsGenMain:      ;
         lsOverload:     begin
-                          Log('OverloadFromFolder RT = ' + GetEnumName(TypeInfo(TRXType), Integer(RXType)));
-                          fResSprites[RXType].OverloadGeneratedFromFolder(fAlphaShadows, ExeDir + 'Sprites' + PathDelim, True, IsTerminated); // Legacy support
-                          // 'Sprites' folder name confused some of the players, cause there is already data/Sprites folder
-                          fResSprites[RXType].OverloadGeneratedFromFolder(fAlphaShadows, ExeDir + 'Modding graphics' + PathDelim, True, IsTerminated);
-                          Log('DONE OverloadFromFolder RT = ' + GetEnumName(TypeInfo(TRXType), Integer(RXType)));
+                          // Only the RXA path needs a separate overload pass: LoadSprites (RXX path) already applied the
+                          // folders, and the main thread ignores lsGenOverload results for RXX anyway. Doing it again here
+                          // decoded every PNG twice and kept the unused atlases in RAM (with HD packs this was ~30 s and
+                          // hundreds of MB for Houses alone)
+                          if LastLoadedRXA then
+                          begin
+                            Log('OverloadFromFolder RT = ' + GetEnumName(TypeInfo(TRXType), Integer(RXType)));
+                            fResSprites[RXType].OverloadGeneratedFromFolder(fAlphaShadows, ExeDir + 'Sprites' + PathDelim, True, IsTerminated); // Legacy support
+                            // 'Sprites' folder name confused some of the players, cause there is already data/Sprites folder
+                            fResSprites[RXType].OverloadGeneratedFromFolder(fAlphaShadows, ExeDir + 'Modding graphics' + PathDelim, True, IsTerminated);
+                            Log('DONE OverloadFromFolder RT = ' + GetEnumName(TypeInfo(TRXType), Integer(RXType)));
+                          end
+                          else
+                            Log('OverloadFromFolder skipped for RT = ' + GetEnumName(TypeInfo(TRXType), Integer(RXType)) + ' (RXX path, already overloaded in LoadSprites)');
                         end;
         lsGenOverload:  ;
       end;

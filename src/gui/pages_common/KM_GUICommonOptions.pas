@@ -62,6 +62,7 @@ type
         Bevel_Options_GFX: TKMBevel;
         CheckBox_LerpRender: TKMCheckBox;
         CheckBox_LerpAnims: TKMCheckBox;
+        CheckBox_HDGraphics: TKMCheckBox;
         CheckBox_VSync: TKMCheckBox;
         CheckBox_ShadowQuality: TKMCheckBox;
         TrackBar_Brightness: TKMTrackBar;
@@ -127,7 +128,7 @@ implementation
 uses
   KM_Main, KM_Music, KM_Sound, KM_RenderUI, KM_Resource, KM_ResTexts, KM_ResLocales, KM_ResFonts, KM_ResSound, KM_Video,
   KM_ResTypes,
-  KM_Game, KM_GameSettings, KM_GameParams, KM_GameTypes,
+  KM_Game, KM_GameApp, KM_GameSettings, KM_GameParams, KM_GameTypes,
   KM_GameAppSettings;
 
 const
@@ -299,14 +300,19 @@ begin
     CheckBox_LerpAnims.Hint := gResTexts[TX_SETTINGS_LERP_ANIMS_HINT];
     CheckBox_LerpAnims.OnClick := Change;
 
-    top := 70;
+    // Optional HD graphics packs from data/Sprites/hd
+    CheckBox_HDGraphics := TKMCheckBox.Create(Panel_GFX, 10, 70, 260, 20, gResTexts[TX_MENU_OPTIONS_HD_GRAPHICS], fntMetal);
+    CheckBox_HDGraphics.Hint := gResTexts[TX_SETTINGS_HD_GRAPHICS_HINT];
+    CheckBox_HDGraphics.OnClick := Change;
+
+    top := 90;
 
     if IsMenu then
     begin
-      CheckBox_VSync := TKMCheckBox.Create(Panel_GFX, 10, 70, 260, 20, gResTexts[TX_MENU_OPTIONS_VSYNC], fntMetal);
+      CheckBox_VSync := TKMCheckBox.Create(Panel_GFX, 10, 90, 260, 20, gResTexts[TX_MENU_OPTIONS_VSYNC], fntMetal);
       CheckBox_VSync.OnClick := Change;
 
-      CheckBox_ShadowQuality := TKMCheckBox.Create(Panel_GFX, 10, 90, 260, 20, gResTexts[TX_MENU_OPTIONS_SHADOW_QUALITY], fntMetal);
+      CheckBox_ShadowQuality := TKMCheckBox.Create(Panel_GFX, 10, 110, 260, 20, gResTexts[TX_MENU_OPTIONS_SHADOW_QUALITY], fntMetal);
       CheckBox_ShadowQuality.OnClick := Change;
       Inc(top, 40);
     end;
@@ -582,6 +588,10 @@ begin
   CheckBox_LerpRender.Checked   := gGameSettings.GFX.InterpolatedRender;
   CheckBox_LerpAnims.Enabled    := CheckBox_LerpRender.Checked;
   CheckBox_LerpAnims.Checked    := gGameSettings.GFX.InterpolatedAnimations;
+  CheckBox_HDGraphics.Checked   := gRes.Sprites.HDActive;
+  // Switching blocks the main thread for seconds, so it is refused in a network game (see gGameApp.SetHDGraphics).
+  // Without an installed HD pack there is nothing to switch to
+  CheckBox_HDGraphics.Enabled   := gRes.Sprites.HDAvailable and (IsMenu or not gGameParams.IsMultiPlayerOrSpec);
   TrackBar_ScrollSpeed.Position := Round(gGameSettings.ScrollSpeed / SCROLL_SPEED_MULTIPLIER);
   TrackBar_SFX.Position         := Round(gGameSettings.SFX.SoundFXVolume * TrackBar_SFX.MaxValue);
   TrackBar_Music.Position       := Round(gGameSettings.SFX.MusicVolume * TrackBar_Music.MaxValue);
@@ -660,6 +670,14 @@ begin
   gGameSettings.GFX.InterpolatedAnimations := CheckBox_LerpAnims.Checked;
 
   CheckBox_LerpAnims.Enabled       := CheckBox_LerpRender.Checked;
+
+  // Switching the graphics set loads the other one (seconds, behind a cover / busy cursor), so only on a real click.
+  // Read the state back afterwards: the switch refuses if the other set is missing or not loadable
+  if Sender = CheckBox_HDGraphics then
+  begin
+    gGameApp.SetHDGraphics(CheckBox_HDGraphics.Checked);
+    CheckBox_HDGraphics.Checked := gRes.Sprites.HDActive;
+  end;
 
   gGameSettings.ScrollSpeed        := TrackBar_ScrollSpeed.Position * SCROLL_SPEED_MULTIPLIER;
   gGameSettings.SFX.SoundFXVolume      := TrackBar_SFX.Position / TrackBar_SFX.MaxValue;

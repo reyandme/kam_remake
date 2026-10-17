@@ -12,6 +12,7 @@ type
     fParams: TStringList;
     fSourcePathRX: string;
     fSourcePathInterp: string;
+    fSourcePathHD: string;
     fDestinationPath: string;
     fPackToRXA: Boolean;
     fRxSet: TRXTypeSet;
@@ -41,12 +42,15 @@ begin
   Writeln(' - sint %s - Interpolated sprites source path');
   Writeln(' - d %s - destination path');
   Writeln(' - rxa - pack to RXA files');
+  Writeln(' - hd %s - HD mode: apply the replacement PNGs from this folder (Modding graphics layout) onto the RXX files');
+  Writeln('          found in the srx folder and write RXX3/RXA3 files with the per-sprite HD scale');
   Writeln(' - all - pack all RX libraries');
   Writeln(' - %s - pack specific RX library');
   Writeln('');
   Writeln('Usage examples:');
   Writeln(' - RxxPacker.exe srx "C:\kmr_sprites\" sint "C:\kmr_sprites_interp\" d "C:\kmr_sprites\out\" all');
   Writeln(' - RxxPacker.exe srx "C:\kmr_sprites\" sint "C:\kmr_sprites_interp\" d "C:\kmr_sprites\out\" rxa trees units');
+  Writeln(' - RxxPacker.exe srx "..\..\data\Sprites\" hd "..\..\Modding graphics\" d "C:\kmr_hd\out\" rxa houses units');
 end;
 
 
@@ -81,6 +85,14 @@ begin
         fParams[I+1] := ''; // Make sure we dont parse it as some other key
       end else
         raise Exception.Create('Source interpolated sprites path ("sint") not specified');
+
+    if LowerCase(fParams[I]) = 'hd' then
+      if I < fParams.Count - 1 then
+      begin
+        fSourcePathHD := fParams[I+1];
+        fParams[I+1] := ''; // Make sure we dont parse it as some other key
+      end else
+        raise Exception.Create('HD replacement sprites path ("hd") not specified');
 
     if LowerCase(fParams[I]) = 'd' then
       if I < fParams.Count - 1 then
@@ -125,7 +137,13 @@ begin
   rxxPackerManager.PackToRXA := fPackToRXA;
   rxxPackerManager.RXXFormat := rxxTwo;
   try
-    rxxPackerManager.PackSet(fRxSet);
+    if fSourcePathHD <> '' then
+    begin
+      rxxPackerManager.SourcePathHD := fSourcePathHD;
+      rxxPackerManager.PackHDSet(fRxSet);
+    end
+    else
+      rxxPackerManager.PackSet(fRxSet);
   finally
     rxxPackerManager.Free;
     resPalettes.Free;

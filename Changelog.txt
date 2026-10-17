@@ -17,6 +17,29 @@
 KaM Remake Beta r_____ []
 ------------------------------
 + Fixed terrain connectivity after applying terrain brushes from dynamic script
++ HD graphics support: replacement PNGs in 'Modding graphics' may have more pixels than the original sprite without changing its size in the game (see Modding graphics/Readme.txt)
++ Per-sprite scale factor (TRXData.Scale / gGFXData.Scale): sprite size and pivot stay in real texels for atlas packing and UV math, and are converted to world/screen units through float accessors in the render pool, UI, unit selection rectangle, fences and the mouse cursor hotspot
++ HD scale is derived from the PNG size (integer multiple of the original sprite's logical size, checked on both axes; a non-uniform size is logged and loaded at scale 1) or set explicitly with an '@Nx' file name suffix (e.g. 5_1234@4x.png), the latter also works for brand-new sprites
++ HD terrain tiles: tile size is read from the loaded data instead of being hardcoded to 32 px (mixed 32 px / HD tiles work), tiles get their own atlas ceiling (8192, capped by the GPU limit, with a warning if the one-texture fast path is lost), linear filtering, a short mip chain and mip-aware edge padding
++ Terrain transition masks may stay at 32 px while the base tiles are HD (nearest-neighbour sampled)
++ Texture generation supports a limited mip chain (GL_TEXTURE_MAX_LEVEL + glGenerateMipmap)
++ Map Editor tile palette shrinks HD tiles to the button size
++ HD sprites are packed into separate atlases with linear filtering, mipmaps and edge padding, so the original sprites keep their pixel look
++ New RXX3/RXA3 sprite pack format carrying the per-sprite HD scale (and the per-atlas HD flag in RXA), so native HD packs load without any PNG decoding; older RXX/RXA packs still load unchanged
++ RXXPacker: new 'hd <folder>' console mode that applies a 'Modding graphics' folder tree onto the shipped RXX files exactly as the game would and writes RXX3/RXA3 packs; RXX saving streams through the compressor instead of an uncompressed in-memory copy, and the packer is large-address-aware (a 4x Units pack is ~1 GB of pixels)
++ HD graphics are an opt-in add-on: the stock packs stay in 'data/Sprites' (an untouched installation is unchanged), the HD ones go into 'data/Sprites/hd' and are loaded only when HD graphics are turned on; an RX without an HD pack simply stays on the stock one
++ HD graphics can be switched during a game, terrain included: Options - Graphics - 'HD sprites', or Ctrl+Shift+H. The other set is loaded on the first switch (behind a loading cover, the game is paused so that the blocked seconds are not counted as game time), afterwards switching is an O(1) reference swap. The choice is saved, so the next map and the next start come up with it
++ Switching the tileset at runtime rebuilds the tile UV lookup, invalidates the cached terrain VBO content and keeps the 'all tiles on one atlas' flag per set; transition tiles are regenerated for the second tileset and the swap is refused if their generated id range would shift
++ The hidden (not displayed) graphics set is freed when leaving the map, so only one full set stays resident between games
++ Switching is refused in a network game (the load would block the main thread for seconds)
++ Fixed the render pool and the render list keeping stale copies of the sprite data (a cached TRXData record and a cached units RXData), which produced wrong sprites and out-of-range sprite ids once the sets were swapped
++ Utils/HDTileTest: new make_house_sheet.py that collects every sprite of one house (construction frames, work animations, flags, consumed and produced wares) from houses.dat, exports them as PNGs and lays them out on a numbered context sheet with a manifest, for feeding an image upscaler with the full context
++ Shadow softening is skipped for HD replacement sprites (they come with real alpha)
++ Faster PNG loading of replacement graphics (row-based reading instead of per-pixel access)
++ Fixed the async resource loader applying the 'Modding graphics' overload twice when loading from RXX (doubled load time and memory)
++ Fixed RXA loading (and sprite export) raising EThreadExternalException when run on the main thread, i.e. with the async resource loader disabled
++ Unit tests for the sprite pack HD support (Utils/UnitTests/TestKM_ResSprites.pas) and for the HD generator script; fixed the stale TKMemoryStream tests in TestKM_CommonClasses
++ Utils/HDTileTest: script that generates HD test sets from the shipped RXX files (bilinear or xBR upscale, team colour masks, colour bleed into transparent pixels) and exports/imports sprites for external upscalers such as Real-ESRGAN
 
 
 KaM Remake Beta r16397 [2026.09.19]

@@ -43,6 +43,10 @@ Tools for creating and preparing raw assets for use in the game engine.
 - **Fonts:** `FontX Generator`, `FontX Editor`, `FontX Collator`.
 - **Tiles:** `TileEditor`, `TileResampler`.
 - **Data Packaging:** `RXXPacker` (packs game data into .rxx archives), `RXXEditor`.
+- **HD sprite sets:** `HDTileTest` (Python 3, see its `README.md`). `make_hd_test_tiles.py` upscales the
+  sprites of an `.rxx` into PNGs the game overloads at startup - the source of the optional HD packs that
+  `RXXPacker` then packs into `data/Sprites/hd`. `make_house_sheet.py` renders a house context sheet for
+  reviewing the result.
 - **LIB files:** `LIB Decoder`, `LIB Opener`.
 - **One-time jobs:** `Batcher`.
 

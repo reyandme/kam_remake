@@ -305,13 +305,24 @@ type
   TRXData = record
     Count: Integer;
     Flag: array of Byte; //Sprite is valid
-    Size: array of record X,Y: Word; end;
-    Pivot: array of record X,Y: SmallInt; end;
+    Size: array of record X,Y: Word; end;           // Real texture pixels (atlas packing, UV math, masks use this)
+    Pivot: array of record X,Y: SmallInt; end;      // Real texture pixels
     SizeNoShadow: array of record Left, Top, Right, Bottom: SmallInt; end; //Image object (without shadow) rect in the image sizes
+    // HD multiplier per sprite: 1.0 = original, 4.0 = 4x replacement.
+    // Logical (world / UI) size = pixel / Scale. Not stored in RXX yet, derived on PNG overload.
+    Scale: array of Single;
     {unused in RXX} Data: array of array of Byte; //Used for RXX utils (Packer / Editor)
     RGBA: array {Index} of array {YX} of Cardinal; //Expanded image
     Mask: array of array of Byte; //Mask for team colors
     HasMask: array of Boolean; //Flag if Mask for team colors is used
+
+    // Logical-unit accessors: texture pixels divided by Scale. Use these for world / UI placement,
+    // never Size / Pivot directly (those stay in real texels for the atlas and UV code)
+    function ScaleOf(aId: Integer): Single;
+    function PivotXf(aId: Integer): Single;
+    function PivotYf(aId: Integer): Single;
+    function SizeXf(aId: Integer): Single;
+    function SizeYf(aId: Integer): Single;
   end;
   PRXData = ^TRXData;
 
@@ -339,6 +350,41 @@ function GetKeyFunctionStr(aKeyFun: TKMKeyFunction): string;
 begin
 //  Result := TRttiEnumerationType.GetName(aKeyFun);
   Result := GetEnumName(TypeInfo(TKMKeyFunction), Integer(aKeyFun));
+end;
+
+
+{ TRXData }
+// Scale is 1 for every sprite that was never overloaded with an HD image (also for packs whose Scale array is not allocated)
+function TRXData.ScaleOf(aId: Integer): Single;
+begin
+  if (aId >= 0) and (aId < Length(Scale)) and (Scale[aId] > 0) then
+    Result := Scale[aId]
+  else
+    Result := 1;
+end;
+
+
+function TRXData.PivotXf(aId: Integer): Single;
+begin
+  Result := Pivot[aId].X / ScaleOf(aId);
+end;
+
+
+function TRXData.PivotYf(aId: Integer): Single;
+begin
+  Result := Pivot[aId].Y / ScaleOf(aId);
+end;
+
+
+function TRXData.SizeXf(aId: Integer): Single;
+begin
+  Result := Size[aId].X / ScaleOf(aId);
+end;
+
+
+function TRXData.SizeYf(aId: Integer): Single;
+begin
+  Result := Size[aId].Y / ScaleOf(aId);
 end;
 
 

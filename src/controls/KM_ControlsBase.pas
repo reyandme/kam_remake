@@ -541,8 +541,8 @@ begin
 
   if Tiled then
   begin
-    drawWidth := gGFXData[fRX, fTexID].PxWidth;
-    drawHeight := gGFXData[fRX, fTexID].PxHeight;
+    drawWidth := Round(gGFXData[fRX, fTexID].PxWidth / gGFXData[fRX, fTexID].Scale);   // logical (HD-scaled) size
+    drawHeight := Round(gGFXData[fRX, fTexID].PxHeight / gGFXData[fRX, fTexID].Scale);
     drawLeft := AbsLeft + Width div 2 - drawWidth div 2;
     drawTop := AbsTop + Height div 2 - drawHeight div 2;
 
@@ -582,8 +582,8 @@ begin
   fColumns := Math.max(1, aColumns);
   fHighlightID := aHighlightID;
 
-  fDrawWidth  := EnsureRange(Width div fColumns, 8, gGFXData[fRX, fTexID1].PxWidth);
-  fDrawHeight := EnsureRange(Height div Ceil(fCount/fColumns), 6, gGFXData[fRX, fTexID1].PxHeight);
+  fDrawWidth  := EnsureRange(Width div fColumns, 8, Round(gGFXData[fRX, fTexID1].PxWidth / gGFXData[fRX, fTexID1].Scale));
+  fDrawHeight := EnsureRange(Height div Ceil(fCount/fColumns), 6, Round(gGFXData[fRX, fTexID1].PxHeight / gGFXData[fRX, fTexID1].Scale));
 
   aspect := gGFXData[fRX, fTexID1].PxWidth / gGFXData[fRX, fTexID1].PxHeight;
   if fDrawHeight * aspect <= fDrawWidth then
@@ -794,13 +794,23 @@ end;
 procedure TKMButtonFlat.Paint;
 var
   textCol: TColor4;
+  anchors: TKMAnchorsSet;
 begin
   inherited;
 
   if TexID <> 0 then
+  begin
+    // HD terrain tiles are bigger than the 32px palette buttons: shrink them to fit
+    anchors := [];
+    if (RX = rxTiles)
+      and ((gGFXData[RX, TexID].PxWidth / gGFXData[RX, TexID].Scale > Width)
+        or (gGFXData[RX, TexID].PxHeight / gGFXData[RX, TexID].Scale > Height)) then
+      anchors := [anLeft, anRight, anTop, anBottom];
+
     TKMRenderUI.WritePicture(AbsLeft + TexOffsetX,
                              AbsTop + TexOffsetY - 6 * Byte(Caption <> ''),
-                             Width, Height, [], RX, TexID, Enabled or fEnabledVisually, FlagColor);
+                             Width, Height, anchors, RX, TexID, Enabled or fEnabledVisually, FlagColor);
+  end;
 
   textCol := IfThen(Enabled or fEnabledVisually, CapColor, icGray);
   TKMRenderUI.WriteText(AbsLeft + CapOffsetX, AbsTop + (Height div 2) + 4 + CapOffsetY, Width, Caption, Font, taCenter, textCol);

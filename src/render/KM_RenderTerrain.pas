@@ -98,6 +98,8 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+    // After the HD/SD tileset swap the UV lookup and the cached VBO content are stale
+    procedure RebuildTileUVLookup;
     property ClipRect: TKMRect read fClipRect write fClipRect;
     procedure RenderBase(aAnimStep: Integer; aFOW: TKMFogOfWarCommon);
     procedure RenderFences(aFOW: TKMFogOfWarCommon);
@@ -126,19 +128,33 @@ const
 
 
 { TKMRenderTerrain }
-constructor TKMRenderTerrain.Create;
+//Tiles UV lookup for faster access. Only base tileset for smaller size
+procedure TKMRenderTerrain.RebuildTileUVLookup;
 var
   I, K: Integer;
+begin
+  if SKIP_RENDER then Exit;
+
+  for I := 0 to TILES_CNT - 1 do
+    for K := 0 to 3 do
+      fTileUVLookup[I, K] := GetTileUV(I, K);
+
+  // Force UpdateVBO to refill the buffers, they hold the UVs of the previous tileset
+  fVBOLastClipRect := KMRECT_INVALID_TILES;
+  fVBOLastGameTick := Cardinal(-1);
+end;
+
+
+constructor TKMRenderTerrain.Create;
+var
+  I: Integer;
   pData: array [0..255] of Cardinal;
   V: TKMVBOArrayType;
 begin
   inherited;
   if SKIP_RENDER then Exit;
 
-  //Tiles UV lookup for faster access. Only base tileset for smaller size
-  for I := 0 to TILES_CNT - 1 do
-    for K := 0 to 3 do
-      fTileUVLookup[I, K] := GetTileUV(I, K);
+  RebuildTileUVLookup;
 
   //Generate gradient programmatically
   //KaM uses [0..255] gradients
@@ -1371,7 +1387,7 @@ begin
     y1 := pY - 1 - (gTerrain.LandExt^[pY, pX].RenderHeight + VO) / CELL_HEIGHT_DIV;
     y2 := pY - 1 - (gTerrain.LandExt^[pY, pX + 1].RenderHeight + VO) / CELL_HEIGHT_DIV;
 
-    fenceY := gGFXData[rxGui,texID].PxWidth / CELL_SIZE_PX;
+    fenceY := gGFXData[rxGui,texID].PxWidth / gGFXData[rxGui,texID].Scale / CELL_SIZE_PX;
     glBegin(GL_QUADS);
       glTexCoord2f(UVb.x, UVa.y); glVertex2f(pX-1 -3/ CELL_SIZE_PX, y1);
       glTexCoord2f(UVa.x, UVa.y); glVertex2f(pX-1 -3/ CELL_SIZE_PX, y1 - fenceY);
@@ -1386,12 +1402,12 @@ begin
     UVa.X := gGFXData[rxGui, texID].Tex.u1;
     UVa.Y := gGFXData[rxGui, texID].Tex.v1;
     UVb.X := gGFXData[rxGui, texID].Tex.u2;
-    UVb.Y := Mix(gGFXData[rxGui, texID].Tex.v2, gGFXData[rxGui, texID].Tex.v1, heightInPx / gGFXData[rxGui, texID].pxHeight);
+    UVb.Y := Mix(gGFXData[rxGui, texID].Tex.v2, gGFXData[rxGui, texID].Tex.v1, heightInPx / (gGFXData[rxGui, texID].pxHeight / gGFXData[rxGui, texID].Scale));
 
     y1 := pY - 1 - (gTerrain.LandExt^[pY, pX].RenderHeight + FO + VO) / CELL_HEIGHT_DIV;
     y2 := pY - (gTerrain.LandExt^[pY + 1, pX].RenderHeight + VO) / CELL_HEIGHT_DIV;
 
-    fenceX := gGFXData[rxGui,texID].PxWidth / CELL_SIZE_PX;
+    fenceX := gGFXData[rxGui,texID].PxWidth / gGFXData[rxGui,texID].Scale / CELL_SIZE_PX;
 
     case Pos of
       dirW:  x1 := pX - 1 - 3 / CELL_SIZE_PX;

@@ -13,6 +13,7 @@ type
 
     fSourcePathRX: string;
     fSourcePathInterp: string;
+    fSourcePathHD: string;
     fDestinationPath: string;
 
     fPackToRXX: Boolean;
@@ -23,10 +24,17 @@ type
     fOnMessage: TProc<string>;
 
     procedure DoLog(aMsg: string);
+    procedure SetSourcePathHD(const aValue: string);
   public
     constructor Create(aRT: TRXType; aSourcePathRX, aSourcePathInterp, aDestinationPath: string; aPackToRXX, aPackToRXA: Boolean; aRXXFormat: TKMRXXFormat; aPalettes: TKMResPalettes;aOnMessage: TProc<string>);
 
     procedure Pack;
+    // HD packing: takes the shipped RXX from SourcePathRX, applies the
+    // replacement PNGs from SourcePathHD (a 'Modding graphics' style folder tree) exactly as the game would at startup,
+    // and writes RXX3 / RXA3 files with the per-sprite scale into DestinationPath
+    procedure PackHD;
+
+    property SourcePathHD: string read fSourcePathHD write SetSourcePathHD;
   end;
 
 
@@ -60,6 +68,12 @@ end;
 procedure TKMRXXPacker.DoLog(aMsg: string);
 begin
   fOnMessage(Format('[%s] %s', [RX_INFO[fRT].FileName, aMsg]));
+end;
+
+
+procedure TKMRXXPacker.SetSourcePathHD(const aValue: string);
+begin
+  fSourcePathHD := IncludeTrailingPathDelimiter(aValue);
 end;
 
 
@@ -221,6 +235,66 @@ begin
         DoLog('Saving RXA');
         spritePack.SaveToRXAFile(fDestinationPath + RX_INFO[fRT].FileName + '.rxa', fRXXFormat);
       end;
+    end;
+  finally
+    spritePack.Free;
+  end;
+
+  DoLog(Format('... packed in %dms', [GetTickCount - tick]));
+end;
+
+
+procedure TKMRXXPacker.PackHD;
+var
+  tick: Cardinal;
+  spritePack: TKMSpritePackEdit;
+  srcRxx, name: string;
+  I, hdCount: Integer;
+  rxData: TRXData;
+begin
+  tick := GetTickCount;
+  DoLog('Packing HD ...');
+
+  //ruCustom sprite packs do not have a main RXX file so don't need packing
+  if RX_INFO[fRT].Usage = ruCustom then Exit;
+
+  // Source is the shipped RXX the game itself loads: the _a variant has the soft shadows baked in already
+  name := RX_INFO[fRT].FileName;
+  srcRxx := fSourcePathRX + name + '_a.rxx';
+  if not FileExists(srcRxx) then
+    srcRxx := fSourcePathRX + name + '.rxx';
+  if not FileExists(srcRxx) then
+    raise Exception.Create('Cannot find "' + srcRxx + '" file.');
+
+  spritePack := TKMSpritePackEdit.Create(fRT, fPalettes);
+  try
+    spritePack.LoadFromRXXFile(srcRxx);
+    DoLog(Format('%s contains %d entries', [ExtractFileName(srcRxx), spritePack.RXData.Count]));
+
+    // Apply the replacement PNGs the same way the game does at startup: scale derived from the size or '@Nx',
+    // no shadow softening on HD sprites, hitboxes recomputed for units
+    spritePack.OverloadRXDataFromFolder(fSourcePathHD, DoLog);
+
+    hdCount := 0;
+    rxData := spritePack.RXData;
+    for I := 1 to rxData.Count do
+      if (rxData.Flag[I] <> 0) and (rxData.ScaleOf(I) > 1) then
+        Inc(hdCount);
+    DoLog(Format('With overload contains %d entries, %d of them HD', [spritePack.RXData.Count, hdCount]));
+    if hdCount = 0 then
+      DoLog('WARNING: no HD sprites were found in ' + fSourcePathHD);
+
+    if fPackToRXX then
+    begin
+      DoLog('Saving ' + ExtractFileName(srcRxx) + ' (RXX3)');
+      spritePack.SaveToRXXFile(fDestinationPath + ExtractFileName(srcRxx), rxxThree);
+    end;
+
+    // Tiles are menu resources, the game always loads them from RXX, so an RXA would never be used
+    if fPackToRXA and (fRT <> rxTiles) then
+    begin
+      DoLog('Saving ' + name + '.rxa (RXA3)');
+      spritePack.SaveToRXAFile(fDestinationPath + name + '.rxa', rxxThree);
     end;
   finally
     spritePack.Free;

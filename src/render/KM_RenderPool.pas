@@ -27,7 +27,6 @@ type
   // List of sprites prepared to be rendered
   TKMRenderList = class
   private
-    fUnitsRXData: TRXData; //shortcut
     fCount: Word;
     fRenderOrder: array of Word; // Order in which sprites will be drawn ()
     fRenderList: array of TKMRenderSprite;
@@ -113,6 +112,8 @@ type
     constructor Create(aViewport: TKMViewport; aRender: TKMRender);
     destructor Destroy; override;
 
+    // Re-take the RXData shortcuts. Needed after the HD/SD switch replaced sprite packs
+    procedure RefreshRXData;
     procedure ReInit;
 
     procedure AddAlert(const aLoc: TKMPointF; aId: Integer; aFlagColor: TColor4);
@@ -175,14 +176,24 @@ const
 
 
 { TKMRenderPool }
-constructor TKMRenderPool.Create(aViewport: TKMViewport; aRender: TKMRender);
+procedure TKMRenderPool.RefreshRXData;
 var
   RT: TRXType;
 begin
-  inherited Create;
-
   for RT := Low(TRXType) to High(TRXType) do
     fRXData[RT] := gRes.Sprites[RT].RXData;
+
+  // The tileset may have been swapped too, its UV lookup and VBO content are per tileset
+  if fRenderTerrain <> nil then
+    fRenderTerrain.RebuildTileUVLookup;
+end;
+
+
+constructor TKMRenderPool.Create(aViewport: TKMViewport; aRender: TKMRender);
+begin
+  inherited Create;
+
+  RefreshRXData;
 
   fRender := aRender;
   fViewport := aViewport;
@@ -237,9 +248,14 @@ end;
 procedure TKMRenderPool.ApplyTransform;
 var
   viewportPosRound: TKMPointF;
+  pxPerTile: Single;
 begin
-  //Need to round the viewport position so we only translate by whole pixels
-  viewportPosRound := RoundToTilePixel(fViewport.Position);
+  // Round the viewport position to whole screen pixels at the current zoom. RoundToTilePixel rounds to 1/CELL_SIZE_PX
+  // of a tile, which is a whole pixel only at zoom 1: at any other zoom panning moved the map by fractional pixels,
+  // the nearest-filtered terrain was resampled differently every frame and shimmered
+  pxPerTile := fViewport.Zoom * CELL_SIZE_PX;
+  viewportPosRound.X := Round(fViewport.Position.X * pxPerTile) / pxPerTile;
+  viewportPosRound.Y := Round(fViewport.Position.Y * pxPerTile) / pxPerTile;
 
   glLoadIdentity; // Reset The View
 
@@ -615,10 +631,10 @@ begin
     var rxData: PRXData := @fRXData[rxTrees];
     pX := aLocX - 1;
     pY := aLocY - 1;
-    gX := pX + (rxData.Pivot[Id0].X + rxData.Size[Id0].X/2) / CELL_SIZE_PX;
-    gY := pY + (rxData.Pivot[Id0].Y + rxData.Size[Id0].Y) / CELL_SIZE_PX;
-    cornerX := pX + rxData.Pivot[Id].X / CELL_SIZE_PX;
-    cornerY := pY - gTerrain.RenderHeightAt(gX, gY) + (rxData.Pivot[Id].Y + rxData.Size[Id].Y) / CELL_SIZE_PX;
+    gX := pX + (rxData^.PivotXf(Id0) + rxData^.SizeXf(Id0)/2) / CELL_SIZE_PX;
+    gY := pY + (rxData^.PivotYf(Id0) + rxData^.SizeYf(Id0)) / CELL_SIZE_PX;
+    cornerX := pX + rxData^.PivotXf(Id) / CELL_SIZE_PX;
+    cornerY := pY - gTerrain.RenderHeightAt(gX, gY) + (rxData^.PivotYf(Id) + rxData^.SizeYf(Id)) / CELL_SIZE_PX;
     if aDoImmediateRender then
       RenderSprite(rxTrees, Id, cornerX, cornerY, $FFFFFFFF, aDeleting, DELETE_COLOR)
     else
@@ -641,10 +657,10 @@ var
     Id := gRes.Interpolation.Tree(aIndex, aAnimStep, gGameParams.TickFrac, True);
     Id0 := gMapElements[aIndex].Anim.Step[1] + 1;
 
-    gX := aLocSubX + (R.Pivot[Id0].X + R.Size[Id0].X/2) / CELL_SIZE_PX;
-    gY := aLocSubY + (R.Pivot[Id0].Y + R.Size[Id0].Y) / CELL_SIZE_PX;
-    CornerX := aLocSubX + R.Pivot[Id].X / CELL_SIZE_PX;
-    CornerY := aLocSubY - gTerrain.RenderHeightAt(gX, gY) + (R.Pivot[Id].Y + R.Size[Id].Y) / CELL_SIZE_PX;
+    gX := aLocSubX + (R.PivotXf(Id0) + R.SizeXf(Id0)/2) / CELL_SIZE_PX;
+    gY := aLocSubY + (R.PivotYf(Id0) + R.SizeYf(Id0)) / CELL_SIZE_PX;
+    CornerX := aLocSubX + R.PivotXf(Id) / CELL_SIZE_PX;
+    CornerY := aLocSubY - gTerrain.RenderHeightAt(gX, gY) + (R.PivotYf(Id) + R.SizeYf(Id)) / CELL_SIZE_PX;
 
     if aDoImmediateRender then
       RenderSprite(rxTrees, Id, CornerX, CornerY, $FFFFFFFF, aDeleting, DELETE_COLOR)
@@ -687,8 +703,8 @@ var
 begin
   R := fRXData[rxGui];
 
-  cornerX := aLoc.X + R.Pivot[aId].X / CELL_SIZE_PX;
-  cornerY := gTerrain.RenderFlatToHeight(aLoc).Y + R.Pivot[aId].Y / CELL_SIZE_PX;
+  cornerX := aLoc.X + R.PivotXf(aId) / CELL_SIZE_PX;
+  cornerY := gTerrain.RenderFlatToHeight(aLoc).Y + R.PivotYf(aId) / CELL_SIZE_PX;
 
   fRenderList.AddSpriteG(rxGui, aId, 0, cornerX, cornerY, aLoc.X, aLoc.Y, aFlagColor);
 end;
@@ -704,10 +720,10 @@ begin
   R := fRXData[rxGui];
   Id := gRes.Houses[aHouse].TabletIcon;
 
-  gX := aLoc.X + (R.Pivot[Id].X + R.Size[Id].X / 2) / CELL_SIZE_PX - 0.5;
-  gY := aLoc.Y + (R.Pivot[Id].Y + R.Size[Id].Y) / CELL_SIZE_PX - 0.45;
-  cornerX := aLoc.X + R.Pivot[Id].X / CELL_SIZE_PX - 0.25;
-  cornerY := aLoc.Y - gTerrain.RenderHeightAt(gX, gY) + (R.Pivot[Id].Y + R.Size[Id].Y) / CELL_SIZE_PX - 0.55;
+  gX := aLoc.X + (R.PivotXf(Id) + R.SizeXf(Id) / 2) / CELL_SIZE_PX - 0.5;
+  gY := aLoc.Y + (R.PivotYf(Id) + R.SizeYf(Id)) / CELL_SIZE_PX - 0.45;
+  cornerX := aLoc.X + R.PivotXf(Id) / CELL_SIZE_PX - 0.25;
+  cornerY := aLoc.Y - gTerrain.RenderHeightAt(gX, gY) + (R.PivotYf(Id) + R.SizeYf(Id)) / CELL_SIZE_PX - 0.55;
   fRenderList.AddSpriteG(rxGui, Id, 0, cornerX, cornerY, gX, gY);
 end;
 
@@ -727,7 +743,7 @@ begin
   begin
     id := 260 + aWood - 1;
     cornerX := aLoc.X + houseBuildSupply[1, aWood].MoveX / CELL_SIZE_PX - 1;
-    cornerY := aLoc.Y + (houseBuildSupply[1, aWood].MoveY + rx.Size[id].Y) / CELL_SIZE_PX - 1
+    cornerY := aLoc.Y + (houseBuildSupply[1, aWood].MoveY + rx.SizeYf(id)) / CELL_SIZE_PX - 1
                      - gTerrain.LandExt^[aLoc.Y + 1, aLoc.X].RenderHeight / CELL_HEIGHT_DIV;
     fRenderList.AddSprite(rxHouses, id, cornerX, cornerY);
   end;
@@ -736,7 +752,7 @@ begin
   begin
     id := 267 + aStone - 1;
     cornerX := aLoc.X + houseBuildSupply[2, aStone].MoveX / CELL_SIZE_PX - 1;
-    cornerY := aLoc.Y + (houseBuildSupply[2, aStone].MoveY + rx.Size[id].Y) / CELL_SIZE_PX - 1
+    cornerY := aLoc.Y + (houseBuildSupply[2, aStone].MoveY + rx.SizeYf(id)) / CELL_SIZE_PX - 1
                      - gTerrain.LandExt^[aLoc.Y + 1, aLoc.X].RenderHeight / CELL_HEIGHT_DIV;
     fRenderList.AddSprite(rxHouses, id, cornerX, cornerY);
   end;
@@ -766,12 +782,12 @@ var
 
   function CornerX(aPic: Integer): Single;
   begin
-    Result := aLoc.X + rxData.Pivot[aPic].X / CELL_SIZE_PX - 1;
+    Result := aLoc.X + rxData.PivotXf(aPic) / CELL_SIZE_PX - 1;
   end;
 
   function CornerY(aPic: Integer): Single;
   begin
-    Result := aLoc.Y + (rxData.Pivot[aPic].Y + rxData.Size[aPic].Y) / CELL_SIZE_PX - 1
+    Result := aLoc.Y + (rxData.PivotYf(aPic) + rxData.SizeYf(aPic)) / CELL_SIZE_PX - 1
                      - gTerrain.LandExt^[aLoc.Y + 1, aLoc.X].RenderHeight / CELL_HEIGHT_DIV;
   end;
 
@@ -785,10 +801,10 @@ begin
   picStone := gRes.Houses[aHouse].StonePic + 1;
   picSnow := gRes.Houses[aHouse].SnowPic + 1;
 
-  groundWood := rxData.Pivot[picWood].Y + rxData.Size[picWood].Y;
-  groundStone := rxData.Pivot[picStone].Y + rxData.Size[picStone].Y;
+  groundWood := rxData.PivotYf(picWood) + rxData.SizeYf(picWood);
+  groundStone := rxData.PivotYf(picStone) + rxData.SizeYf(picStone);
 
-  gX := aLoc.X + (rxData.Pivot[picWood].X + rxData.Size[picWood].X / 2) / CELL_SIZE_PX - 1;
+  gX := aLoc.X + (rxData.PivotXf(picWood) + rxData.SizeXf(picWood) / 2) / CELL_SIZE_PX - 1;
   gY := aLoc.Y + Max(groundWood, groundStone) / CELL_SIZE_PX - 1.5;
 
   // If it's fully built we can render without alpha
@@ -862,8 +878,8 @@ begin
           id := A.Step[aAnimStep mod Byte(A.Count) + 1] + 1;
       end;
 
-      cornerX := aLoc.X + (rxData.Pivot[id].X + A.MoveX) / CELL_SIZE_PX - 1;
-      cornerY := aLoc.Y + (rxData.Pivot[id].Y + A.MoveY + rxData.Size[id].Y) / CELL_SIZE_PX - 1
+      cornerX := aLoc.X + (rxData.PivotXf(id) + A.MoveX) / CELL_SIZE_PX - 1;
+      cornerY := aLoc.Y + (rxData.PivotYf(id) + A.MoveY + rxData.SizeYf(id)) / CELL_SIZE_PX - 1
                        - gTerrain.LandExt^[aLoc.Y + 1, aLoc.X].RenderHeight / CELL_HEIGHT_DIV;
 
       if aDoImmediateRender then
@@ -887,8 +903,8 @@ var
   begin
     if aId = 0 then Exit;
 
-    CornerX := aLoc.X + rxData.Pivot[aId].X / CELL_SIZE_PX - 1;
-    CornerY := aLoc.Y + (rxData.Pivot[aId].Y + rxData.Size[aId].Y) / CELL_SIZE_PX - 1
+    CornerX := aLoc.X + rxData.PivotXf(aId) / CELL_SIZE_PX - 1;
+    CornerY := aLoc.Y + (rxData.PivotYf(aId) + rxData.SizeYf(aId)) / CELL_SIZE_PX - 1
                      - gTerrain.LandExt^[aLoc.Y + 1, aLoc.X].RenderHeight / CELL_HEIGHT_DIV;
 
     if aDoImmediateRender then
@@ -965,8 +981,8 @@ begin
     if id = 0 then Exit;
 
     rxData := fRXData[rxHouses];
-    cornerX := aLoc.X + (rxData.Pivot[id].X + MARKET_WARES_OFF_X) / CELL_SIZE_PX - 1;
-    cornerY := aLoc.Y + (rxData.Pivot[id].Y + MARKET_WARES_OFF_Y + rxData.Size[id].Y) / CELL_SIZE_PX - 1
+    cornerX := aLoc.X + (rxData.PivotXf(id) + MARKET_WARES_OFF_X) / CELL_SIZE_PX - 1;
+    cornerY := aLoc.Y + (rxData.PivotYf(id) + MARKET_WARES_OFF_Y + rxData.SizeYf(id)) / CELL_SIZE_PX - 1
                      - gTerrain.LandExt^[aLoc.Y+1,aLoc.X].RenderHeight / CELL_HEIGHT_DIV;
     fRenderList.AddSprite(rxHouses, id, cornerX, cornerY);
   end;
@@ -986,8 +1002,8 @@ begin
 
   id := gRes.Interpolation.Beast(aHouse, aBeastId, aBeastAge, aAnimStep, gGameParams.TickFrac);
 
-  cornerX := aLoc.X + (A.MoveX + rxData.Pivot[id].X) / CELL_SIZE_PX - 1;
-  cornerY := aLoc.Y + (A.MoveY + rxData.Pivot[id].Y + rxData.Size[id].Y) / CELL_SIZE_PX - 1
+  cornerX := aLoc.X + (A.MoveX + rxData.PivotXf(id)) / CELL_SIZE_PX - 1;
+  cornerY := aLoc.Y + (A.MoveY + rxData.PivotYf(id) + rxData.SizeYf(id)) / CELL_SIZE_PX - 1
                    - gTerrain.LandExt^[aLoc.Y + 1, aLoc.X].RenderHeight / CELL_HEIGHT_DIV;
   fRenderList.AddSprite(aRX, id, cornerX, cornerY);
 end;
@@ -1022,8 +1038,8 @@ begin
 
   rxData := fRXData[rxUnits];
 
-  cornerX := rxData.Pivot[id].X / CELL_SIZE_PX - 1;
-  cornerY := (rxData.Pivot[id].Y + rxData.Size[id].Y) / CELL_SIZE_PX - 1;
+  cornerX := rxData.PivotXf(id) / CELL_SIZE_PX - 1;
+  cornerY := (rxData.PivotYf(id) + rxData.SizeYf(id)) / CELL_SIZE_PX - 1;
 
   case aProj of
     ptArrow, ptBolt, ptSlingRock:  ground := aTilePos.Y + (0.5 - Abs(Min(aFlight, 1) - 0.5)) - 0.5;
@@ -1049,9 +1065,9 @@ begin
   if id <= 0 then Exit;
   R := fRXData[rxUnits];
 
-  cornerX := pX + R.Pivot[id].X / CELL_SIZE_PX;
-  cornerY := gTerrain.RenderFlatToHeight(pX, pY) + (R.Pivot[id].Y + R.Size[id].Y) / CELL_SIZE_PX;
-  ground := pY + (R.Pivot[id0].Y + R.Size[id0].Y) / CELL_SIZE_PX;
+  cornerX := pX + R.PivotXf(id) / CELL_SIZE_PX;
+  cornerY := gTerrain.RenderFlatToHeight(pX, pY) + (R.PivotYf(id) + R.SizeYf(id)) / CELL_SIZE_PX;
+  ground := pY + (R.PivotYf(id0) + R.SizeYf(id0)) / CELL_SIZE_PX;
 
   if DoImmediateRender then
     RenderSprite(rxUnits, id, cornerX, cornerY, FlagColor, DoHighlight, HighlightColor)
@@ -1081,8 +1097,8 @@ begin
   R := fRXData[rxUnits];
 
   // Eaters need to interpolate land height the same as the inn otherwise they are rendered at the wrong place
-  cornerX := aLoc.X + aOffX + R.Pivot[id].X / CELL_SIZE_PX - 1;
-  cornerY := aLoc.Y + aOffY + (R.Pivot[id].Y + R.Size[id].Y) / CELL_SIZE_PX - 1
+  cornerX := aLoc.X + aOffX + R.PivotXf(id) / CELL_SIZE_PX - 1;
+  cornerY := aLoc.Y + aOffY + (R.PivotYf(id) + R.SizeYf(id)) / CELL_SIZE_PX - 1
                    - gTerrain.LandExt^[aLoc.Y + 1, aLoc.X].RenderHeight / CELL_HEIGHT_DIV;
 
   fRenderList.AddSprite(rxUnits, id, cornerX, cornerY, aFlagColor);
@@ -1102,8 +1118,8 @@ begin
   if id <= 0 then Exit;
   R := fRXData[rxUnits];
 
-  cornerX := pX + (R.Pivot[id].X + A.MoveX) / CELL_SIZE_PX;
-  cornerY := gTerrain.RenderFlatToHeight(pX, pY) + (R.Pivot[id].Y + R.Size[id].Y + A.MoveY) / CELL_SIZE_PX;
+  cornerX := pX + (R.PivotXf(id) + A.MoveX) / CELL_SIZE_PX;
+  cornerY := gTerrain.RenderFlatToHeight(pX, pY) + (R.PivotYf(id) + R.SizeYf(id) + A.MoveY) / CELL_SIZE_PX;
   fRenderList.AddSprite(rxUnits, id, cornerX, cornerY, aFlagColor);
 end;
 
@@ -1125,14 +1141,14 @@ begin
   id0 := A.Step[UNIT_STILL_FRAMES[aDir] mod Byte(A.Count) + 1] + 1;
 
   // Units feet
-  ground := pY + (R.Pivot[id0].Y + R.Size[id0].Y) / CELL_SIZE_PX;
+  ground := pY + (R.PivotYf(id0) + R.SizeYf(id0)) / CELL_SIZE_PX;
   // The thought should be slightly lower than the unit so it goes OVER warrior flags
   ground := ground + THOUGHT_X_OFFSET;
 
   id := gRes.Interpolation.UnitThought(Thought, gTerrain.AnimStep, gGameParams.TickFrac);
 
-  cornerX := pX + R.Pivot[id].X / CELL_SIZE_PX;
-  cornerY := gTerrain.RenderFlatToHeight(pX, pY) + (R.Pivot[id].Y + R.Size[id].Y) / CELL_SIZE_PX - 1.5;
+  cornerX := pX + R.PivotXf(id) / CELL_SIZE_PX;
+  cornerY := gTerrain.RenderFlatToHeight(pX, pY) + (R.PivotYf(id) + R.SizeYf(id)) / CELL_SIZE_PX - 1.5;
   fRenderList.AddSpriteG(rxUnits, id, 0, cornerX, cornerY, pX, ground);
 end;
 
@@ -1165,14 +1181,14 @@ begin
   id0 := A.Step[UNIT_STILL_FRAMES[aDir] mod Byte(A.Count) + 1] + 1;
 
   // Units feet
-  ground := pY + (R.Pivot[id0].Y + R.Size[id0].Y) / CELL_SIZE_PX;
+  ground := pY + (R.PivotYf(id0) + R.SizeYf(id0)) / CELL_SIZE_PX;
 
   // Flag position
   idFlag := gRes.Interpolation.UnitAction(aUnit, uaWalkArm, aDir, FlagAnim, gGameParams.TickFrac);
   if idFlag <= 0 then Exit;
 
-  flagX := pX + (R.Pivot[idFlag].X + FlagXOffset[UNIT_TO_GROUP_TYPE[aUnit], aDir]) / CELL_SIZE_PX - 0.5;
-  flagY := gTerrain.RenderFlatToHeight(pX, pY) + (R.Pivot[idFlag].Y + FlagYOffset[UNIT_TO_GROUP_TYPE[aUnit], aDir] + R.Size[idFlag].Y) / CELL_SIZE_PX - 2.25;
+  flagX := pX + (R.PivotXf(idFlag) + FlagXOffset[UNIT_TO_GROUP_TYPE[aUnit], aDir]) / CELL_SIZE_PX - 0.5;
+  flagY := gTerrain.RenderFlatToHeight(pX, pY) + (R.PivotYf(idFlag) + FlagYOffset[UNIT_TO_GROUP_TYPE[aUnit], aDir] + R.SizeYf(idFlag)) / CELL_SIZE_PX - 2.25;
 
   if DoImmediateRender then
     RenderSprite(rxUnits, idFlag, flagX, flagY, FlagColor)
@@ -1215,11 +1231,12 @@ begin
     TKMRender.BindTexture(Tex.TexID);
     if aDoHighlight then
       glColor3ub(aHighlightColor and $FF, aHighlightColor shr 8 and $FF, aHighlightColor shr 16 and $FF);
+    // World size = logical pixels (texels / Scale), so an HD sprite covers the same area as the original
     glBegin(GL_QUADS);
-      glTexCoord2f(Tex.u1, Tex.v2); glVertex2f(rX                     , rY                      );
-      glTexCoord2f(Tex.u2, Tex.v2); glVertex2f(rX+pxWidth/CELL_SIZE_PX, rY                      );
-      glTexCoord2f(Tex.u2, Tex.v1); glVertex2f(rX+pxWidth/CELL_SIZE_PX, rY-pxHeight/CELL_SIZE_PX);
-      glTexCoord2f(Tex.u1, Tex.v1); glVertex2f(rX                     , rY-pxHeight/CELL_SIZE_PX);
+      glTexCoord2f(Tex.u1, Tex.v2); glVertex2f(rX                           , rY                            );
+      glTexCoord2f(Tex.u2, Tex.v2); glVertex2f(rX+pxWidth/Scale/CELL_SIZE_PX, rY                            );
+      glTexCoord2f(Tex.u2, Tex.v1); glVertex2f(rX+pxWidth/Scale/CELL_SIZE_PX, rY-pxHeight/Scale/CELL_SIZE_PX);
+      glTexCoord2f(Tex.u1, Tex.v1); glVertex2f(rX                           , rY-pxHeight/Scale/CELL_SIZE_PX);
     glEnd;
   end;
 
@@ -1229,10 +1246,10 @@ begin
       glColor4ubv(@aColor);
       TKMRender.BindTexture(Alt.TexID);
       glBegin(GL_QUADS);
-        glTexCoord2f(Alt.u1, Alt.v2); glVertex2f(rX                     , rY                      );
-        glTexCoord2f(Alt.u2, Alt.v2); glVertex2f(rX+pxWidth/CELL_SIZE_PX, rY                      );
-        glTexCoord2f(Alt.u2, Alt.v1); glVertex2f(rX+pxWidth/CELL_SIZE_PX, rY-pxHeight/CELL_SIZE_PX);
-        glTexCoord2f(Alt.u1, Alt.v1); glVertex2f(rX                     , rY-pxHeight/CELL_SIZE_PX);
+        glTexCoord2f(Alt.u1, Alt.v2); glVertex2f(rX                           , rY                            );
+        glTexCoord2f(Alt.u2, Alt.v2); glVertex2f(rX+pxWidth/Scale/CELL_SIZE_PX, rY                            );
+        glTexCoord2f(Alt.u2, Alt.v1); glVertex2f(rX+pxWidth/Scale/CELL_SIZE_PX, rY-pxHeight/Scale/CELL_SIZE_PX);
+        glTexCoord2f(Alt.u1, Alt.v1); glVertex2f(rX                           , rY-pxHeight/Scale/CELL_SIZE_PX);
       glEnd;
     end;
 end;
@@ -1284,10 +1301,10 @@ begin
       glColor3f(1, 1, 1);
       TKMRender.BindTexture(Alt.TexID);
       glBegin(GL_QUADS);
-        glTexCoord2f(Alt.u1,Alt.v2); glVertex2f(rX                     , rY         );
-        glTexCoord2f(Alt.u2,Alt.v2); glVertex2f(rX+pxWidth/CELL_SIZE_PX, rY         );
-        glTexCoord2f(Alt.u2,Alt.v1); glVertex2f(rX+pxWidth/CELL_SIZE_PX, rY-pxHeight/CELL_SIZE_PX);
-        glTexCoord2f(Alt.u1,Alt.v1); glVertex2f(rX                     , rY-pxHeight/CELL_SIZE_PX);
+        glTexCoord2f(Alt.u1,Alt.v2); glVertex2f(rX                           , rY         );
+        glTexCoord2f(Alt.u2,Alt.v2); glVertex2f(rX+pxWidth/Scale/CELL_SIZE_PX, rY         );
+        glTexCoord2f(Alt.u2,Alt.v1); glVertex2f(rX+pxWidth/Scale/CELL_SIZE_PX, rY-pxHeight/Scale/CELL_SIZE_PX);
+        glTexCoord2f(Alt.u1,Alt.v1); glVertex2f(rX                           , rY-pxHeight/Scale/CELL_SIZE_PX);
       glEnd;
       TKMRender.BindTexture(0);
     end;
@@ -1303,10 +1320,10 @@ begin
           glColor3f(1, 1, 1);
           TKMRender.BindTexture(Alt.TexID);
           glBegin(GL_QUADS);
-            glTexCoord2f(Alt.u1,Alt.v2); glVertex2f(X2                     ,Y2         );
-            glTexCoord2f(Alt.u2,Alt.v2); glVertex2f(X2+pxWidth/CELL_SIZE_PX,Y2         );
-            glTexCoord2f(Alt.u2,Alt.v1); glVertex2f(X2+pxWidth/CELL_SIZE_PX,Y2-pxHeight/CELL_SIZE_PX);
-            glTexCoord2f(Alt.u1,Alt.v1); glVertex2f(X2                     ,Y2-pxHeight/CELL_SIZE_PX);
+            glTexCoord2f(Alt.u1,Alt.v2); glVertex2f(X2                           ,Y2         );
+            glTexCoord2f(Alt.u2,Alt.v2); glVertex2f(X2+pxWidth/Scale/CELL_SIZE_PX,Y2         );
+            glTexCoord2f(Alt.u2,Alt.v1); glVertex2f(X2+pxWidth/Scale/CELL_SIZE_PX,Y2-pxHeight/Scale/CELL_SIZE_PX);
+            glTexCoord2f(Alt.u1,Alt.v1); glVertex2f(X2                           ,Y2-pxHeight/Scale/CELL_SIZE_PX);
           glEnd;
           TKMRender.BindTexture(0);
         end;
@@ -1330,10 +1347,10 @@ begin
 
     TKMRender.BindTexture(Tex.TexID);
     glBegin(GL_QUADS);
-      glTexCoord2f(Tex.u1,Tex.v2); glVertex2f(rX                     , rY         );
-      glTexCoord2f(Tex.u2,Tex.v2); glVertex2f(rX+pxWidth/CELL_SIZE_PX, rY         );
-      glTexCoord2f(Tex.u2,Tex.v1); glVertex2f(rX+pxWidth/CELL_SIZE_PX, rY-pxHeight/CELL_SIZE_PX);
-      glTexCoord2f(Tex.u1,Tex.v1); glVertex2f(rX                     , rY-pxHeight/CELL_SIZE_PX);
+      glTexCoord2f(Tex.u1,Tex.v2); glVertex2f(rX                           , rY         );
+      glTexCoord2f(Tex.u2,Tex.v2); glVertex2f(rX+pxWidth/Scale/CELL_SIZE_PX, rY         );
+      glTexCoord2f(Tex.u2,Tex.v1); glVertex2f(rX+pxWidth/Scale/CELL_SIZE_PX, rY-pxHeight/Scale/CELL_SIZE_PX);
+      glTexCoord2f(Tex.u1,Tex.v1); glVertex2f(rX                           , rY-pxHeight/Scale/CELL_SIZE_PX);
     glEnd;
     TKMRender.BindTexture(0);
   end;
@@ -1439,9 +1456,9 @@ begin
   if not gTerrain.TileInMapCoords(aLoc.X, aLoc.Y)
   or (gMySpectator.FogOfWar.CheckVerticeRenderRev(aLoc.X,aLoc.Y) <= FOG_OF_WAR_MIN) then Exit;
 
-  pX := aLoc.X - 0.5 + fRXData[rxGui].Pivot[aId].X / CELL_SIZE_PX;
+  pX := aLoc.X - 0.5 + fRXData[rxGui].PivotXf(aId) / CELL_SIZE_PX;
   pY := gTerrain.RenderFlatToHeight(aLoc.X - 0.5, aLoc.Y - 0.5) -
-        fRXData[rxGui].Pivot[aId].Y / CELL_SIZE_PX;
+        fRXData[rxGui].PivotYf(aId) / CELL_SIZE_PX;
   RenderSprite(rxGui, aId, pX, pY, aFlagColor);
 end;
 
@@ -1451,9 +1468,9 @@ var
   pX, pY: Single;
 begin
   // if not gTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then Exit;
-  pX := aLoc.X + fRXData[rxGui].Pivot[aId].X / CELL_SIZE_PX;
+  pX := aLoc.X + fRXData[rxGui].PivotXf(aId) / CELL_SIZE_PX;
   pY := gTerrain.RenderFlatToHeight(aLoc.X, aLoc.Y) +
-        fRXData[rxGui].Pivot[aId].Y / CELL_SIZE_PX;
+        fRXData[rxGui].PivotYf(aId) / CELL_SIZE_PX;
   RenderSprite(rxGui, aId, pX, pY, aFlagColor, False, 0, aForced);
 end;
 
@@ -1940,8 +1957,6 @@ begin
 
   // Pre-allocate some space
   SetLength(fRenderList, 512);
-
-  fUnitsRXData := gRes.Sprites[rxUnits].RXData;
 end;
 
 
@@ -2091,8 +2106,9 @@ procedure TKMRenderList.AddSpriteG(aRX: TRXType; aId: Integer; aUID: Integer; pX
 const
   MAX_SEL_RECT_HEIGHT = 60; //Restrict too long images selection rect
 var
-  hAdd, imH, hTop: Single;
+  hAdd, imH, hTop, s: Single;
   snsTop, snsBottom: Integer;
+  unitsRXData: PRXData;
 begin
   if fCount >= Length(fRenderList) then
     SetLength(fRenderList, fCount + 256); // Book some space
@@ -2109,18 +2125,22 @@ begin
   if aUID > 0 then
     with fRenderList[fCount].SelectionRect do
     begin
-      snsTop    := fUnitsRXData.SizeNoShadow[aId].Top;
-      snsBottom := fUnitsRXData.SizeNoShadow[aId].Bottom;
+      // Read per call, not cached: the HD/SD switch replaces the units sprite pack
+      unitsRXData := gRes.Sprites[rxUnits].RXDataP;
+      // SizeNoShadow is in real texels, the selection rect is in logical (world) pixels -> divide by the sprite's HD scale
+      s := unitsRXData^.ScaleOf(aId);
+      snsTop    := unitsRXData^.SizeNoShadow[aId].Top;
+      snsBottom := unitsRXData^.SizeNoShadow[aId].Bottom;
 
-      imH := snsBottom - snsTop + 1;
+      imH := (snsBottom - snsTop + 1) / s;
       hTop := EnsureRange(imH, CELL_SIZE_PX, MAX_SEL_RECT_HEIGHT);
 
       //Enlarge rect from image size to the top, to be at least CELL_SIZE_PX height
       hAdd := Max(0, CELL_SIZE_PX - imH); // height to add to image pos. half to the top, half to the bottom
 
-      Left := pX - 0.5 - fUnitsRXData.Pivot[aId].X / CELL_SIZE_PX;
+      Left := pX - 0.5 - unitsRXData^.PivotXf(aId) / CELL_SIZE_PX;
       Right := Left + 1; // Exactly +1 tile
-      Bottom := gY + ((hAdd / 2) - (fUnitsRXData.Size[aId].Y - snsBottom - 1))/ CELL_SIZE_PX; // Consider shadow at the image bottom
+      Bottom := gY + ((hAdd / 2) - (unitsRXData^.SizeYf(aId) - (snsBottom + 1) / s))/ CELL_SIZE_PX; // Consider shadow at the image bottom
       Top := Bottom - hTop / CELL_SIZE_PX; // -1 ~ -1.5 tiles
     end;
 

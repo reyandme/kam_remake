@@ -502,8 +502,9 @@ begin
 
   offX  := 0;
   offY  := 0;
-  drawWidth   := gGFXData[aRX, aID].PxWidth;
-  drawHeight  := gGFXData[aRX, aID].PxHeight;
+  // Screen layout size is logical pixels (texels / HD scale), so an HD sprite takes the same UI space as the original
+  drawWidth   := Round(gGFXData[aRX, aID].PxWidth / gGFXData[aRX, aID].Scale);
+  drawHeight  := Round(gGFXData[aRX, aID].PxHeight / gGFXData[aRX, aID].Scale);
 
   //Both aAnchors means that we will need to stretch the image
   if (anLeft in aAnchors) and (anRight in aAnchors) then

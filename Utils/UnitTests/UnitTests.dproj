@@ -91,6 +91,7 @@
         <DCCReference Include="TestKM_CommonClasses.pas"/>
         <DCCReference Include="TestKM_CommonUtils.pas"/>
         <DCCReference Include="TestKM_Points.pas"/>
+        <DCCReference Include="TestKM_ResSprites.pas"/>
         <DCCReference Include="TestKM_Utils.pas"/>
         <None Include="Profiling\AQtimeModule1.aqt"/>
         <BuildConfiguration Include="Base">

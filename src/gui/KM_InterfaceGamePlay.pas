@@ -67,6 +67,8 @@ type
     fGroupsTeamNames: TList<TKMUnitGroup>;
     fHousesTeamNames: TList<TKMHouse>;
     fLastKbdSelectionTime: Cardinal; //Last we select object from keyboard
+    fHDStateShownAt: Cardinal; //The HD / original graphics state label is a toast, it hides itself
+    fHDStateShown: Boolean;    //State the label was last set to, to notice a switch made on the options page
 
     // Saved (in singleplayer only)
     fLastSaveName: UnicodeString; // The file name we last used to save this file (used as default in Save menu)
@@ -185,6 +187,9 @@ type
     function HandleSpectatorKeys(Key: Word; Shift: TShiftState): Boolean;
     procedure HandleFieldPlanKeys(Key: Word);
     procedure HandleDebugKeys(Key: Word);
+    procedure Create_HDLoading;
+    procedure UpdateHDStateLabel;
+    function HandleHDGraphicsKey(Key: Word; Shift: TShiftState): Boolean;
   protected
     Sidebar_Top: TKMImage;
     Sidebar_Middle: TKMImage;
@@ -200,6 +205,11 @@ type
     Label_Time: TKMLabel;
     Label_ClockSpeedActual: TKMLabel;
     Label_ClockSpeedRecorded: TKMLabel;
+    // HD / stock graphics switch
+    Label_HDState: TKMLabel;     // Shown while the optional HD graphics are on
+    Panel_HDLoading: TKMPanel;   // Cover while the other set is being loaded
+    Bevel_HDLoading: TKMBevel;
+    Label_HDLoading: TKMLabel;
 
     Label_ScriptedOverlay: TKMLabel; // Label that can be set from script
     Button_ScriptedOverlay: TKMButton;
@@ -348,6 +358,11 @@ type
     procedure SetPause(aValue: Boolean);
     procedure GameStarted;
 
+    // Cover shown while the graphics set is switched (gGameApp.SetHDGraphics drives these)
+    procedure ShowGraphicsLoading;
+    procedure HideGraphicsLoading;
+    procedure GraphicsLoadingStep(const aRXName: UnicodeString);
+
     property GuiGameResultsMP: TKMGameResultsMP read fGuiGameResultsMP;
     property GuiGameSpectator: TKMGUIGameSpectator read fGuiGameSpectator;
 
@@ -399,6 +414,7 @@ uses
   KM_Utils, KM_MapUtils;
 
 const
+  HD_STATE_LABEL_TIME = 5000; // ms the 'Graphics: ...' toast stays on screen after a switch
   PANEL_TRACK_TOP = 285;
   REPLAYBAR_DEFAULT_WIDTH = 400;
 
@@ -869,6 +885,11 @@ begin
   Label_ClockSpeedRecorded.Hint := gResTexts[TX_GAME_UI_SPEED_RECORDED];
   Label_ClockSpeedRecorded.Hide;
 
+  // The switch state lives in gRes and survives between games, so pick it up here too
+  Label_HDState := TKMLabel.Create(Panel_Main, 310, 8, NO_TEXT, fntOutline, taLeft);
+  Label_HDState.Hitable := False;
+  UpdateHDStateLabel;
+
   Create_ScriptingOverlay; // Scripting Overlay controls
 
   Image_DirectionCursor := TKMImage.Create(Panel_Main,0,0,35,36,519);
@@ -880,6 +901,7 @@ begin
 { ========================================================================================== }
   Create_Controls; // Includes all the child pages
 
+  Create_HDLoading; // Overlay for the HD / stock graphics switch
   Create_NetWait; // Overlay blocking everyhitng but sidestack and messages
   fGuiGameAllies := TKMGUIGameAllies.Create(Panel_Main); // MessagePage sibling
 
@@ -1087,6 +1109,21 @@ end;
 
 
 // Waiting for Net events page, it's similar to PlayMore, but is layered differentlybelow chat panel
+// Full screen cover for the seconds the HD / stock graphics switch takes
+procedure TKMGamePlayInterface.Create_HDLoading;
+begin
+  Panel_HDLoading := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
+  Panel_HDLoading.AnchorsStretch;
+    Bevel_HDLoading := TKMBevel.Create(Panel_HDLoading, -1, -1, Panel_Main.Width + 2, Panel_Main.Height + 2);
+    Bevel_HDLoading.AnchorsStretch;
+
+    Label_HDLoading := TKMLabel.Create(Panel_HDLoading, Panel_Main.Width div 2, (Panel_Main.Height div 2) - 10,
+                                       NO_TEXT, fntOutline, taCenter);
+    Label_HDLoading.AnchorsCenter;
+  Panel_HDLoading.Hide; // Initially hidden
+end;
+
+
 procedure TKMGamePlayInterface.Create_NetWait;
 begin
   Panel_NetWait := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width,Panel_Main.Height);
@@ -3236,6 +3273,9 @@ begin
   // Next keys are handled only on a first KeyDown event
   if not aIsFirst then Exit;
 
+  // Before the unit / house keys: Ctrl+Shift+H must not also trigger their H binding
+  if HandleHDGraphicsKey(Key, Shift) then Exit;
+
   HandleShowTeamKeyDown(Key);
   HandleMessageKeys(Key);
 
@@ -3570,6 +3610,69 @@ begin
     if Key = gResKeys[kfDebugDefeat]    then gGame.GameInputProcess.CmdTemp(gicTempDefeat);
     if Key = gResKeys[kfDebugAddscout]  then gGame.GameInputProcess.CmdTemp(gicTempAddScout, gCursor.Cell);
   end;
+end;
+
+
+// Read the state back from gRes (never from what we think we switched to) and show it for a few seconds.
+// An HD set may cover only some RX, so name the ones that are HD
+procedure TKMGamePlayInterface.UpdateHDStateLabel;
+var
+  RT: TRXType;
+  hdList: string;
+begin
+  hdList := '';
+  for RT := Low(TRXType) to High(TRXType) do
+    if gRes.Sprites.HDState[RT] then
+    begin
+      if hdList <> '' then
+        hdList := hdList + ', ';
+      hdList := hdList + gResTexts[RX_INFO[RT].LoadingTextID];
+    end;
+
+  if hdList = '' then
+    Label_HDState.Caption := gResTexts[TX_GAMEPLAY_GRAPHICS_ORIGINAL]
+  else
+    Label_HDState.Caption := Format(gResTexts[TX_GAMEPLAY_GRAPHICS_HD], [hdList]);
+
+  fHDStateShown := gRes.Sprites.HDActive;
+  fHDStateShownAt := TimeGet;
+  Label_HDState.Show;
+end;
+
+
+procedure TKMGamePlayInterface.ShowGraphicsLoading;
+begin
+  Panel_HDLoading.Show;
+  GraphicsLoadingStep('');
+end;
+
+
+procedure TKMGamePlayInterface.HideGraphicsLoading;
+begin
+  Panel_HDLoading.Hide;
+end;
+
+
+// Draw one frame of the loading cover. Called between RX loads, never while a set is half loaded
+procedure TKMGamePlayInterface.GraphicsLoadingStep(const aRXName: UnicodeString);
+begin
+  Label_HDLoading.Caption := Trim(Format(gResTexts[TX_GAMEPLAY_GRAPHICS_LOADING], [aRXName]));
+  gGameApp.Render;
+end;
+
+
+// Switch the whole graphics set (terrain included) between the stock and the optional HD packs
+// in data/Sprites/hd. The first switch loads the other set, which takes seconds
+function TKMGamePlayInterface.HandleHDGraphicsKey(Key: Word; Shift: TShiftState): Boolean;
+begin
+  Result := False;
+  if (Key <> Ord('H')) or (Shift * [ssCtrl, ssShift, ssAlt] <> [ssCtrl, ssShift]) then Exit;
+  // Loading blocks the main thread for seconds, which would drop a multiplayer connection
+  if fUIMode in [umMP, umSpectate] then Exit;
+
+  Result := True;
+  // Same path as the options checkbox: it pauses the game, shows the cover below and saves the setting
+  gGameApp.SetHDGraphics(not gRes.Sprites.HDActive);
 end;
 
 
@@ -4245,6 +4348,14 @@ var
   str: string;
 begin
   inherited;
+
+  // The graphics set can be switched from here (Ctrl+Shift+H) or from the options page, so notice it here
+  if fHDStateShown <> gRes.Sprites.HDActive then
+    UpdateHDStateLabel;
+
+  // The graphics state label is a toast: hide it a few seconds after the switch
+  if Label_HDState.Visible and (TimeSince(fHDStateShownAt) > HD_STATE_LABEL_TIME) then
+    Label_HDState.Hide;
 
   // Update replay counters
   if fUIMode = umReplay then
