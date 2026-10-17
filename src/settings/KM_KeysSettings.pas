@@ -8,8 +8,6 @@ uses
 type
   // Hotkey settings loader/saver
   TKMKeysSettings = class(TKMGameAppSettingsPart)
-  private
-    fHotkeysNode: TKMXmlNode;
   public
     procedure LoadFromXML; override;
     procedure SaveToXML; override;
@@ -33,10 +31,11 @@ uses
 procedure TKMKeysSettings.UpdateResKeys;
 var
   KF: TKMKeyFunction;
-  nKey: TKMXmlNode;
+  nKey, fHotkeysNode: TKMXmlNode;
   keyFuncName: string;
 begin
   if gResKeys = nil then Exit;
+  fHotkeysNode := Root.AddOrFindChild('Hotkeys');
 
   for KF := KEY_FUNC_LOW to High(TKMKeyFunction) do
   begin
@@ -55,8 +54,6 @@ procedure TKMKeysSettings.LoadFromXML;
 begin
   if Self = nil then Exit;
   inherited;
-
-  fHotkeysNode := Root.AddOrFindChild('Hotkeys');
 
   UpdateResKeys;
 end;
