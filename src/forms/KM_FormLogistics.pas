@@ -195,6 +195,8 @@ procedure TFormLogistics.FormCreate(Sender: TObject);
     aVST.TreeOptions.MiscOptions := [toAcceptOLEDrop, toFullRepaintOnResize, toGridExtensions, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick];
     aVST.TreeOptions.PaintOptions := [toHideFocusRect, toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages];
     aVST.TreeOptions.SelectionOptions := [toExtendedFocus, toFullRowSelect];
+    // Sorted explicitly in VSTUpdate. AutoSort sorts a just added node before its data is set
+    aVST.TreeOptions.AutoOptions := aVST.TreeOptions.AutoOptions - [toAutoSort];
 
     aVST.Align := alClient;
     aVST.EmptyListMessage := 'No data ...';
@@ -598,6 +600,8 @@ begin
 
   Sender.SortColumn := HitInfo.Column;
 
+  Sender.Treeview.SortTree(Sender.SortColumn, Sender.SortDirection);
+
   // Keep focused node in center
   Sender.Treeview.ScrollIntoView(Sender.Treeview.FocusedNode, True);
 end;
@@ -642,16 +646,16 @@ begin
   del := gHands[handID].Deliveries.Queue;
 
   iQ := data.ID;
-  iO := del.Delivery[iQ].OfferID;
-  iD := del.Delivery[iQ].DemandID;
-  oWT := del.Delivery[iQ].OfferWare;
-  dWT := del.Delivery[iQ].DemandWare;
-
-  if (iQ = DELIVERY_NO_ID) or (iQ > del.DeliveryCount) then
+  if (iQ = DELIVERY_NO_ID) or (iQ >= del.DeliveryCount) then
   begin
     CellText := '-';
     Exit;
   end;
+
+  iO := del.Delivery[iQ].OfferID;
+  iD := del.Delivery[iQ].DemandID;
+  oWT := del.Delivery[iQ].OfferWare;
+  dWT := del.Delivery[iQ].DemandWare;
 
   case VSTDeliveries.Header.Columns[Column].Tag of
     0:  CellText := IntToStr(Node.Index);
