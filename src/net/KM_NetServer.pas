@@ -897,7 +897,8 @@ begin
             if senderIsHost then
             begin
               aData.Read(tmpSmallInt);
-              if fClientList.GetByHandle(tmpSmallInt) <> nil then
+              client := fClientList.GetByHandle(tmpSmallInt);
+              if (client <> nil) and (client.Room = senderRoom) then
               begin
                 PacketSend(tmpSmallInt, mkKicked, TX_NET_KICK_BY_HOST, True);
                 fServer.Kick(tmpSmallInt);
@@ -907,7 +908,8 @@ begin
             if senderIsHost then
             begin
               aData.Read(tmpSmallInt);
-              if fClientList.GetByHandle(tmpSmallInt) <> nil then
+              client := fClientList.GetByHandle(tmpSmallInt);
+              if (client <> nil) and (client.Room = senderRoom) then
               begin
                 BanPlayerFromRoom(tmpSmallInt, senderRoom);
                 PacketSend(tmpSmallInt, mkKicked, TX_NET_BANNED_BY_HOST, True);
@@ -918,7 +920,8 @@ begin
             if senderIsHost then
             begin
               aData.Read(tmpSmallInt);
-              if fClientList.GetByHandle(tmpSmallInt) <> nil then
+              client := fClientList.GetByHandle(tmpSmallInt);
+              if (client <> nil) and (client.Room = senderRoom) then
               begin
                 fRoomInfo[senderRoom].HostHandle := tmpSmallInt;
                 //Tell everyone about the new host and password/description (so new host knows it)
