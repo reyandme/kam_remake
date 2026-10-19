@@ -856,7 +856,10 @@ begin
       newPing := fSlots[I].GetMaxPing;
 
       if newPing > worstPing1 then
-        worstPing1 := newPing
+      begin
+        worstPing2 := worstPing1;
+        worstPing1 := newPing;
+      end
       else
         if newPing > worstPing2 then
           worstPing2 := newPing;
