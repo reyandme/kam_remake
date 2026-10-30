@@ -398,22 +398,26 @@ end;
 
 procedure TKMNetServer.MeasurePings;
 var
-  I: Integer;
+  I, room: Integer;
   M: TKMemoryStream;
   tickCount: DWord;
 begin
   tickCount := TimeGet;
-  //Sends current ping info to everyone
   M := TKMemoryStreamBinary.Create;
-  M.Write(fClientList.Count);
-  for I := 0 to fClientList.Count - 1 do
+  for room := 0 to fRoomCount - 1 do
   begin
-    M.Write(fClientList[I].Handle);
-    M.Write(fClientList[I].Ping);
-    M.Write(fClientList[I].FPS);
-    //gLog.AddTime('Client %d measured ping = %d FPS = %d', [fClientList[I].Handle, fClientList[I].Ping, fClientList[I].FPS]);
+    M.Clear;
+    M.Write(GetRoomClientsCount(room));
+    for I := 0 to fClientList.Count - 1 do
+      if fClientList[I].Room = room then
+      begin
+        //gLog.AddTime('Client %d measured ping = %d FPS = %d', [fClientList[I].Handle, fClientList[I].Ping, fClientList[I].FPS]);
+        M.Write(fClientList[I].Handle);
+        M.Write(fClientList[I].Ping);
+        M.Write(fClientList[I].FPS);
+      end;
+    PacketSendToRoom(mkPingFpsInfo, room, M);
   end;
-  PacketSend(NET_ADDRESS_ALL, mkPingFpsInfo, M);
   M.Free;
 
   //Measure pings. Iterate backwards so the indexes are maintained after kicking clients
@@ -592,8 +596,10 @@ begin
 
   if room = -1 then Exit; //The client was not assigned a room yet
 
-  //Send message to all remaining clients that client has disconnected
-  PacketSendInd(NET_ADDRESS_ALL, mkClientLost, aHandle);
+  M := TKMemoryStreamBinary.Create;
+  M.Write(aHandle);
+  PacketSendToRoom(mkClientLost, room, M);
+  M.Free;
 
   //Assign a new host
   if fRoomInfo[room].HostHandle = aHandle then
