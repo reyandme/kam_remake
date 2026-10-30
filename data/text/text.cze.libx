@@ -47,7 +47,7 @@
 46:Dřevěné štíty
 47:Železné štíty
 48:Kožená brnění
-49:Železné zbroje
+49:Železná brnění
 50:Sekery
 51:Meče
 52:Kopí
@@ -60,9 +60,9 @@
 59:Dřevorubec
 60:Horník
 61:Chovatel zvířectva
-62:Farmář/Vinař
+62:Farmář / Vinař
 63:Tesař
-64:Mlynář/Pekař
+64:Mlynář / Pekař
 65:Řezník
 66:Rybář
 67:Dělník
@@ -87,26 +87,26 @@
 86:Katapult
 87:Balista
 88:Nevolníci zásobují vaše budovy nezbytnými surovinami.||Nezapomeňte, že budovy musí být propojeny cestami.
-89:Abyste mohl težit dřevo pro pilu, potřebujete dřevorubce.||Dřevorubec se také nezávisle stará o znovuzalesňování vykácených ploch.
+89:Abyste mohl těžit dřevo pro pilu, potřebujete dřevorubce.||Dřevorubec se také nezávisle stará o zalesňování.
 90:Horník těží nerosty z uhelných, železných a zlatých dolů.
-91:Chovatel zvířectva vykrmuje ve stajích a vepřínech koně a prasata obilím.
+91:Chovatel zvířectva krmí ve vepřínech a stájích prasata a koně obilím.
 92:Farmář pěstuje a sklízí obilí na farmě.||Také lisuje víno vypěstované na vinici.
 93:Tesař pracuje na pile, ve zbrojní dílně a ve výrobně brnění.
 94:Pekař peče chléb v pekárně.||Mele také mouku z obilí ve větrném mlýně.
 95:Řezník vyrábí klobásy v řeznictví a kůže v koželužně.
 96:Rybář chytá ryby v řekách a mořích.||Pozor, ne každá voda je plná ryb!
-97:Dělník staví budovy a cesty. Stačí mu ukázat na vybrané místo a o splnění vašeho rozkazu se již postará sám.||Také opravuje poškozené budovy.
-98:Aby měli dělníci dostatek materiálu na stavbu cest a domů, kameník pro ně těží a brousí kámen.
-99:Železné zbroje a zbraně jsou vyráběny kovářem v kovárně brnění a zbraní.
-100:Hutník vyrábí truhlice plné zlata a ocel z příslušných rud.
-101:Rekrut může být vybaven jako voják v hradu.||Obývá také strážní věž.
+97:Dělník staví budovy a cesty. Stačí mu ukázat na vybrané místo a o splnění vašeho příkazu se již postará sám.||Opravuje také poškozené budovy.
+98:Aby měli dělníci dostatek materiálu na stavbu cest a budov, kameník pro ně těží a brousí kámen.
+99:Železná brnění a železné zbraně vyrábí kovář v kovárně brnění a v kovárně zbraní.
+100:Hutník využívá uhlí pro tavení zlaté a železné rudy.
+101:Rekrut může být v hradu vycvičen jako voják.||Obývá také věž.
 102:K výběru budov
-103:K rozdělení produktů
-104:Ke statistice
+103:K rozdělení zboží
+104:Ke statistikám
 105:K volbám
 106:Zpět
 107:Výběr|budov
-108:Rozdělení|produktů
+108:Rozdělení|zboží
 109:Statistiky
 110:Volby
 111:Nahrání hry
@@ -120,80 +120,80 @@
 119:Změní hlasitost zvukových efektů
 120:Změní hlasitost hudby
 121:Hudba
-122:Zapne nebo vypne hudbu
+122:Zapne / vypne hudbu
 123:Autouložení
 124:Hudba:
 125:Předchozí skladba
 126:Další skladba
 127:Zbourat
-128:Zbourá budovu/základy
+128:Zbourá základy / budovu|Podržte Shift a Ctrl pro přeskočení potvrzení
 129:Vydláždit cestu
 130:Vydláždí cestu
 131:Zorat pole
 132:Zorá pole
 133:Založit vinici
 134:Založí vinici
-135:Opustit
+135:Zrušit
 136:Zrušit současný výcvik
 137:Potřeby:
-140:Zásoby:
-141:Dům|ve výstavbě
+140:Vyrábí
+141:Budova|ve výstavbě
 142:Zbourat
 143:Chcete opravdu|zbourat tuto budovu?
 144:Zbourá vybranou budovu
 145:Sníží objednané množství
 146:Zvýší objednané množství
-147:Předchozí typ jednotky
-148:Další typ jednotky
-149:Vybavit současný typ jednotky
-150:Další povolání
-151:Předchozí povolání
-152:Přidat do fronty
-153:Zapnout/vypnout dodávku zboží
+147:Předchozí typ jednotky. Pravým tlačítkem myši nebo s Alt přejdete na první typ
+148:Další typ jednotky. Pravým tlačítkem myši nebo s Alt přejdete na poslední typ
+149:Vycvičit vybranou jednotku. Pravým tlačítkem myši nebo s Alt vycvičíte 10 vojáků
+150:Další povolání. Pravým tlačítkem myši nebo s Alt přejdete na poslední povolání
+151:Předchozí povolání. Pravým tlačítkem myši nebo s Alt přejdete na první povolání
+152:Přidat do fronty.|Shift nebo Ctrl frontu upraví, pravé tlačítko myši nebo Alt ji zaplní
+153:Přepnout režim dodávky zboží: přijímat / zavřít / vyvážet|Levým / pravým tlačítkem myši přepnete na další / předchozí
 154:Cena:
-155:Zapnout/vypnout opravu budovy
+155:Zapnout / vypnout opravu budovy
 156:Budova v současnosti není k dispozici.
 157:Stav
-158:Otočit jednotky vlevo
-159:Otočit jednotky vpravo
+158:Otočit skupinu vlevo|Pravým tlačítkem myši nebo s Alt otočíte o 90 stupňů, se Shift o 180 stupňů
+159:Otočit skupinu vpravo|Pravým tlačítkem myši nebo s Alt otočíte o 90 stupňů, se Shift o 180 stupňů
 160:Útok
-161:Přemístit jednotky
-162:Zásobit jednotky potravinami
-163:Zahájit útok
-164:Přidat řadu
-165:Zrušit řadu
+161:Přemístit skupinu
+162:Zásobit skupinu jídlem
+163:Náhlý útok
+164:Přidat řadu|Pravým tlačítkem myši nebo se Shift přidáte 5 řad
+165:Odebrat řadu|Pravým tlačítkem myši nebo se Shift odeberete 5 řad
 166:Zvolit|skupinu
 167:Zrušit
-168:Vymazat
-169:Vymaže současnou zprávu
+168:Smazat
+169:Smaže současnou zprávu
 170:Přejít na
 171:Přejde na místo současné zprávy
 172:Zavřít
 173:Zavře okno
-174:Váš kameník nemůže najít další zásoby kamene
+174:Váš kameník nemůže najít další zásoby kamene.
 175:Zásoby uhlí se zdají být vyčerpané.
-176:Vaše železnorudné žíly se zdají být vyčerpané
-177:Vaše zlaté žíly se zdají být vyčerpané
+176:Vaše železnorudné žíly se zdají být vyčerpané.
+177:Vaše zlaté žíly se zdají být vyčerpané.
 178:Váš dřevorubec nemůže najít žádné další stromy k pokácení
 179:Tato budova není obydlena.
 180:Tento voják je hladový, bylo by nejlepší dát mu velice brzy najíst!
 181:PAUZA
-182:Dodávka
+182:Doručuje
 183:Staví cestu
 184:Orá pole
 185:Buduje vinici
 186:Srovnává terén
-187:Staví dům
-188:Opravuje dům
+187:Staví budovu
+188:Opravuje budovu
 189:Jde domů
 190:Jde do hostince
-191:Útočí na dům
+191:Útočí na budovu
 192:Střílí
 193:Bojuje
-194:Útočí
+194:Náhle útočí
 195:Útočí
 196:Přemisťuje se
-197:Nečinný
+197:Čeká
 198:Těží kámen
 199:Seje
 200:Sklízí
@@ -216,7 +216,7 @@
 217:Ve hradu
 218:Fanfáry
 219:Na dvoře
-220:Hlavní chod
+220:Úvod
 221:Tmavá modř
 222:Zápas
 223:Na zámku
@@ -235,12 +235,12 @@
 236:Seznam autorů
 237:Konec hry
 238:Další
-239:Nový start mise
+239:Opakovat misi
 240:Rozlišení:
 241:Není podporováno
 242:Není podporována
 243:VÍTĚZSTVÍ!
-244:PROHRA!
+244:PORÁŽKA!
 245:Ztraceno jednotek:
 246:Poraženo jednotek:
 247:Ztraceno budov:
@@ -256,26 +256,26 @@
 257:Ztraceno|jednotek
 258:Vycvičeno|vojáků
 259:Ztraceno|vojáků
-260:Poraženo vojáků
+260:Poraženo|vojáků
 261:Postaveno|budov
 262:Ztraceno|budov
 263:Zničeno|budov
-264:Vytvořeno|produktů
+264:Vyrobeno|zboží
 265:Vyrobeno|zbraní
-266:Vojsko
-267:Občané
-268:Stavby
-269:Zdroje
-270:Vyprodukováno zdrojů
+266:Armáda
+267:Jednotky
+268:Budovy
+269:Suroviny
+270:Vyprodukováno surovin
 271:Žádná data
 272:Vy
 273:Hráč %d
 274:Zpět do hry více hráčů
 275:Zpět k záznamům
 276:Vše
-277:Vedení války
+277:Výzbroj
 278:Jídlo
-279:JOYMANIA ENTERTAINMENT||PROGRAMOVÁNÍ:|Peter Ohlmann||GRAFIKA HRY:|Adam Sprys||NÁVRH MISÍ:|Adam Sprys|Andre Quaß||EDITACE ZVUKU A MIXOVÁNÍ:|Tonstudio Mannheim||HUDBA:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILUSTRACE:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCENT:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTOVÁNÍ:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||HERNÍ REŽISÉR:|Achim Heidelauf||PUBLIKOVÁNO:|TopWare Interactive||VIDEA:||REŽIE:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||DABING:|Claus Boyen (Vypravěč)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||ÚVODNÍ VIDEO:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||PODĚKOVÁNÍ:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt||1.60 PATCH|'SERVICE RELEASE 3'||KOORDINACE:|Tommi Räsänen (Litude)||PROGRAMOVÁNÍ:|Lewin Hodgman|Stephen Hodgman|Tommi Räsänen (Litude)||ÚPRAVA MISÍ:|Joost Bandsma (The Dark Lord)|Lewin Hodgman|Tommi Räsänen (Litude)||ÚPRAVA GRAFIKY:|Harold Aptroot||ZVUKOVÉ EFEKTY:|Lewin Hodgman|Mitchell Hodgman||OPRAVY TEXTŮ:|Jakub Z. (kuba11100)|Jeroen Bos (JBSnorro)|Joost Bandsma (The Dark Lord)|Lars Stienen (Thunderwolf)|Lewin Hodgman|Tommi Räsänen (Litude)||PŘEKLAD:|Alexander B. (AZA)|Attila Arnold (The Knight)|Jakub Z. (kuba11100)|Joost Bandsma (The Dark Lord)|Lars Stienen (Thunderwolf)|'Merchator'|'Nick'|'M4RC0'||BETA TESTOVÁNÍ:|Attila Arnold (The Knight)|Jakub Z. (kuba11100)|Lars Stienen (Thunderwolf)|'Michailoff'
+279:JOYMANIA ENTERTAINMENT||PROGRAMOVÁNÍ:|Peter Ohlmann||GRAFIKA HRY:|Adam Sprys||NÁVRH MISÍ:|Adam Sprys|André Quaß||EDITACE ZVUKU A MIXOVÁNÍ:|Tonstudio Mannheim||HUDBA:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILUSTRACE:|Boleslaw Kasza|Christoph Werner||PŘEKLAD:|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||PRODUCENT:|Uwe Schäfer||PŘÍRUČKA:|Peter Ohlmann|Uwe Schäfer||BETA TESTOVÁNÍ:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||HERNÍ REŽISÉR:|Achim Heidelauf||PUBLIKOVÁNO:|TopWare Interactive||VIDEA:||REŽIE:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||DABING:|Claus Boyen (Vypravěč)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||TVORBA:|Boleslaw Kasza|Adam Sprys||ÚVODNÍ VIDEO:|Uwe Schäfer|Christian Bigalk||Další 3D modelování:|Niels Horstmann||PODĚKOVÁNÍ:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
 280:Mise ukončena
 281:Konec záznamu
 282:Výuka stavby
@@ -285,8 +285,8 @@
 286:Začít misi
 287:Název mapy
 288:Velikost
-289:Podmínky výhry:
-290:Podmínky prohry:
+289:Podmínky vítězství:
+290:Podmínky porážky:
 291:Spojenci:
 292:Nepřátelé:
 293:Čas
@@ -295,7 +295,7 @@
 296:Výška
 297:Vytvořit novou mapu
 298:Dostupné mapy
-299:Načíst existující mapu
+299:Nahrát existující mapu
 300:Pozice
 301:Ovládání:
 302:Hra:
@@ -307,20 +307,20 @@
 308:Celá obrazovka
 309:Použít
 310:Jazyk:
-311:Vysoká kvalita stínů:
+311:Vysoká kvalita stínů
 312:Ok
 313:|Podržte Shift k položení více budov
 314:Nahrávám... prosím čekejte
 315:Došlo k chybě!
-316:Načítám novou lokalizaci
+316:Nahrávám novou lokalizaci
 317:Uložené hry
-318:Jméno souboru
+318:Název souboru
 319:Popis
 320:Nahrát hru
 321:Smazat
 322:Opravdu chcete smazat uloženou hru?
 323:Smazat
-324:Zpět
+324:Zrušit
 325:Název kampaně
 326:Počet map
 327:Odemknuto
@@ -337,12 +337,12 @@
 338:Stiskněte %s pro pokračování ve hře
 339:Informace o hráčích
 340:Chat
-341:Uložená hra s tímto návem již existuje
+341:Uložená hra s tímto názvem již existuje
 342:Přepsat
 343:Uložit
 344:Nahrát
 345:Detekována stará verze OpenGL, hra může běžet pomalu a/nebo s grafickými chybami
-346:Prosím aktualizujte svoje ovladače pro dosažení lepšího výkonu.
+346:Prosím aktualizujte ovladače grafické karty pro dosažení lepšího výkonu.
 347:Síťová chyba:
 348:Chyba: Musíte zadat své jméno
 349:Chyba: Jméno hráče nesmí obsahovat více než %d znaků
@@ -350,8 +350,8 @@
 351:Spojení se nezdařilo: %s
 352:Byl jste odpojen
 353:Mise %d
-354:Zpráva
-355:Váš rybář je příliš daleko od vody.
+354:Historie zpráv
+355:Rybářův domek je příliš daleko od vody.
 356:Váš rybář nemůže chytit žádné další ryby ve vodě, kterou má poblíž.
 357:Restartovat záznam
 358:Pozastavit
@@ -364,14 +364,14 @@
 366:Dám x%d
 367:Chci x%d
 368:K úpravě terénu
-369:Štetce
-370:Výšiny
+369:Štětce
+370:Výšky terénu
 371:Políčka
 372:Objekty
 373:Výška
 374:Tvar
 375:Velikost
-376:Posunutí změní velikost štetce
+376:Posunutí změní velikost štětce
 377:Sklon
 378:Posunutí změní sklon: 1 = plochý ... 15 = špičatý
 379:Rychlost
@@ -382,16 +382,16 @@
 384:Rozbrázdit / Zarovnat
 385:Zvýšit (levé tlačítko myši) / Snížit (pravé tlačítko myši)
 386:Rozbrázdit (levé tlačítko myši) / Zarovnat (pravé tlačítko myši)
-387:Štětec
+387:Štětce a masky
 388:Náhodné elementy
 389:Náhodný směr
 390:Zaškrtněte pro náhodný směr políčka nebo klikněte pravým tlačítkem k otočení vybraného políčka
-392:Zakázat chůzi
+392:Blokovat vstup
 393:Odstranit objekt
-394:K naplánování vesnice
+394:K naplánování města
 395:K viditelným skriptům
-396:Ke všeobecným skriptům
-397:Volby
+396:Ke globálním skriptům
+397:K volbám
 398:Objekty
 399:Zobrazit množství surovin
 400:Zobrazit jednotky
@@ -399,15 +399,15 @@
 402:Zobrazit objekty
 403:Zobrazit průchodnost
 404:Neuložené změny|budou ztraceny
-405:Zpět
+405:Zrušit
 406:Nahrát
 407:Nahrát mapu
-408:Zpět
+408:Zrušit
 409:Uložit
 410:Přepsat
 411:Mapa již existuje
 412:Hráči:
-413:Výchozí
+413:Výchozí hráč
 414:Typy hráčů
 415:Symetricky
 416:Spojenectví
@@ -421,7 +421,7 @@
 424:Odhalit část mapy
 425:Odhalit část mapy
 426:Zablokovat obchod
-427:Blokovat budovy
+427:Blokovat / povolit budovy
 428:Barvy
 429:Cíl
 432:Hráč
@@ -441,22 +441,22 @@
 446:Typ
 447:Cíle
 448:OK
-449:Zpět
-450:Řady
+449:Zrušit
+450:Sloupce
 451:Počet
 452:Formace jednotek
 453:Upravit formace
 454:Nastaví limit dostupných vojáků pro počítač
 455:Počet vojáků, které může počítač mít najednou
 456:Maximum vojáků
-457:Počet rekrutů, které může počítač mít ve hradu
+457:Klasický počítač: Počet rekrutů, které má počítač mít ve hradu|Pokročilý počítač: Parametr se nepoužívá
 458:Rekruti na Hrad
 460:Vlastní pozice
-463:Jednotky
+463:Nejbližší jednotka
 465:Počet skupin
 466:Informace o útoku
-468:Stále
-469:Jednou
+468:Opakovaný
+469:Jednorázový
 470:Jízda
 471:Střelectvo
 472:Kopiníci
@@ -468,44 +468,44 @@
 478:Typ
 479:Autoútok
 480:Útoky počítače
-481:Kožení vojáci/min
-482:Železní vojáci/min
+481:Rychlost výcviku kožených vojáků
+482:Rychlost výcviku železných vojáků
 483:Autoobrana
-484:Počítač vytváří a spravuje své obranné pozice automaticky
-485:Umístit obrannou pozici pro počítač
+484:Počítač vytváří a spravuje své obranné pozice automaticky. Ignoruje všechny ručně nastavené obranné pozice
+485:Umístit obrannou pozici pro počítač.|Parametry obranné pozice změníte:|pravé tlačítko myši - směr, Ctrl + pravé tlačítko - typ skupiny, Alt + pravé tlačítko - obranná / útočná
 486:Obranné pozice počítače
 487:Dělníci
-488:Nevolníci/10 domů
+488:Nevolníci na 10 budov
 489:Autooprava
 490:Autostavba
 491:Nastavení počítače
-492:Domy
+492:Budovy
 493:Plánování
 494:Vertikální převrácení
 495:Horizontální převrácení
 496:Vložit terén
 497:Kopírovat terén
-498:Kopírovat/vložit
+498:Kopírovat / vložit
 499:Nová mise
 500:Jméno hráče
 501:Status:
 502:Založit server
 503:ZALOŽIT SERVER
-504:Jméno
+504:Název
 505:Port
 506:Vytvořit lokální server
 507:Vytvořit internetový server
-508:Zpět
+508:Zrušit
 509:Připojit se pomocí IP
 510:NAJÍT SERVER
 511:IP Adresa
 512:Port
 513:Místnost:
 514:Připojit se
-515:Zpět
+515:Zrušit
 516:Místnost je chráněna heslem
 517:Heslo
-518:Jméno serveru
+518:Název serveru
 519:Stav
 520:Hráči
 521:Odezva
@@ -514,7 +514,7 @@
 524:Seznam hráčů:
 525:Připojit
 526:Připojuji se... prosím čekejte
-527:Načítám...
+527:Nahrávám oznámení...
 528:Obnovuji...
 529:Seznam hráčů
 530:Pozice
@@ -531,14 +531,14 @@
 541:Uložená hra
 542:Vyberte mapu...
 543:Vyberte uloženou hru...
-544:Opustit nabídku
+544:Opustit místnost
 545:Připraven
 546:Není připraven
 547:Začít!
 548:Rychlost hry (doba míru)
 549:Rychlost hry (po době míru)
 550:OK
-551:Zpět
+551:Zrušit
 552:Popis
 553:Heslo
 554:Nastavení místnosti
@@ -548,12 +548,12 @@
 559:Popis
 560:Nastavení
 561:Pozice %d
-562:Chyba: Prosím, vyberte prosím hráče z uložené hry
-563:Chyba: Mapa nelze načíst nebo nebyla vybrána
+562:Chyba: Prosím, vyberte hráče z uložené hry, za kterého budete hrát
+563:Chyba: Mapu se nepodařilo nahrát nebo nebyla vybrána
 564:Nelze začít: %s
 565:Někdo není připraven ke startu
 566:Nelze přiřadit náhodné pozice
-567:Server vám přiřadil práva hosta
+567:Server vám přiřadil práva hostitele
 568:Hra již začala
 569:Budování
 570:Bojování
@@ -562,11 +562,11 @@
 573:Nastavení hry:
 574:Doba míru (minuty)
 575:Zavřeno
-576:Hostitel určí nastavení hráče
+576:Hostitel určí nastavení hráčů
 577:Čekám na ostatní hráče:
 578:Všem
 579:Týmu
-580:KaM Remake Autoři
+580:Autoři KaM Remake
 581:Autoři Knights & Merchants
 582:PROGRAMOVÁNÍ:
 583:DALŠÍ PROGRAMOVÁNÍ:
@@ -577,18 +577,18 @@
 588:SPECIÁLNÍ PODĚKOVÁNÍ:
 589:Mapy hry více hráčů
 590:Mapy hry jednoho hráče
-591:Rychlost obrazu
+591:Rychlost posouvání
 592:Nebyly nalezeny žádné servery
 593:Náhodně
 594:Informace o hře:
 595:-
 596:Čekání
-597:Načítání
+597:Nahrávání
 598:Hra
 599:Stavění & Bojování
 600:Bojování
 601:Připraven
-602:Odlišná verze: %s. Server používá: %s
+602:Nesprávná verze protokolu: %s. Server používá: %s
 603:Zvýšit objednané množství
 604:Snížit objednané množství
 605:Ukládám hru...
@@ -596,21 +596,21 @@
 607:Vyhodit hráče
 608:Hostitel bude moci vyhodit tyto hráče za %d sekund
 609:Hostitel nyní může vyhodit tyto hráče
-610:Hostitel (%s) se odpojil
+610:Hostitel (%s) opustil hru
 611:Spojení se serverem bylo ztraceno. Pokouším se opět navázat spojení...
 612:Opravdu chcete odejít?
 613:Jste si jistý, že chcete vyhodit tyto hráče ze hry?
-614:Zpět
-615:Obchodování s tímto zbožím není možné.
+614:Zrušit
+615:Obchodování s tímto zbožím není v této misi možné.
 616:Sázet a kácet
 617:Pouze kácet
-618:Toto je v období míru zakázáno!
-619:Konec období míru za: %s
-620:Konec období míru. Do zbraně!
+618:Toto je v době míru zakázáno!
+619:Konec doby míru za: %s
+620:Konec doby míru. Do zbraně!
 621:Čas hry:|%s
-622:Zastavit oddíl
-623:Spojit oddíl
-624:Samostatný voják
+622:Zastavit skupinu
+623:Spojit skupinu|Podržte Shift ke spojení více skupin
+624:Rozdělit skupinu (%s). Oddělit jednoho vojáka ze skupiny (Ctrl + %s)
 625:Záznamy ze hry
 626:Ukázat záznam
 627:Nepodporovaný formát %s
@@ -620,34 +620,34 @@
 631:inicializuje se
 632:skript
 633:jednotky
-634:domy
+634:budovy
 635:stromy
-636:skripty
+636:definice
 637:textury terénu
 638:Mapa nenalezena: %s
 639:Uložená hra nenalezena: %s
 640:Mapa se neshoduje s hostitelem: %s
 641:Uložená hra se neshoduje s hostitelem: %s
-642:Záznam ze hry neprošel testem celistvosti. Toto je známá chyba, která může ovlivnit přehrávání některých záznamů. Chcete pokračovat v přehrávání?
-643:KaM Remake můžete mít zapnutý jen jednou.
-644:Modifikace hry nejsou povoleny v ve hře více hráčů.|Prosím přeinstalujte hru k obnovení původních souborů.
-645:Nastala chyba. Prosím klikněte na tlačítko Poslat zprávu o chybě abychom zjistili, co se stalo.
+642:Záznam ze hry neprošel testem celistvosti. Toto je známá chyba, která ovlivňuje přehrávání některých záznamů.\nPokud budete pokračovat, záznam již nebude přesný a hra může spadnout.\nChcete pokračovat v přehrávání? Zvolte 'Ano všem' pro ignorování dalších chyb testu celistvosti.
+643:Ve hře více hráčů můžete mít spuštěnou jen jednu instanci hry
+644:Modifikace hry nejsou povoleny ve hře více hráčů.|Prosím přeinstalujte hru pro obnovení původních souborů.
+645:Nastala chyba. Prosím klikněte na tlačítko Poslat zprávu o chybě, abychom ji mohli prošetřit. Děkujeme za pomoc!
 646:Poslat zprávu o chybě
 647:Ukázat nezpracovaná data
 648:Zpět do aplikace
-649:Ukončit Aplikaci
+649:Ukončit aplikaci
 650:Další
 651:Detaily kontaktu
 652:Vaše jméno: (nepovinné)
 653:Váš email: (nepovinný)
 654:Pamatovat mě
 655:Detaily chyby
-656:Při jaké situaci tato chyba nastala? Můžete poskytnout další informace?
+656:Při jaké situaci tato chyba nastala? Můžete poskytnout další informace? (ideálně anglicky)
 657:Snímek obrazovky
 658:Připojit snímek obrazovky k hlášení o chybě
 659:(kliknout pro úpravu obrázku)
 660:Podat zprávu
-661:Zpět
+661:Zrušit
 662:Odesílám hlášení o chybě...
 663:Připojuji se k serveru...
 664:Odesílám data...
@@ -655,9 +655,9 @@
 666:Informace
 667:Prosím čekejte...
 668:Uložit mapu
-669:Doba, po kterou počítač nebude cvičit rekruty (minuty)
-670:Prodlení rekrutů
-671:Nastaví stejný směr pro všechny propojená políčka vody
+669:Doba v minutách, po kterou počítač nebude cvičit rekruty. Netýká se rekrutů pro věže
+670:Prodlení rekrutů (minuty)
+671:Magická voda: Nastaví stejný směr pro všechna propojená políčka vody
 672:Magická voda
 673:Kopírovat
 674:Vložit
@@ -667,21 +667,21 @@
 678:Horizontálně
 679:Táhnout pro vybrání místa na mapě
 680:Obrana počítače
-681:Vyp.
+681:Vypnuto
 682:Rádius
 683:Smazat současného průzkumníka
 684:Návrat na stránku průzkumu mlhy
 685:Zavřít
-686:Rozkaz jednotce
+686:Příkaz skupině
 687:Žádný
-688:Utočná pozice
+688:Útočná pozice
 689:Jít na
 690:Směr
 693:Obranný rádius
 694:Smazat tuto obrannou pozici
 695:Návrat na stránku obrany
 696:Obranná pozice
-697:Jednotky
+697:Jednotky a zvířata
 698:Vlk
 699:Ryby
 700:Vodní had
@@ -697,23 +697,23 @@
 737:stahuji...
 738:Přepsat již existující soubory
 739:Hráč %s ztratil spojení
-740:Hráč %s se odpojil
+740:Hráč %s opustil hru
 741:Hráč %s obnovil spojení
 742:Nelze se připojit, když hra již běží
 743:Místnost je plná. Další hráči se již nemohou připojit
 744:Hráč se stejným jménem je již připojen
-746:Chyba: Hráč %s nemá shodná data s hostem, proto se nemůže zůčastnit této hry
-747:Vaše data se neshodují s hostem
-748:Hostovací práva předána hráči %s
+746:Chyba: Hráč %s nemá shodná data s hostitelem, proto se nemůže zúčastnit této hry
+747:Vaše data se neshodují s hostitelem
+748:Práva hostitele předána hráči %s
 749:Hráč %s má jinou verzi %s
 750:Hráč %s nemá %s
 751:Čas vypršel
-752:Host vyhodil hráče %s ze hry
+752:Hostitel vyhodil hráče %s ze hry
 753:Hráč %s byl vykopnut
 754:Pokouším se znovu připojit do hry...
 755:Hráč %s se připojil
 756:Pokus o připojení se nezdařil: %s
-757:Host se rozhodl pokračovat ve hře bez vás :(
+757:Hostitel se rozhodl pokračovat ve hře bez vás :(
 758:Odpojen ze serveru: čas vypršel
 759:Byl/a jste vykopnut/a.
 760:Server přestal odpovídat
@@ -721,8 +721,8 @@
 765:Šeptat hráči %s
 766:Hráč %s byl vyloučen
 767:Byl/a jste vyloučen/a.
-768:Reset vyloučení
-769:Host resetoval všechny vyloučené hráče
+768:Zrušit všechna vyloučení
+769:Hostitel zrušil všechna vyloučení hráčů
 770:Datum
 771:Ukázat mlhu
 772:Sledovat
@@ -730,84 +730,82 @@
 774:Dosah autoútoku
 775:Počítač bude automaticky útočit, pokud jste blíž, než je určený počet políček
 776:Bránit spojence
-777:Počítač bude bránit jednotky a domy spojenců, jako kdyby byly jeho vlastní
+777:Počítač bude bránit jednotky a budovy spojenců, jako kdyby byly jeho vlastní
 778:Povolit diváky
-779:Povýšit na hosta
+779:Povýšit na hostitele
 780:Diváci
-781:Nelze vypnout sledování: List diváků musí být prázdný!
+781:Nelze zakázat diváky: Seznam diváků musí být prázdný
 782:Vpřed
 783:Zpět
-784:Nastaví startovací pozici počítače, která je používána pro určení útoků
-785:Startovací pozice AI
+784:Nastaví startovací pozici, která je používána pro určení útoků
+785:Startovací pozice
 786:Pořadí
 788:Prodlení (sekundy)
-790:Nejbližší dům k armádě
-791:Nejbližší dům ke startovací pozici
+790:Nejbližší budova k armádě
+791:Nejbližší budova ke startovací pozici
 792:Útočníci
 793:Obránci
 794:Diváci
 795:Pro opětovné hraní předešlé mise klikněte na příslušnou vlajku na mapě.
-796:%s hlasovali pro návrat do místnosti (je třeba ještě %s hlasů)
+796:Hráč %s hlasoval pro návrat do čekací místnosti (je třeba ještě %s hlasů)
 797:Hlasování pro navrácení do čekací místnosti. Hra poté může pokračovat nebo se změnit.
 798:Do čekací místnosti
-799:%s hráčů hlasovalo pro návrat do místnosti (hlasování prošlo)
+799:Hráč %s hlasoval pro návrat do čekací místnosti (hlasování prošlo)
 800:Hlasování pro návrat do čekací místnosti neprošlo
 801:Smazání záznamu smaže i příslušnou uloženou pozici. Opravdu chcete smazat záznam hry?
-802:Náhodně
-803:Počet vojáků
+802:Vzít vše
+803:Minimální počet vojáků k útoku
 804:Smazat záznam
 805:Smazat mapu
 806:Opravdu chcete smazat tuto mapu?
-807:Skrýt skriptované prostředí
-808:Ukázat skriptované prostředí
-809:Nemůžete změnit hostitele když server běží na vašem klientu
-810:Počítač tvoří a řídí útoky automaticky
-811:Rychle vybavit
-812:Vojáci jsou trénováni, co nejrychleji to jde. Rychlost vybavení ovlivňuje plánování města.
-813:Nastavení počítače
+807:Skrýt skriptovaný text
+808:Zobrazit skriptovaný text
+809:Nemůžete změnit hostitele, když server běží na vašem klientu
+810:Počítač tvoří a řídí útoky automaticky. Ignoruje ručně nastavené útoky
+811:Neomezený výcvik
+812:Klasický počítač: Vojáci jsou cvičeni co nejrychleji. Rychlost výcviku stále ovlivňuje plánování města|Pokročilý počítač: Bez omezení výcviku
+813:Výchozí nastavení počítače
 814:Hra více hráčů
-815:Použije agresivní nastavení počítače pro všechny hráče (pro stavitelské mapy ve hře více hráčů)
-816:Tímto přepíšete všechna existující nastavení pro všechny hráče. Chcete pokračovat?
-817:Typ vojska
+815:Použije agresivní nastavení počítače pro všechny hráče (pro budovatelské mapy ve hře více hráčů)
+816:Varování: Tímto přepíšete všechna existující nastavení počítače pro všechny hráče. Chcete pokračovat?
+817:Typ armády
 818:Železné poté kožené
 819:Železné
 820:Kožené
 821:Kombinované
 822:Stažené mapy
+823:Poznámka: První "Opakovaný" útok pošle všechny vojáky, které má počítač na útočných pozicích. Každý další "Opakovaný" útok (stejně jako "Jednorázový") ale pošle jen tolik skupin, aby překročil "Minimální počet vojáků k útoku"
 824:Přesunout
 825:Ukázat PDF
-826:Chyba při zapínání zobrazovacího programu pro PDF
+826:Nepodařilo se spustit prohlížeč PDF
 827:Nastaví počet nevolníků na 10 budov pro tento počítač. Vybraný počítač má %d budov.
-828:Chyba: Soubory hosta se neshodují s vašimi. Nastal problém, nebo se host snaží podvádět.
+828:Chyba: Soubory hostitele se neshodují s vašimi. Nastal problém, nebo se hostitel snaží podvádět.
 829:Vaše zadání již bylo splněno!
-830:Načíst asijské fonty
+830:Nahrát asijské fonty
 831:Přesunout ze stažených
 832:Přejmenovat tento záznam
 833:Přejmenovat záznam
 834:Smazat tento záznam
-835:Jméno:
+835:Název:
 836:Potvrdit
-837:Upravit klávesy
 838:Klávesové zkratky
 839:Potvrdit
 840:Funkce
 841:Klávesa
-842:Speciální neupravitelné klávesové zkratky
-843:Speciální klávesové zkratky
 844:Obnovit klávesy
 845:Posunutí obrazovky vlevo
 846:Posunutí obrazovky vpravo
 847:Posunutí obrazovky nahoru
 848:Posunutí obrazovky dolů
 849:Menu pro výběr budov
-850:Menu pro rozdělení produktů
+850:Menu pro rozdělení zboží
 851:Menu pro statistiky
 852:Menu pro volby
 853:Příkaz k zastavení
 854:Příkaz k rozdělení
 855:Příkaz ke spojení
-856:Příkaz k zásobení potravinami
-857:Příkaz k zahájení útoku
+856:Příkaz k zásobení jídlem
+857:Příkaz k náhlému útoku
 858:Příkaz k přidání řady
 859:Příkaz k odebrání řady
 860:Příkaz pro otočení vpravo
@@ -842,10 +840,10 @@
 889:Ladění - přidat zvěda
 890:Menu pro extra
 891:Menu pro úpravu terénu
-892:Menu pro naplánování vesnice
+892:Menu pro naplánování města
 893:Menu pro viditelné skripty
 894:Menu pro globální skripty
-895:Hlavní menu
+895:Menu pro volby
 896:Sekundární menu 1
 897:Sekundární menu 2
 898:Sekundární menu 3
@@ -866,11 +864,11 @@
 913:Control
 914:Alt
 915:Pause
-916:Caps lock
+916:Caps Lock
 917:Escape
 918:Mezerník
-919:Page up
-920:Page down
+919:Page Up
+920:Page Down
 921:End
 922:Home
 923:Šipka vlevo
@@ -880,7 +878,7 @@
 927:Select
 928:Print
 929:Execute
-930:Print screen
+930:Print Screen
 931:Insert
 932:Delete
 933:Help
@@ -903,18 +901,18 @@
 950:Scroll Lock
 951:Levý Shift
 952:Pravý Shift
-953:Levý control
-954:Pravý control
-955:Levý alt
-956:Pravý alt
+953:Levý Control
+954:Pravý Control
+955:Levý Alt
+956:Pravý Alt
 957:Play
 958:Přiblížení
 960:Numerická klávesa +
 961:Běžné klávesy
 962:Herní klávesy
 963:Klávesy editoru map
-964:Čekání na odpojené hráče, data:
-965:Vybere políčko pod kurzorem
+964:Čekání na data odpojených hráčů:
+965:Kapátko: Vybere typ políčka pod kurzorem
 966:Kovárna brnění není obydlena
 967:Výrobna brnění není obydlena
 968:Pekárna není obydlena
@@ -938,10 +936,10 @@
 986:Zbrojní dílna není obydlena
 987:Vinohrad není obydlen
 988:Dřevorubecký srub není obydlen
-989:%s opustil hru a je poražen
-990:Host (%s) opustil hru a je poražen
-991:Opustit
-992:Vymazat klávesu
+989:Hráč %s opustil hru a je poražen
+990:Hostitel (%s) opustil hru a je poražen
+991:Zrušit
+992:Smazat klávesu
 993:Vybrání skupiny 11
 994:Vybrání skupiny 12
 995:Vybrání skupiny 13
@@ -955,8 +953,8 @@
 1003:Vydláždění cesty
 1004:Zorání pole
 1005:Založení vinice
-1006:Zbourání budovy/základů
-1007:Vybrání další budovy/jednotky
+1006:Zbourání základů / budovy
+1007:Vybrání další budovy / jednotky stejného typu
 1008:Okno pro ladění
 1009:Sledování hráče 1
 1010:Sledování hráče 2
@@ -967,8 +965,8 @@
 1015:Sledování hráče 7
 1016:Sledování hráče 8
 1017:Posunutí obrazovky uchopením
-1018:Klávesy záznamů ze hry
-1019:Hráč %s si vás ztišil. Již není možné odesílat zprávy, či označovat místa na mapě
+1018:Klávesy sledování / záznamů ze hry
+1019:Hráč %s vás ztlumil. Už mu nemůžete posílat zprávy ani označovat místa na mapě
 1020:Paleta objektů
 1021:Univerzální odstraňovač
 1022:Váš dřevorubec nemůže najít žádné místo pro sázení stromů
@@ -976,23 +974,23 @@
 1024:Hráč %s zvítězil!
 1025:Hráč %s již není připojen do hry
 1026:Maximum zlata
-1027:Maxilnální množství zlata pro uložení v radnici
+1027:Maximální množství zlata pro uskladnění v radnici
 1028:Pouze sázet
-1029:Otevřít/zavřít dům pro jednotku %s
+1029:Otevřít / zavřít budovu pro jednotku %s
 1030:Všechny
 1031:Všechny
 1032:Všechny
 1033:Přejmenovat mapu
 1034:Pozastavit po době míru
 1035:Herní čas
-1036:Jméno
-1037:Síla vojska
+1036:Název
+1037:Síla armády
 1038:Všichni vojáci
 1039:Typ grafu
 1040:Množství
 1041:HDP
 1042:Okamžité
-1043:Vybavení
+1043:Celkem vycvičeno
 1044:Poražení
 1045:Ztracení
 1046:Zpět k herním statistikám
@@ -1002,8 +1000,8 @@
 1050:Zpět do editoru map
 1051:Zpět do editoru map
 1052:Opravdu chcete|opustit|tento záznam?
-1053:Mapa není validní
-1054:Vybraná mapa není validní. Prosím, vyberte jinou mapu
+1053:Mapa je neplatná
+1054:Vybraná mapa je neplatná. Prosím, vyberte jinou mapu
 1055:Soubory stažené mapy se změnily
 1056:Vybraná mapa, u které byly změněny soubory, je stažená. Prosím, přesuňte ji ze stažených map
 1057:Soubory mapy se změnily. Prosím, vyberte mapu znovu
@@ -1011,21 +1009,21 @@
 1059:Tlačítko myši zpět
 1060:Všechny
 1061:Univerzální odstraňovač
-1062:Zobrazit vlastníky políček
-1063:Zobrazit mřížku políček
+1062:Zobrazit vlastníky
+1063:Zobrazit mřížku
 1064:Bod kácení
-1065:Nastaví bod kácení pro dřevorubce. Další možností je nastavit bod pomocí shiftu + pravého tlačíka myši
+1065:Nastaví bod kácení pro dřevorubce. Další možností je nastavit bod pomocí Shift + pravého tlačítka myši
 1066:Bod shromáždění
-1067:Nastaví bod shromáždění hráče %s. Další možností je nastavit bod pomocí shiftu + pravého tlačíka myši
-1068:Velikost mapy
+1067:Nastaví bod shromáždění budovy %s. Další možností je nastavit bod pomocí Shift + pravého tlačítka myši
+1068:Změnit velikost mapy
 1069:Posunout hranice:
 1070:Změnit velikost|a uložit
 1071:Změnit velikost mapy a uložit
-1072:Velikost mapy
+1072:Změna velikosti mapy
 1073:Opravdu chcete změnit velikost mapy?||Současná mapa se automaticky přepíše
-1074:Změnění velikosti nedostupné||Nejdříve je třeba uložit mapu
-1075:Měnič vlastníka objektu
-1076:Rychle hrát
+1074:Změna velikosti není dostupná||Nejdříve je třeba novou mapu uložit
+1075:Změnit vlastníka objektu
+1076:Rychlá hra
 1077:Začne hru pro jednoho hráče na této mapě
 1078:Vybrat hráče:
 1079:Vybere hráče, za kterého budete hrát na této mapě
@@ -1034,23 +1032,23 @@
 1082:Uložit a začít
 1083:Uloží mapu a začne hru za vybraného hráče
 1084:Ve hradu:
-1085:V radnici
+1085:V radnici:
 1086:Otočit políčko
 1087:Paleta objektů
 1088:Zavřít paletu
-1089:Odstraní jednotky/skupiny
-1090:Záznam autopauza
-1091:Automaticky zastaví záznam po ukončení doby míru
+1089:Odstraní jednotky / skupiny
+1090:Automatická pauza záznamu
+1091:Automaticky pozastaví záznam po ukončení doby míru
 1092:Zobrazit označení na mapě
 1093:Zobrazí označení na mapě vložené hráči
-1094:Ztišit hráče
-1095:Zrušit ztišení
+1094:Ztlumit hráče
+1095:Zrušit ztlumení
 1096:Zapamatovat heslo
 1097:Použít poslední známé heslo
 1098:Jít do předchozího menu
 1099:Ano
 1100:Ne
-1101:Opustit
+1101:Zrušit
 1102:Mapa
 1103:Záznam
 1104:Hráči
@@ -1059,9 +1057,9 @@
 1107:Sledování hráče 10
 1108:Sledování hráče 11
 1109:Sledování hráče 12
-1110:Velikost mapy:|[ %d : %d ]
+1110:Současná velikost mapy:|[ %d : %d ]
 1111:Nová velikost mapy:|[ %d : %d ]
-1112:Velikost mapy
+1112:Změnit velikost mapy
 1113:Vlastník: %s
 1114:Smazat hráče %d
 1115:Mazání hráče %d
@@ -1070,14 +1068,14 @@
 1118:Mapy hry více hráčů
 1119:Vypnout hudbu
 1120:Náhodně
-1121:Zapne nebo vypne náhodné přehrávání
+1121:Zapne / vypne náhodné přehrávání
 1122:Typ mapy
 1123:Budování
 1124:Hratelné ve hře jednoho hráče
 1125:Strom ke skácení
 1126:Neumožňuje diagonální průchod
-1127:Neumožňuje chození a stavění
-1128:Zobrazit cesty/pole/vinice
+1127:Blokuje vše kromě stavění
+1128:Zobrazit cesty / pole / vinice
 1129:Akce v sekundárním menu 1
 1130:Akce v sekundárním menu 2
 1131:Akce v sekundárním menu 3
@@ -1098,25 +1096,25 @@
 1146:Upraví parametry mise
 1147:Parametry mise
 1148:Autor
-1149:Malý popisek
-1150:Velký popisek
+1149:Krátký popis
+1150:Dlouhý popis
 1151:ID textu v libx
 1152:Zobrazí mapu v seznamu map pro jednoho hráče
 1153:Zablokovat výběr týmu
 1154:Zablokuje výběr týmu v čekací místnosti
 1155:Zablokovat dobu míru
-1156:Zabloku dobu míru v čekací místnosti
+1156:Zablokuje dobu míru v čekací místnosti
 1157:Zablokovat náhled celé mapy
 1158:Zablokuje náhled celé mapy v čekací místnosti
 1159:Text
-1160:Zobrazit radius těžby
-1161:Zobrazit radius útoku věží
-1162:Zobrazit radius útoku jednotek
+1160:Zobrazit rádius těžby
+1161:Zobrazit rádius útoku věží
+1162:Zobrazit rádius útoku jednotek
 1163:Kód barvy:
-1164:Modrá/Zelená/Červená
-1165:Červená/Zelená/Modrá
+1164:Modrá / Zelená / Červená
+1165:Červená / Zelená / Modrá
 1166:Barva textu:
-1167:Méně sytá barva, která je použita jako barva textu
+1167:Méně sytá barva, kterou lze použít pro texty (např. ve skriptovaném textu) [pouze pro čtení]
 1168:Filtr map
 1169:Obnovit filtr
 1170:Podle počtu hráčů
@@ -1134,92 +1132,92 @@
 1182:Vítěz
 1183:Poražený
 1184:Hostitel
-1185:Jít k vybranému domu
+1185:Jít k vybrané budově
 1186:Jít k vybrané jednotce
 1187:Mód barvy spojenec / nepřítel
-1188:Zobrazí barvy hráčů rozdělené podle spojenců/nepřátel místo jejich vybraných barev
+1188:Zobrazí barvy hráčů rozdělené podle spojenců / nepřátel místo jejich vybraných barev
 1189:[$404040]Hostitel je připraven začít. Prosím stiskněte '[][$0707FF]%s[][$404040]'[]
 1190:Požádat o připravení
 1191:Žádost o připravení byla poslána %s hráčům
-1192:Přepnou mód barev hráčů
+1192:Přepnutí módu barev hráčů
 1193:Propuštění není v tuto chvíli dostupné
 1194:Control + kolečko myši
 1195:Alt + kolečko myši
 1196:Shift + kolečko myši
-1197:Vynutit štětec
+1197:Přepsat ručně|vložená políčka
 1198:Vynutí přepsání všech ručně vložených políček při malbě štětcem (pokud je to možné)
-1199:Magický štětec - automaticky opraví všechny vygenerované, nebo chybějící přechody mezi políčky pomocí vybrané masky
+1199:Magický štětec - automaticky opraví všechny vygenerované nebo chybějící přechody mezi políčky pomocí vybrané masky
 1200:Žádná maska - využije existujících políček pro přechody
 1201:Nejjemnější maska - využije automaticky vytvořené přechody
 1202:Jemná maska - využije automaticky vytvořené přechody
 1203:Ostrá maska - využije automaticky vytvořené přechody
-1204:Vlatní ceny jednotek v radnici
-1205:Vlastní ceny surovin v tržišti
-1209:Opravit terén
+1204:Vlastní ceny jednotek v radnici
+1205:Vlastní ceny surovin na tržišti
+1209:Opravit štětce terénu
 1210:Pokusí se opravit terén pro umožnění použití štětce
-1211:Opravit terén pro použití štětce
-1212:Opravdu chcete opravit|všechny informace o terénu?|Toto umožní použití štětce|místo ručního vkládání políček
+1211:Opravit štětce terénu
+1212:Opravdu chcete opravit|všechny informace o terénu pro štětce?||Toto umožní použití štětců|v místech, kde byla ručně vložena políčka
 1213:Vých.
-1214:Lidský hráč
+1214:Hráč
 1215:Klasický počítač %d
 1216:Pokročilý počítač %d
 1217:Klasický %d
 1218:Pokročilý %d
-1219:Klasický poítač
+1219:Klasický počítač
 1220:Typ počítače
 1221:Autouložení na konci hry
 1222:Žádný
 1223:Suroviny
-1224:Domy
+1224:Budovy
 1225:Budování
 1226:Jednotky
-1227:Vojáci
+1227:Armáda
 1228:Propuštění není možné u hladových jednotek
 1229:Parametry|klasického počítače
 1230:Upraví parametry klasického počítače
 1231:Parametry klasického počítače
-1232:Vybrat náhodné skupiny
+1232:Vezme libovolný typ skupiny
 1233:Obtížnost
 1234:Hráč %s je neaktivní po dobu %s [$00B0FF]minut[]
 1235:Export dat může zabrat několik minut.\nExportovaná data budou uložena ve složce '%s'\nOpravdu chcete data exportovat?
-1236:The procedure [ %s ] declared for the script console command /%s was not found
-1237:Wrong parameter type for script command /%s: [%s]
-1238:Wrong first parameter type for script command /%s. Expected: [%s], actual: [%s]
-1239:Too many parameters for script command /%s: [%s]. Max number of parameters is [%s] (including mandatory HandID parameter)
-1240:Wrong parameters for script command /%s. Expected parameters types are: [%s]
-1241:Too many parameters passed to script command /%s: Expected parameters count [ %s ], actual: [ %s ]
+1236:Procedura [ %s ] deklarovaná pro příkaz konzole /%s nebyla nalezena
+1237:Nesprávný typ parametru pro příkaz konzole /%s: [%s]
+1238:Nesprávný typ prvního parametru pro příkaz /%s. Očekáváno: [ %s ], zadáno: [ %s ]
+1239:Příliš mnoho parametrů pro příkaz /%s: [ %s ]. Maximální počet parametrů je [ %s ] (včetně povinného parametru HandID)
+1240:Nesprávné parametry pro příkaz /%s. Očekávané typy parametrů: [ %s ]
+1241:Příkazu /%s bylo předáno příliš mnoho parametrů: očekávaný počet [ %s ], zadáno: [ %s ]
 1242:Volaný příkaz: /%s(%s)
-1243:Error while calling script command /%s(%s)|
-1244:Script console command /%s not found
-1245:Povolit/zakázat kopírování a vkládání z/do chatu
-1246:Uložit stav přehrávání pro umožnění načtení tohoto místa při přehrávání tohoto záznamu
-1247:Načíst záznam v čase %s
-1248:Barvy hráčů
+1243:Chyba při volání příkazu /%s(%s)|
+1244:Příkaz konzole /%s nebyl nalezen
+1245:Povolit / zakázat historii chatu a kopírování z okna chatu
+1246:Uložit stav přehrávání pro umožnění nahrání tohoto místa při přehrávání tohoto záznamu
+1247:Nahrát záznam v čase %s
+1248:Barvy hráčů:
 1249:Původní
-1250:Spojenec/nepřítel
+1250:Spojenec / nepřítel
 1251:Týmy
 1252:Zobrazí původní barvy hráčů
-1253:Zobrazí vlastní/spojeneckou/nepřátelskou barvu hráčů
+1253:Zobrazí vlastní / spojeneckou / nepřátelskou barvu hráčů
 1254:Zobrazit barvy týmů
-1255:Chyba. Jméno hráče '%s' je rezervované
+1255:Chyba: Jméno '%s' je rezervované
 1256:Jednotky (N/D/R)
 1257:Jednotky (ostatní)
-1258:Otevření/zavření panelu diváka
+1258:Otevření / zavření panelu diváka
 1259:Dodávka je zakázána: %s
 1260:Zásobování je zakázáno: %s
 1261:Rekrutovi není povolen vstup do hradu
-1262:Najdi pole podle ID
-1263:Generátor náhodné mapy - Nastavení
-1264:Nastavení generátoru náhodné mapy
+1262:Vyhledá políčko podle ID
+1263:Generátor náhodných map - Nastavení
+1264:Nastavení generátoru náhodných map
 1265:GNM Nastavení
-1266:Velikost mapy:
+1266:Velikost:
 1267:Lokace
-1268:Povol lokace se surovinami
+1268:Povolí lokace se surovinami
 1269:Počet lokací
 1270:Specifikuje počet lokací
 1271:Ochranný rádius
-1272:Specifikuje velikost ochranného rádiusu. Ochraný rádius rezervuje místo pro budování města.
-1273:Propoj lokace
+1272:Specifikuje velikost ochranného rádiusu. Ochranný rádius rezervuje místo pro budování města.
+1273:Propojit lokace
 1274:Zajistí propojení jednotlivých lokací
 1275:Rozvržení
 1276:Rozvržení lokací na mapě
@@ -1228,15 +1226,15 @@
 1279:Horizontální
 1280:Náhodné
 1281:Pozice obrazovky
-1282:Zdroje
-1283:Zpřístupní zdroje pro každou lokaci (uhlí je přidáno automaticky)
+1282:Suroviny
+1283:Zpřístupní suroviny pro každou lokaci (uhlí je přidáno automaticky)
 1284:Opravení dolů
-1285:Zajistí těžitelnost generovaných zdrojů (zlatý a železný důl)
-1286:Kvantita zdrojů: kamení
-1287:Kvantita zdrojů: zlatá ruda
-1288:Kvantita zdrojů: železná ruda
+1285:Zajistí těžitelnost generovaných surovin (zlatý a železný důl)
+1286:Množství surovin: kámen
+1287:Množství surovin: zlatá ruda
+1288:Množství surovin: železná ruda
 1289:Překážky
-1290:Povolí překážky (hory, řeky, močály, atd.)
+1290:Povolí překážky (hory, řeky, močály atd.)
 1291:Velikost
 1292:Průměrná velikost vygenerované překážky
 1293:Hustota
@@ -1252,11 +1250,11 @@
 1303:Bažina
 1304:Poměr bažin
 1305:Mokřad
-1306:Poměř mokřadů
+1306:Poměr mokřadů
 1307:Voda
 1308:Poměr vody
 1309:Biomy
-1310:Povol Biomy
+1310:Povolí biomy
 1311:Typ biomu
 1312:Vybere požadovaný biom
 1313:Tráva
@@ -1273,17 +1271,17 @@
 1324:Druhá vrstva biomu (vlastnosti sekundární textury)
 1325:Krok
 1326:Krok primární vrstvy (větší hodnota = větší biom)
-1327:Krok sekundární vrstvy textures (větší hodnota = větší biom)
+1327:Krok sekundární vrstvy (větší hodnota = větší biom)
 1328:Limit
 1329:Limitace prahů biomu (větší hodnota = větší biom)
 1330:Výška
 1331:Povolí výšku
-1332:Skryj zubatý okraj
-1333:Upraví terén tak, že skryje zubaté okraje textur
+1332:Skrýt ostré okraje
+1333:Upraví terén tak, že skryje ostré okraje políček
 1334:Nepřístupná místa
 1335:Detekuje nepřístupná místa
-1336:Blokuj přístupnost
-1337:Blokuje přístupnost (vylepší navigaci jednotek a generování navigační mřížky)
+1336:Blokovat vstup
+1337:Blokuje vstup (vylepší navigaci jednotek a generování navigační mřížky)
 1338:Změna textury
 1339:Nahradí terén speciálními biomy
 1340:Objekty
@@ -1301,8 +1299,8 @@
 1352:Generovat mapu s novým ID
 1353:Generovat mapu
 1354:Generuje mapu se současným ID
-1355:Zavřít Generátor Náhodných Map
-1356:Velikost mapy:
+1355:Zavřít generátor náhodných map
+1356:H
 1357:Přehraje další krok v záznamu
 1358:Jednodušší
 1359:Velmi snadná
@@ -1310,95 +1308,95 @@
 1361:Velmi těžká
 1362:Hostitel má odlišnou verzi hry
 1363:Vše
-1364:'%s' dostupný na všech pozicích
-1365:'%s' zakázaný na všech pozicích
-1366:Krokování algoritmu při generování nerovností (1 = malé, 10 = velké)
-1367:Sklon výšky terénu (0 = vyhlazený, 15 = hrbolatý)
+1364:Povolit '%s' na všech pozicích
+1365:Zakázat '%s' na všech pozicích
+1366:Krokování algoritmu při generování nerovností
+1367:Sklon výšky terénu (0 = vyhlazený, 100 = hrbolatý)
 1368:Maximální výška přístupného terénu
 1369:Náhodná mapa
 1370:Mapa byla vytvořena automaticky pomocí generátoru náhodných map
-1371:Počáteční zdroje
+1371:Počáteční suroviny
 1372:Množství surovin ve skladišti
 1373:Málo
 1374:Středně
 1375:Hodně
 1376:Zvolit velikost mapy
-1377:Try to start
-1378:Try to load save
-1379:Try to view replay
-1380:Chyba - načítání nepodporované verze %s hra uložená %s
-1381:Chyba - načítání nepodporované verze %s záznam uložen %s
-1382:Jméno mapy
+1377:Zkusit spustit
+1378:Zkusit nahrát uloženou hru
+1379:Zkusit přehrát záznam
+1380:Chyba při nahrávání uložené hry nepodporované verze %s z %s
+1381:Chyba při nahrávání záznamu nepodporované verze %s z %s
+1382:Název mapy
 1383:Čas
 1384:Verze
-1385:Načtení nepodporované verze může způsobit nekonzistenci nebo pád hry
+1385:Nahrání nepodporované verze může způsobit nekonzistenci nebo pád hry
 1386:Nepodporovaná verze
-1387:Odemknout všechny kampaně?\nTato volba nemůže být vrácena.\n\\Je vhodné zazálohovat soubor 'Campaigns.dat' uložený v\n'%s'\n\nPotvrdit operaci?
-1388:Hrubá maska - použij automaticky generované přechody
-1389:Zpoždění v herních ticích před tím, než AI začne trénovat lehce obrněné jednotky
-1390:Zpoždění v herních ticích před tím, než AI začne trénovat těžce obrněné jednotky
+1387:Opravdu chcete odemknout všechny kampaně?\nTuto operaci nelze vrátit zpět.\n\nPokud si chcete uchovat postup v kampaních, nejprve zazálohujte soubor 'Campaigns.dat' uložený v\n'%s'\n\nPotvrzujete tuto operaci?
+1388:Hrubá maska - využije automaticky vytvořené přechody
+1389:Prodlení v herních krocích, než počítač začne cvičit jednotky v koženém brnění
+1390:Prodlení v herních krocích, než počítač začne cvičit jednotky v železném brnění
 1391:Nastaví počet dělníků
 1392:Úroveň promíchání
 1393:Úroveň promíchání přechodů odlišných terénů pomocí masky
 1394:Blokovat budování
 1395:Blokovat budování a chůzi
-1396:Překrývání polí
-1397:Nastaví překrývání polí.|Levé tlačítko myši = bezpečný mód, Levé tlačítko myši + Shift k přepsání cest
-1398:Videolipy:
+1396:Překrytí políček
+1397:Nastaví překrytí políček.|Levé tlačítko myši = bezpečný režim, levé tlačítko myši + Shift = přepsání cest
+1398:Videoklipy:
 1399:Zapnout
 1400:Přizpůsobit obrazovce
 1401:Spustit při startu
 1402:Hlasitost
-1403:Hlasitost videa
+1403:Vyzkoušet video
 1404:Módy
-1405:Zasněžené domy
+1405:Zasněžené budovy
 1406:Blokovat výběr barvy hráče
 1407:Blokuje výběr barvy hráče
 1408:Historie
 1409:Historie změn mapy
 1410:Historie
-1411:Použít
+1411:Přejít
 1412:Navrátit se na vybraný bod v historii změn mapy
 1413:Počátek
 1414:Přidat %s %s
 1415:Odstranit %s %s
 1416:Aktualizovat %s %s
-1417:Move %s %s
+1417:Přesunout %s %s
 1418:Změnit vlastníka: %s %s
 1419:cesta
 1420:pole
 1421:vinice
 1422:překrytí
 1423:objekt
-1424:You do not have enough permissions on the KaM Remake installation directory:\n'%s'\n\nTry to run it with administrative rights, reinstall the game into another directory or exclude KaM_Remake.exe from antivirus check
+1424:Nemáte dostatečná oprávnění ke složce KaM Remake:\n'%s'\n\nZkuste hru spustit s právy správce, nainstalovat ji do jiné složky nebo povolit KaM_Remake.exe v antiviru
 1425:Paleta políček
 1426:Paleta políček
 1427:Verze
-1428:Fix terrain brushes
-1429:Make replay savepoints
+1428:Opravit štětce terénu
+1429:Ukládat kroky v záznamu
 1430:Zpět na předešlou jednotku
-1431:Trénovat nebo vybavit jednotku
+1431:Vycvičit jednotku
 1432:Vpřed na následující jednotku
-1433:Klávesy rozkazů jednotek
-1434:Klávesy domů
+1433:Klávesy příkazů jednotek
+1434:Klávesy budov
 1435:Zobrazit obranné pozice
 1436:Zobrazit rovný terén
-1437:Rychlost hry může být změněná hoditelem pouze pokud je jediným aktivním hráčem
+1437:Rychlost hry může hostitel změnit, pokud na mapě nejsou žádní další aktivní hráči
 1438:Export zdrojů hotov: [ %s ]
-1439:Prohlížeč zpět
-1440:Prohlížeč vpřed
-1441:Prohlížeč obnovit
-1442:Prohlížeč zastavit
-1443:Prohlížeč hledat
-1444:Prohlížeč favorité
-1445:Prohlížeč domů
+1439:Prohlížeč: zpět
+1440:Prohlížeč: vpřed
+1441:Prohlížeč: obnovit
+1442:Prohlížeč: zastavit
+1443:Prohlížeč: hledat
+1444:Prohlížeč: záložky
+1445:Prohlížeč: domovská stránka
 1446:Ztlumit zvuk
 1447:Snížit hlasitost
 1448:Zvýšit hlasitost
-1449:Přehrát další skladbu
-1450:Přehrát předchozí skladbu
-1451:Zastavit přehrávání
-1452:Spustit / zastavit přehrávání
+1449:Média: další skladba
+1450:Média: předchozí skladba
+1451:Média: zastavit
+1452:Média: přehrát / pozastavit
 1453:Spustit poštu
 1454:Spustit výběr média
 1455:Spustit aplikaci 1
@@ -1410,23 +1408,23 @@
 1461:Zvýšit hlasitost hudby
 1462:Snížit hlasitost hudby
 1463:Ztlumit hudbu
-1464:Zvýšit hlasitost
-1465:Snížit hlasitost
-1466:Ztlumit zvuk
-1467:Ztlumit vše (hudbu a zvuk)
-1468:Štětce
+1464:Zvýšit hlasitost zvuků
+1465:Snížit hlasitost zvuků
+1466:Ztlumit zvuky
+1467:Ztlumit vše
+1468:Štětce objektů
 1469:Stromy
 1470:Všechny objekty kromě stromů
 1471:Kameny
 1472:Květiny
 1473:Houby
 1474:Pařezy
-1475:Klády
+1475:Suché stromy
 1476:Kaktusy
 1477:Pouštní keře
 1478:Ruiny
 1479:Přidat objekty
-1480:Současně s terénem přidá i objekty zvolené v záložce Objekty
+1480:Při malování umístí objekty odpovídající zvolenému štětci terénu
 1481:Hustota
 1482:Hustota objektů / lesa
 1483:Stáří lesa
@@ -1435,23 +1433,23 @@
 1486:Sazenice
 1487:Vzrostlé
 1488:Mýtní
-1489:Všechny období růstu stromů
+1489:Všechna období růstu stromů
 1490:Sazenice stromů
 1491:Středně vzrostlé stromy
-1492:Mýtní věk
+1492:Stromy připravené ke kácení
 1493:Vložit pouze terén z kopírované oblasti
 1494:Vložit pouze výšku z kopírované oblasti
 1495:Vložit pouze objekty z kopírované oblasti
-1496:Vložit pouze překryvy terénu z kopírované oblasti
+1496:Vložit pouze překrytí políček z kopírované oblasti
 1497:Pevná výška
 1498:Nastavit pevnou výšku
-1499:Pevná výška
+1499:Výška
 1500:Výška aplikovaná v poli 'Pevná výška'
-1501:Specifický terén
+1501:Zvýšit vše
 1502:Zvýší (levé tlačítko myši) / sníží (pravé tlačítko myši) všechen terén stejného typu (pozice kurzoru určuje typ terénu)
 1503:Přepsat objekty
 1504:Objekty budou nahrazeny jinými objekty, nebo budou smazány
-1505:Maska přechodu - použije automaticky vytvořené přechody
+1505:Maska přechodu - využije automaticky vytvořené přechody
 1506:Dospělé
 1507:Dospělé stromy
 1508:Pařezy
@@ -1461,9 +1459,9 @@
 1512:Čas mise:
 1513:Současná rychlost hry
 1514:Současná rychlost záznamu
-1515:Nahrávaná rychlost hry
-1516:HD pohyby
-1517:HD pohyby
+1515:Zaznamenaná rychlost hry
+1516:Plynulé pohyby
+1517:Plynulé pohyby
 1518:Zvýší rozlišení pohybu jednotek a projektilů
 1519:Hráč %0:s %1:s, pokud %3:s hráče %2:s budou %4:s
 1520:vyhraje
@@ -1471,9 +1469,9 @@
 1522:zničeny
 1523:zachráněny
 1524:hlavní budovy ( %s )
-1525:Pouze symetrická spojenectví jsou povolená
-1526:HD animace
-1527:HD animace
+1525:Jsou povolená pouze symetrická spojenectví
+1526:Plynulé animace
+1527:Plynulé animace
 1528:Zvýší počet snímků v animacích
 1529:Vyhladit vrcholy
 1530:Vyhladí vrcholky hor
@@ -1482,14 +1480,72 @@
 1533:Nastavení editoru map
 1534:Poznámka: Pokročilý počítač má své vlastní formace a nebude se řídit tímto nastavením
 1535:Zpět do kampaně
-1536:Náhodné skupiny
-1537:Typ skupiny
-1538:0 - Bez brnění, 1 - Kožené brnění, 2 - Železné brnění
-1539:Přidat vojáky
-1540:Spolu s umístěním obranné pozice přidá i vojáky. Typ vojáků se řídí nastavením obranné pozice.
+1536:Libovolný typ skupiny
+1537:Slabé
+1538:Vojáci bez brnění, s koženým brněním nebo se železným brněním
+1539:Přidat skupinu
+1540:Spolu s obrannou pozicí přidá i skupinu vojáků. Skupina se řídí formacemi počítače
 1541:Počet
-1542:Počet vojáků ve skupině. Pokud je roven 0, počítač vezme v potaz zadefinované formace.
+1542:Počet vojáků ve skupině. Pokud je 0, použijí se formace počítače
 1543:Sloupce
-1544:Počet sloupců ve skupině. Pokud je roven 0, počítač vezme v potaz zadefinované formace.
-1545:Vyhladit zdroje uhlí
-1546:Zásoby uhlí ve vybrané oblasti budou automaticky vyhlazené od okrajů (pole s nízkým obsahem uhlí) do středu (pole s vysokým obsahem uhlí)
+1544:Počet sloupců ve skupině. Pokud je počet vojáků 0, použije se počet sloupců z formací počítače
+1545:Vyhladit zásoby uhlí
+1546:Zásoby uhlí ve vybrané oblasti budou automaticky vyhlazené od okrajů (políčka s nízkým obsahem uhlí) do středu (políčka s vysokým obsahem uhlí)
+1547:U jiného hráče došlo k desynchronizaci. Pošlete nám prosím toto hlášení o chybě, pomůže nám ji opravit.%sChybová zpráva druhého hráče:%s
+1548:Zpět
+1549:Vpřed
+1550:Tráva
+1551:Mech
+1552:Bledá tráva
+1553:Tráva na hlíně
+1554:Hlína
+1555:Pobřežní písek
+1556:Tráva s pískem 1
+1557:Tráva s pískem 2
+1558:Tráva s pískem 3
+1559:Písek
+1560:Bažina
+1561:Zarostlá voda
+1562:Voda
+1563:Proudící voda
+1564:Vlastní
+1565:Sníh na trávě
+1566:Sníh na hlíně
+1567:Sníh
+1568:Hluboký sníh
+1569:Led
+1570:Kámen
+1571:Hora se zlatem
+1572:Hora se železem
+1573:Dlažba
+1574:Štěrk
+1575:Uhlí
+1576:Zlato
+1577:Železo
+1578:Láva
+1579:Propast
+1580:Všechny neuložené změny budou ztraceny. Ukončit?
+1581:Varování
+1582:Bez překrytí
+1583:Výkop, fáze 1
+1584:Výkop, fáze 2
+1585:Výkop, fáze 3
+1586:Výkop, fáze 4
+1587:Cesta
+1588:Výchozí
+1589:Použije nastavení počítače pro budovatelské mapy ve hře více hráčů na hráče %d
+1590:Nastavení počítače hráče %d pro hru více hráčů
+1591:Varování: Tímto přepíšete všechna existující nastavení počítače pro hráče %d. Chcete pokračovat?
+1592:Uloží aktuální heslo pro budoucí použití
+1593:Počet ryb
+1594:Uložit mapu
+1595:Mapa uložena
+1596:Ukládám mapu...
+1597:Rovný terén
+1598:Mřížka políček
+1599:Soubor s uloženou hrou neexistuje
+1600:Ukládat rozdělení zboží
+1601:Nahrávám kampaně...
+1602:%s|Levým tlačítkem myši zablokujete dodávku, pravým tlačítkem myši zablokujete vyvážení, se Shift nastavení použijete na všechno zboží
+1603:Propuštěno|jednotek
+1604:Propuštěno jednotek:
