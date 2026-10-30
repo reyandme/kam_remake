@@ -75,8 +75,8 @@ var
   DLLSSLName2: string = 'libssl32.dll';
   DLLUtilName: string = 'libeay32.dll';
   {$ELSE}
-  DLLSSLName: string = 'libssl';
-  DLLUtilName: string = 'libcrypto';
+  DLLSSLName: string = {$IFDEF DARWIN}'libssl.3'{$ELSE}'libssl'{$ENDIF};
+  DLLUtilName: string = {$IFDEF DARWIN}'libcrypto.3'{$ELSE}'libcrypto'{$ENDIF};
   
   { ADD NEW ONES WHEN THEY APPEAR!
     Always make .so/dylib first, then versions, in descending order!

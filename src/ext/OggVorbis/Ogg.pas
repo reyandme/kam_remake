@@ -37,6 +37,7 @@ unit Ogg;
 {************************************************************************}
 
 interface
+{$IFDEF DARWIN}{$LINKLIB ogg}{$ENDIF}
 
 uses OSTypes;
 
@@ -46,7 +47,7 @@ const
 {$ENDIF WIN32}
 
 {$IFDEF UNIX}
-  OggLib = 'libogg.so';
+  OggLib = {$IFDEF DARWIN}'libogg.dylib'{$ELSE}'libogg.so'{$ENDIF};
 {$ENDIF UNIX}
 
 {$IFDEF FPC}

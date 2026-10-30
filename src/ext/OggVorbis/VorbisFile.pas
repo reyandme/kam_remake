@@ -37,6 +37,7 @@ unit VorbisFile;
 {************************************************************************}
 
 interface
+{$IFDEF DARWIN}{$LINKLIB vorbisfile}{$ENDIF}
 
 { Callbacks for Object Pascal streams added }
 
@@ -48,14 +49,12 @@ const
 {$ENDIF WIN32}
 
 {$IFDEF UNIX}
-  VorbisfileLib = 'libvorbisfile.so';
+  VorbisfileLib = {$IFDEF DARWIN}'libvorbisfile.dylib'{$ELSE}'libvorbisfile.so'{$ENDIF};
 {$ENDIF UNIX}
 
 {$IFDEF FPC}
-  {$IFDEF WIN32}
-    {$PACKRECORDS C}
-  {$ENDIF WIN32}
-{$ENDIF WIN32}
+  {$PACKRECORDS C}
+{$ENDIF}
 
 { vorbis/vorbisfile.h }
 

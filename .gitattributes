@@ -77,3 +77,6 @@
 *.libx text eol=crlf
 *.script text eol=crlf
 
+
+# Preserve CRLF source context and required whitespace inside the vendor patch.
+macos/pascalscript.patch -text whitespace=-blank-at-eol,cr-at-eol
