@@ -2,6 +2,7 @@ unit KM_GameApp;
 {$I KaM_Remake.inc}
 interface
 uses
+  {$IFDEF FPC} KM_FPCCompat, {$ENDIF}
   {$IFDEF WDC} UITypes, {$ENDIF}
   {$IFDEF FPC} Controls, {$ENDIF}
   Classes,
@@ -728,11 +729,13 @@ const
   SAVE_SUFFIX_DEBUG = '_dbg';
 var
   loadError: String;
+  savegamePath: UnicodeString;
+  replayPath: UnicodeString;
 begin
   // Note that when strings (i.e. aSavegamePath, aReplayPath) come from the game they are passed by a reference,
   // hence when the game is destroyed the strings are killed too. Hence we MUST! make a local copy.
-  var savegamePath := aSavegamePath;
-  var replayPath := aReplayPath;
+  savegamePath := aSavegamePath;
+  replayPath := aReplayPath;
 
   InstantiateGame(aGameMode);
 
@@ -771,11 +774,13 @@ procedure TKMGameApp.InstantiateGameFromScript(const aMissionFullFilePath, aGame
                                         aDifficulty: TKMMissionDifficulty = mdNone; aAIType: TKMAIType = aitNone);
 var
   loadError: String;
+  missionFullFilePath: UnicodeString;
+  gameName: UnicodeString;
 begin
   // Note that when strings (i.e. aMissionFullFilePath, aGameName) come from the game they are passed by a reference,
   // hence when the game is destroyed the strings are killed too. Hence we MUST! make a local copy.
-  var missionFullFilePath := aMissionFullFilePath;
-  var gameName := aGameName;
+  missionFullFilePath := aMissionFullFilePath;
+  gameName := aGameName;
 
   InstantiateGame(aGameMode);
 
@@ -1407,7 +1412,12 @@ begin
 
   //Some PCs seem to change 8087CW randomly between events like Timers and OnMouse*,
   //so we need to set it right before we do game logic processing
+  {$IFDEF CPUAARCH64}
+  SetExceptionMask([exInvalidOp, exDenormalized, exZeroDivide, exOverflow, exUnderflow, exPrecision]);
+  SetRoundMode(rmNearest);
+  {$ELSE}
   Set8087CW($133F);
+  {$ENDIF}
 
   Inc(fGlobalTickCount);
   //Always update networking for auto reconnection and query timeouts

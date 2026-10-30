@@ -64,7 +64,7 @@ type
   TBoolCardFuncSimple = function (aValue: Cardinal): Boolean of object;
   TCardinalEvent = procedure (aValue: Cardinal) of object;
 
-  {$IFDEF FPC}
+  {$IF defined(FPC) and (FPC_FULLVERSION < 30301)}
   TProc = procedure;
   {$ENDIF}
 

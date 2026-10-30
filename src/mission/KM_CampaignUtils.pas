@@ -16,8 +16,10 @@ uses
 
 
 class function TKMCampaignUtils.GetMissionFile(const aPath, aShortName: UnicodeString; aIndex: Byte; const aExt: UnicodeString = '.dat'): String;
+var
+  missionName: UnicodeString;
 begin
-  var missionName := GetMissionName(aShortName, aIndex);
+  missionName := GetMissionName(aShortName, aIndex);
   Result := aPath + missionName + PathDelim + missionName + aExt;
 end;
 

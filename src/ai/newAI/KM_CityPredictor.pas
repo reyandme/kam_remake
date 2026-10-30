@@ -221,7 +221,7 @@ begin
   SaveStream.Write(fPeaceFactor);
   SaveStream.Write(fUpdatedPeaceFactor);
 
-  SaveStream.Write(fFarmBuildHistory.Count);
+  SaveStream.Write(Integer(fFarmBuildHistory.Count));
   if (fFarmBuildHistory.Count > 0) then
   begin
     SaveStream.Write(fFarmBuildHistory.Quantity[0], SizeOf(fFarmBuildHistory.Quantity[0]) * fFarmBuildHistory.Count);

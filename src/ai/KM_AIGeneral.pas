@@ -146,10 +146,10 @@ begin
   fDefencePositions.Save(SaveStream);
 
   SaveStream.PlaceMarker('AIGeneral_unitsEquipOrdered');
-  SaveStream.Write(fUnitsEquipOrdered.Count);
+  SaveStream.Write(Integer(fUnitsEquipOrdered.Count));
   keyArray := fUnitsEquipOrdered.Keys.ToArray;
   {$IFNDEF FPC}
-  TArray.Sort<Integer>(keyArray);
+  {$IFDEF FPC}TArrayHelper<Integer>.Sort{$ELSE}TArray.Sort<Integer>{$ENDIF}(keyArray);
   {$ELSE}
   SortCustom(keyArray, Low(keyArray), High(keyArray), SizeOf(keyArray[0]), CompareKeys);
   {$ENDIF}

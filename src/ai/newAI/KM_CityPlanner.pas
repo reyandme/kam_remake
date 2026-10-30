@@ -314,17 +314,17 @@ begin
   SaveStream.Write(fConstructedHouses);
   SaveStream.Write(fDefenceTowersPlanned);
   SaveStream.Write(fStonesDepleted);
-  SaveStream.Write(fForestsInfo.Count);
+  SaveStream.Write(Integer(fForestsInfo.Count));
   if (fForestsInfo.Count > 0) then
     SaveStream.Write(fForestsInfo.Forests[0], SizeOf(TKMForestInfo) * fForestsInfo.Count);
-  SaveStream.Write(fFields.Count);
+  SaveStream.Write(Integer(fFields.Count));
   SaveStream.Write(fFields.UpdateIdx);
   if (fFields.Count > 0) then
     SaveStream.Write(fFields.Farms[0], SizeOf(fFields.Farms[0]) * fFields.Count);
 
   for HT := HOUSE_MIN to HOUSE_MAX do
   begin
-    SaveStream.Write(fPlannedHouses[HT].Count);
+    SaveStream.Write(Integer(fPlannedHouses[HT].Count));
     SaveStream.Write(fPlannedHouses[HT].Completed);
     SaveStream.Write(fPlannedHouses[HT].UnderConstruction);
     SaveStream.Write(fPlannedHouses[HT].Planned);

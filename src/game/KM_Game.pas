@@ -2401,7 +2401,7 @@ begin
       loadFrom := ChangeFileExt(ExeDir + fLoadFromFileRel, EXT_SAVE_BASE_DOT);
       // Game was saved from replay (.bas file)
       if FileExists(loadFrom) then
-        {$IFDEF WDC}
+        {$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30301)}
         KMCopyFileAsync(loadFrom, newSaveName, True, aSaveWorkerThread);
         {$ELSE}
         KMCopyFile(loadFrom, newSaveName, True);
@@ -2409,13 +2409,13 @@ begin
     end else
       // Normally saved game
       {$IFDEF PARALLEL_RUNNER}
-        {$IFDEF WDC}
+        {$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30301)}
         KMCopyFileAsync(SaveName('basesave_thread_' + IntToStr(THREAD_NUMBER), EXT_SAVE_BASE, fParams.IsMultiplayer), NewSaveName, True, aSaveWorkerThread);
         {$ELSE}
         KMCopyFile(SaveName('basesave_thread_' + IntToStr(THREAD_NUMBER), EXT_SAVE_BASE, fParams.IsMultiplayer), NewSaveName, True, aSaveWorkerThread);
         {$ENDIF}
       {$ELSE}
-        {$IFDEF WDC}
+        {$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30301)}
         KMCopyFileAsync(SaveName('basesave', EXT_SAVE_BASE, fParams.IsMultiplayer), newSaveName, True, aSaveWorkerThread);
         {$ELSE}
         KMCopyFile(SaveName('basesave', EXT_SAVE_BASE, fParams.IsMultiplayer), newSaveName, True);
@@ -3236,7 +3236,12 @@ begin
   Result := False;
   // Some PCs seem to change 8087CW randomly between events like Timers and OnMouse*,
   // so we need to set it right before we do game logic processing
+  {$IFDEF CPUAARCH64}
+  SetExceptionMask([exInvalidOp, exDenormalized, exZeroDivide, exOverflow, exUnderflow, exPrecision]);
+  SetRoundMode(rmNearest);
+  {$ELSE}
   Set8087CW($133F);
+  {$ENDIF}
 
   if fIsPaused or ReadyToStop then
     Exit;
@@ -3321,7 +3326,7 @@ begin
   Assert(fParams.IsReplay, 'Wrong game mode');
   Result := Math.Max(gGameSettings.ReplaySavepointFrequency,
                      // Do not save too often, that could cause OUT_OF_MEMORY error
-                     fGameInputProcess.GetLastTick div (REPLAY_SAVEPOINT_CNT_MAX - 2)); // - 2 for starting one and for PT
+                     Integer(fGameInputProcess.GetLastTick div (REPLAY_SAVEPOINT_CNT_MAX - 2))); // - 2 for starting one and for PT
   Result := Ceil(Result / 300)*300; // Ceil to every 30 sec
 end;
 

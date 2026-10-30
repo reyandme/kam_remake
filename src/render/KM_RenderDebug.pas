@@ -86,6 +86,10 @@ end;
 // Render quads over tiles
 procedure TKMRenderDebug.RenderTiledArea(const aLoc: TKMPoint; aMinRadius, aMaxRadius: Single; aDistanceFunc: TKMLengthFunction;
                                                aFillColor, aLineColor: Cardinal);
+var
+  I: Integer;
+  K: Integer;
+  dst: Single;
 begin
   {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psRenderDebug);
@@ -96,10 +100,10 @@ begin
 
     ResetAreaData;
 
-    for var I := -Round(aMaxRadius) - 1 to Round(aMaxRadius) do
-    for var K := -Round(aMaxRadius) - 1 to Round(aMaxRadius) do
+    for I := -Round(aMaxRadius) - 1 to Round(aMaxRadius) do
+    for K := -Round(aMaxRadius) - 1 to Round(aMaxRadius) do
     begin
-      var dst := MaxSingle;
+      dst := MaxSingle;
       case aDistanceFunc of
         lfLength:     dst := KMLength(K, I);
         lfLengthDiag: dst := KMLengthDiag(K, I);
@@ -115,7 +119,7 @@ begin
     if not fMarchingSquares.IdentifyPerimeters(fBorderPoints) then
       Exit;
 
-    for var K := 0 to fBorderPoints.Count - 1 do
+    for K := 0 to fBorderPoints.Count - 1 do
       gRenderAux.LineOnTerrain(fBorderPoints[K], aLineColor);
   finally
     {$IFDEF DBG_PERFLOG}
@@ -127,11 +131,15 @@ end;
 
 procedure TKMRenderDebug.CollectAreaTiles(var aPoints: TBoolean2Array; const aLoc: TKMPoint; aMinRadius, aMaxRadius: Single;
                                           aDistanceFunc: TKMLengthFunction);
+var
+  I: Integer;
+  K: Integer;
+  dst: Single;
 begin
-  for var I := -Round(aMaxRadius) - 1 to Round(aMaxRadius) do
-  for var K := -Round(aMaxRadius) - 1 to Round(aMaxRadius) do
+  for I := -Round(aMaxRadius) - 1 to Round(aMaxRadius) do
+  for K := -Round(aMaxRadius) - 1 to Round(aMaxRadius) do
   begin
-    var dst := MaxSingle;
+    dst := MaxSingle;
     case aDistanceFunc of
       lfLength:     dst := KMLength(K, I);
       lfLengthDiag: dst := KMLengthDiag(K, I);

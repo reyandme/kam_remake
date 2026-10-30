@@ -466,10 +466,12 @@ end;
 
 { TKMCampaignSpec }
 destructor TKMCampaignSpec.Destroy;
+var
+  I: Integer;
 begin
   FreeAndNil(fTextLib);
 
-  for var I := 0 to High(fMapsInfo) do
+  for I := 0 to High(fMapsInfo) do
     FreeAndNil(fMapsInfo[I].TxtInfo);
 
   inherited;
@@ -494,6 +496,9 @@ procedure TKMCampaignSpec.LoadCMP(const filePath: UnicodeString);
 var
   M: TKMemoryStream;
   cmp: TBytes;
+  campIDStr: UnicodeString;
+  I: Integer;
+  K: Integer;
 begin
   if not FileExists(filePath) then Exit;
 
@@ -504,18 +509,18 @@ begin
   M.ReadBytes(cmp);
   Assert(Length(cmp) = 3);
 
-  var campIDStr := WideChar(cmp[0]) + WideChar(cmp[1]) + WideChar(cmp[2]);
+  campIDStr := WideChar(cmp[0]) + WideChar(cmp[1]) + WideChar(cmp[2]);
 
   fCampaignId := TKMCampaignId.Create(AnsiString(campIDStr));
 
   M.Read(fMapCount);
   SetMapCount(fMapCount); //Update array's sizes
 
-  for var I := 0 to fMapCount - 1 do
+  for I := 0 to fMapCount - 1 do
   begin
     M.Read(Maps[I].Flag);
     M.Read(Maps[I].NodeCount);
-    for var K := 0 to Maps[I].NodeCount - 1 do
+    for K := 0 to Maps[I].NodeCount - 1 do
       M.Read(Maps[I].Nodes[K]);
     M.Read(Maps[I].TextPos, SizeOf(TKMBriefingCorner));
   end;
@@ -774,6 +779,9 @@ var
   difficultyInt: Integer;
   newXML: TKMXMLDocument;
   nCamp, nMissions, nMission, nScriptData: TKMXmlNode;
+  missionsCnt: Integer;
+  I: Integer;
+  base64DataStr: UnicodeString;
 begin
   filePath := GetCampaignProgressFilePath;
 
@@ -816,8 +824,8 @@ begin
     UnlockedMission := nCamp.Attributes['unlockedMission'].AsInteger(0);
 
     nMissions := nCamp.AddOrFindChild('missions');
-    var missionsCnt := nMissions.Attributes['count'].AsInteger(0);
-    for var I := 0 to Min(missionsCnt - 1, fCampaignSpec.MissionsCount - 1) do
+    missionsCnt := nMissions.Attributes['count'].AsInteger(0);
+    for I := 0 to Min(missionsCnt - 1, fCampaignSpec.MissionsCount - 1) do
     begin
       nMission := nMissions.AddOrFindChild('mission' + IntToStr(I));
       fMapsProgressData[I].Completed := nMission.Attributes['completed'].AsBoolean(False);
@@ -832,7 +840,7 @@ begin
 
     fScriptDataStream.Clear;
 
-    var base64DataStr := nScriptData.Attributes['data'].AsString('');
+    base64DataStr := nScriptData.Attributes['data'].AsString('');
     try
       if fIsScriptDataBase64Compressed then
         fScriptDataStream.LoadFromBase64Compressed(base64DataStr)
@@ -956,14 +964,18 @@ end;
 
 
 procedure TKMCampaign.LoadFromPath(const aPath: UnicodeString);
+var
+  t1: Int64;
+  t2: Int64;
+  t3: Int64;
 begin
   // Load times are about:
   // LoadMapsInfo - 20-80ms,  LoadLocale 0.5 ms, LoadSprites ~50ms
   fPath := aPath;
 
-  var t1 := TimeGetUsec;
+  t1 := TimeGetUsec;
   fSpec.LoadFromFile(fPath, 'info.cmp');
-  var t2 := TimeSinceUSec(t1);
+  t2 := TimeSinceUSec(t1);
   t1 := TimeGetUsec;
 
   fSavedData.SetMapsCount(fSpec.MissionsCount);
@@ -971,7 +983,7 @@ begin
   // We load Sprites separately by scanner
 //  LoadSprites;
 
-  var t3 := TimeSinceUSec(t1);
+  t3 := TimeSinceUSec(t1);
 
   gLog.AddTime('Load from ' + aPath);
   gLog.AddTime('fSpec.LoadFromFile = ' + IntToStr(t2) + ' LoadSprites = ' + IntToStr(t3));
@@ -1090,12 +1102,14 @@ var
   camp: TKMCampaign;
   searchRec: TSearchRec;
   campaigns: TObjectList<TKMCampaign>;
+  t1: Int64;
+  I: Integer;
 begin
   campaignPath := ExeDir + CAMPAIGNS_FOLDER_NAME + PathDelim;
 
   if not DirectoryExists(campaignPath) then Exit;
 
-  var t1 := TimeGet;
+  t1 := TimeGet;
   // Set OwnObjects to False, since we don't want to Free Campaign objects on the list destruction
   campaigns := TObjectList<TKMCampaign>.Create(False);
   try
@@ -1130,7 +1144,7 @@ begin
     end;
 
     // Load sprites afterwards, to make load faster
-    for var I := 0 to campaigns.Count - 1 do
+    for I := 0 to campaigns.Count - 1 do
       campaigns[I].LoadSprites;
   finally
     campaigns.Free;

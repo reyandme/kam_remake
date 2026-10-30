@@ -126,13 +126,15 @@ end;
 
 
 procedure TKMMenuCampaigns.RefreshList;
+var
+  I: Integer;
 begin
   if Self = nil then Exit;
 
   Image_CampsPreview.TexID := 0; //Clear preview image
   ColumnBox_Camps.Clear;
   Memo_CampDesc.Clear;
-  for var I := 0 to fCampaigns.Count - 1 do
+  for I := 0 to fCampaigns.Count - 1 do
   begin
     ColumnBox_Camps.AddItem(MakeListRow(
                         [fCampaigns[I].Spec.GetCampaignTitle, IntToStr(fCampaigns[I].Spec.MissionsCount),

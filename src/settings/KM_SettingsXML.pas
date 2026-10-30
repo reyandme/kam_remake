@@ -22,7 +22,7 @@ type
 
 implementation
 uses
-  System.SysUtils;
+  {$IFDEF WDC}System.{$ENDIF}SysUtils;
 
 
 { TKMSettingsXML }

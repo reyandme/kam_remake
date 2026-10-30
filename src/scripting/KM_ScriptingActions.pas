@@ -249,7 +249,7 @@ type
 
 implementation
 uses
-  IOUtils, TypInfo,
+  {$IFDEF FPC} KM_FPCCompat, {$ELSE} IOUtils, {$ENDIF} TypInfo,
   KM_Entity,
   KM_AI, KM_AIDefensePos,
   KM_Game, KM_GameParams, KM_GameTypes, KM_FogOfWar,
@@ -3926,9 +3926,11 @@ end;
 
 function TKMScriptActions._MapTilesArraySet(aFuncName: string; aTiles: array of TKMTerrainTileBrief; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
   function GetTileErrorsStr(aErrorsIn: TKMTileChangeTypeSet): string;
+  var
+    I: TKMTileChangeType;
   begin
     Result := '';
-    for var I := Low(TKMTileChangeType) to High(TKMTileChangeType) do
+    for I := Low(TKMTileChangeType) to High(TKMTileChangeType) do
       if I in aErrorsIn then
         Result := Result + IfThen(Result <> '', ', ') + GetEnumName(TypeInfo(TKMTileChangeType), Integer(I));
   end;

@@ -4,6 +4,7 @@ interface
 uses
   SysUtils, StrUtils, Classes, Math,
   ComCtrls, Controls, ExtCtrls, StdCtrls,
+  {$IFDEF FPC} KM_LCLCompat, {$ENDIF}
   Forms, Spin
   {$IFDEF Unix} , LCLIntf, LCLType {$ENDIF}
   ;

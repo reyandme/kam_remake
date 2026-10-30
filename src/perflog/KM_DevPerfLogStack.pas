@@ -4,7 +4,7 @@ interface
 uses
   Classes, Math, StrUtils, SysUtils, KromUtils,
   {$IFDEF WDC}
-  System.Generics.Collections,
+  {$IFDEF WDC}System.{$ENDIF}Generics.Collections,
   {$ENDIF}
   {$IFDEF FPC}
   Generics.Collections,

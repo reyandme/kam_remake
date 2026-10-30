@@ -133,7 +133,7 @@ begin
   {$IFDEF USEBASS}
   // Setup output - default device, 44100hz, stereo, 16 bits
   BASS_SetConfig(BASS_CONFIG_DEV_DEFAULT, 1);
-  if not BASS_Init(-1, 44100, 0, 0, nil) then
+  if not BASS_Init(-1, 44100, 0, {$IFDEF DARWIN}nil{$ELSE}0{$ENDIF}, nil) then
   begin
     gLog.AddTime('Failed to initialize the music playback device');
     fIsInitialized := False;
@@ -192,7 +192,7 @@ begin
   {$ENDIF}
   {$IFDEF USEBASS}
   BASS_StreamFree(fBassStream); //Free the existing stream (will just return False if the stream is invalid)
-  fBassStream := BASS_StreamCreateFile(FALSE, PChar(FileName), 0, 0, BASS_STREAM_AUTOFREE {$IFDEF UNICODE} or BASS_UNICODE{$ENDIF});
+  fBassStream := BASS_StreamCreateFile({$IFDEF DARWIN}0{$ELSE}FALSE{$ENDIF}, {$IFDEF FPC}PAnsiChar(UTF8Encode(FileName)){$ELSE}PChar(FileName){$ENDIF}, 0, 0, BASS_STREAM_AUTOFREE {$IFDEF UNICODE} or BASS_UNICODE{$ENDIF});
 
   BASS_ChannelPlay(fBassStream, True); //Start playback from the beggining
 
@@ -226,7 +226,7 @@ begin
   {$ENDIF}
   {$IFDEF USEBASS}
   BASS_StreamFree(fBassOtherStream); //Free the existing stream (will just return False if the stream is invalid)
-  fBassOtherStream := BASS_StreamCreateFile(FALSE, PChar(FileName), 0, 0, BASS_STREAM_AUTOFREE {$IFDEF UNICODE} or BASS_UNICODE{$ENDIF});
+  fBassOtherStream := BASS_StreamCreateFile({$IFDEF DARWIN}0{$ELSE}FALSE{$ENDIF}, {$IFDEF FPC}PAnsiChar(UTF8Encode(FileName)){$ELSE}PChar(FileName){$ENDIF}, 0, 0, BASS_STREAM_AUTOFREE {$IFDEF UNICODE} or BASS_UNICODE{$ENDIF});
 
   BASS_ChannelPlay(fBassOtherStream, True); //Start playback from the beggining
 

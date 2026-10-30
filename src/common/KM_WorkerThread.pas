@@ -2,12 +2,13 @@ unit KM_WorkerThread;
 {$I KaM_Remake.inc}
 interface
 uses
+  {$IF FPC_FULLVERSION >= 30301} fpmonitor, {$ENDIF}
+  {$IFDEF FPC} KM_FPCCompat, {$ENDIF}
   Classes, SysUtils, Generics.Collections;
 
 type
-  // FPC 3.2.2 still has problems with TProc and TProc<>
-  // Hence the simplest solution is to excelude this utility unit from DedicatedServer projects
-  {$IFDEF WDC}
+  // Anonymous procedure references require FPC 3.3.1 or Delphi.
+  {$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30301)}
   TKMWorkerThreadTask = class
   public
     TaskName: string;
@@ -17,9 +18,8 @@ type
   {$ENDIF}
 
   TKMWorkerThread = class(TThread)
-  // FPC 3.2.2 still has problems with TProc and TProc<>
-  // Hence the simplest solution is to excelude this utility unit from DedicatedServer projects
-  {$IFDEF WDC}
+  // Anonymous procedure references require FPC 3.3.1 or Delphi.
+  {$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30301)}
   private
     fWorkerThreadName: string;
     fWorkCompleted: Boolean;
@@ -49,7 +49,7 @@ type
   // Holder of WorkerThread
   // It should manage its state and recreate an instance if needed
   TKMWorkerThreadHolder = class
-  {$IFDEF WDC}
+  {$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30301)}
   private
     fWorkerThreadName: string;
     fWorkerThread: TKMWorkerThread;
@@ -68,13 +68,12 @@ uses
   KM_Log;
 
 
-{$IFDEF WDC}
+{$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30301)}
 { TKMWorkerThread }
 constructor TKMWorkerThread.Create(const aThreadName: string = '');
 begin
-  //Thread isn't started until all constructors have run to completion
-  //so Create(False) may be put in front as well
-  inherited Create(False);
+  // Initialize the queue before the worker can access it.
+  inherited Create(True);
 
   fWorkerThreadName := aThreadName;
 
@@ -86,6 +85,7 @@ begin
   fWorkCompleted := False;
   fSynchronousExceptionMode := False;
   fTaskQueue := TQueue<TKMWorkerThreadTask>.Create;
+  Start;
 end;
 
 destructor TKMWorkerThread.Destroy;

@@ -9,7 +9,7 @@ uses
   {$IFDEF MSWindows} Windows, ShellAPI, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
   Classes, SysUtils
-  {$IFDEF WDC}, KM_WorkerThread{$ENDIF}
+  {$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30301)}, KM_WorkerThread{$ENDIF}
   , KM_CommonTypes;
 
   //Read text file into ANSI string (scripts, locale texts)
@@ -25,7 +25,7 @@ uses
   procedure KMCopyFile(const aSrc, aDest: UnicodeString; aOverwrite: Boolean); overload;
 
   //{$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30200)}
-  {$IFDEF WDC}
+  {$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30301)}
   procedure KMCopyFileAsync(const aSrc, aDest: UnicodeString; aOverwrite: Boolean; aWorkerThread: TKMWorkerThread);
   {$ENDIF}
 
@@ -157,7 +157,8 @@ end;
 procedure KMCopyFile(const aSrc, aDest: UnicodeString);
 begin
   {$IFDEF FPC}
-  CopyFile(pchar(aSrc), pchar(aDest), True);
+  if not FileUtil.CopyFile(UTF8Encode(aSrc), UTF8Encode(aDest), True) then
+    raise EFCreateError.Create('Cannot copy ' + UTF8Encode(aSrc) + ' to ' + UTF8Encode(aDest));
   {$ENDIF}
   {$IFDEF WDC}
   TFile.Copy(aSrc, aDest);
@@ -171,7 +172,8 @@ begin
     DeleteFile(aDest);
 
   {$IFDEF FPC}
-  CopyFile(pchar(aSrc), pchar(aDest), True);
+  if not FileUtil.CopyFile(UTF8Encode(aSrc), UTF8Encode(aDest), True) then
+    raise EFCreateError.Create('Cannot copy ' + UTF8Encode(aSrc) + ' to ' + UTF8Encode(aDest));
   {$ENDIF}
   {$IFDEF WDC}
   TFile.Copy(aSrc, aDest);
@@ -179,10 +181,10 @@ begin
 end;
 
 
-{$IFDEF WDC}
+{$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30301)}
 procedure KMCopyFileAsync(const aSrc, aDest: UnicodeString; aOverwrite: Boolean; aWorkerThread: TKMWorkerThread);
 begin
-  {$IFDEF WDC}
+  {$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30301)}
   aWorkerThread.QueueWork(procedure
   begin
     KMCopyFile(aSrc, aDest, aOverwrite);

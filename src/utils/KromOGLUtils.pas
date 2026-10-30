@@ -5,7 +5,7 @@ uses
   dglOpenGL,
   {$IFDEF FPC} GL, LCLIntf, {$ENDIF}
   {$IFDEF MSWindows} Windows {$ENDIF}
-  {$IFDEF Unix} LCLType, glx, x, xlib, xutil {$ENDIF}
+  {$IFDEF Unix} LCLType {$IFNDEF DARWIN}, glx, x, xlib, xutil {$ENDIF} {$ENDIF}
   ;
 
 {$IFDEF Unix}

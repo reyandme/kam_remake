@@ -60,6 +60,8 @@ const
   LINE_W = 395;
 var
   I: Integer;
+  dx: Integer;
+  dy: Integer;
 begin
   inherited Create;
 
@@ -76,8 +78,8 @@ begin
 
     for I := 0 to MAX_LOBBY_SLOTS - 1 do
     begin
-      var dx := (I div ALLIES_ROWS) * LINE_W;
-      var dy := (I mod ALLIES_ROWS) * 20;
+      dx := (I div ALLIES_ROWS) * LINE_W;
+      dy := (I mod ALLIES_ROWS) * 20;
 
       if (I mod ALLIES_ROWS) = 0 then // Header for each column
       begin
@@ -118,8 +120,10 @@ end;
 
 
 procedure TKMGUIGameAllies.Allies_Mute(Sender: TObject);
+var
+  img: TKMImage;
 begin
-  var img := TKMImage(Sender);
+  img := TKMImage(Sender);
 
   if gLog.IsDebugLogEnabled then
     gLog.LogDebug(Format('TKMGUIGameAllies.Allies_Mute: Image.Tag = %d SlotIndex = %d', [img.Tag, fLineIdToSlotIndex[img.Tag]]));
@@ -150,6 +154,7 @@ var
   I, J: Integer;
   teams: TKMByteSetArray;
   handIdToSlotIndex: array [0..MAX_HANDS - 1] of Integer;
+  handIndex: Integer;
 begin
   // First empty everything
   fLineCount := 0;
@@ -163,7 +168,7 @@ begin
   // Map hands to slots
   for I := 1 to gNetworking.Room.Count do
   begin
-    var handIndex := gNetworking.Room[I].HandIndex;
+    handIndex := gNetworking.Room[I].HandIndex;
 
     // handIndex could be invalid:
     //  - for Spectators,
@@ -197,6 +202,7 @@ procedure TKMGUIGameAllies.AlliesOnPlayerSetup;
 var
   I, K: Integer;
   localeID: Integer;
+  slotIndex: Integer;
 begin
   Allies_UpdateRoomMapping;
 
@@ -212,7 +218,7 @@ begin
   I := 0;
   for K := 0 to fLineCount - 1 do
   begin
-    var slotIndex := fLineIdToSlotIndex[K];
+    slotIndex := fLineIdToSlotIndex[K];
 
     if slotIndex = -1 then Continue; //In case we have AI players at hand, without slotIndex
 
@@ -293,6 +299,8 @@ end;
 procedure TKMGUIGameAllies.AlliesOnPingInfo;
 var
   I, K, slotIndex: Integer;
+  ping: Integer;
+  fps: Integer;
 begin
   Allies_UpdateRoomMapping;
 
@@ -305,8 +313,8 @@ begin
 
     if (I < gNetworking.Room.Count) and gNetworking.Room[slotIndex].IsHuman then
     begin
-      var ping := gNetworking.Room[slotIndex].GetInstantPing;
-      var fps := gNetworking.Room[slotIndex].FPS;
+      ping := gNetworking.Room[slotIndex].GetInstantPing;
+      fps := gNetworking.Room[slotIndex].FPS;
       Label_AlliesPing[I].Caption := WrapColor(IntToStr(ping), GetPingColor(ping));
       Label_AlliesPingFpsSlash[I].Caption := '/';
       Label_AlliesFPS[I].Caption := WrapColor(IntToStr(fps), GetFPSColor(fps));

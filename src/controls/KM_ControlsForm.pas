@@ -93,13 +93,18 @@ constructor TKMForm.Create(aParent: TKMPanel; aContentWidth, aContentHeight: Int
 const
   BG_RX: array [TKMFormBackgroundType] of TRXType = (rxGuiMain, rxGuiMain, rxGui);
   BG_ID: array [TKMFormBackgroundType] of Word = (15, 18, 409);
+var
+  desiredWidth: Integer;
+  desiredHeight: Integer;
+  desiredLeft: Integer;
+  desiredTop: Integer;
 begin
   fBackground := aBackground;
 
-  var desiredWidth := aContentWidth + 2 * MarginMainLeftRight;
-  var desiredHeight := aContentHeight + MarginMainBottom + MarginMainTop;
-  var desiredLeft := Max(0, (aParent.Width - desiredWidth) div 2);
-  var desiredTop := Max(0, (aParent.Height - desiredHeight) div 2);
+  desiredWidth := aContentWidth + 2 * MarginMainLeftRight;
+  desiredHeight := aContentHeight + MarginMainBottom + MarginMainTop;
+  desiredLeft := Max(0, (aParent.Width - desiredWidth) div 2);
+  desiredTop := Max(0, (aParent.Height - desiredHeight) div 2);
 
   // Create panel with calculated sizes
   inherited Create(aParent, desiredLeft, desiredTop, desiredWidth, desiredHeight);

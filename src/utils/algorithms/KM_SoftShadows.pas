@@ -133,15 +133,19 @@ end;
 
 
 function TKMSoftShadowConverter.IsShadowPixel(aIndex, aX, aY: Word): Boolean;
+var
+  Color: Cardinal;
 begin
-  var Color := ReadPixel(aIndex, aX, aY);
+  Color := ReadPixel(aIndex, aX, aY);
   Result := (fTempShadowMap[aY, aX] or fShadowMap[aY, aX] or IsTransparent(Color)) and not IsObject(Color);
 end;
 
 
 function TKMSoftShadowConverter.IsObjectPixel(aIndex, aX, aY: Word): Boolean;
+var
+  Color: Cardinal;
 begin
-  var Color := ReadPixel(aIndex, aX, aY);
+  Color := ReadPixel(aIndex, aX, aY);
   Result := IsObject(Color) and not fTempShadowMap[aY, aX] and not fShadowMap[aY, aX];
 end;
 

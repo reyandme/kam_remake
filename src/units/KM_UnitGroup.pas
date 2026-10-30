@@ -444,10 +444,10 @@ begin
 
   SaveStream.PlaceMarker('UnitGroup');
   SaveStream.Write(fGroupType, SizeOf(fGroupType));
-  SaveStream.Write(fMembers.Count);
+  SaveStream.Write(Integer(fMembers.Count));
   for I := 0 to fMembers.Count - 1 do
     SaveStream.Write(fMembers[I].UID);
-  SaveStream.Write(fOffenders.Count);
+  SaveStream.Write(Integer(fOffenders.Count));
   for I := 0 to fOffenders.Count - 1 do
     SaveStream.Write(fOffenders[I].UID);
   SaveStream.Write(fOrder, SizeOf(fOrder));
@@ -851,16 +851,20 @@ end;
 
 procedure TKMUnitGroup.OffendersPrune;
   procedure UpdateProtectedUnitsAndGroups;
+  var
+    I: Integer;
+    enemyWarrior: TKMUnitWarrior;
+  var
+    enemyUnit: TKMUnit;
   begin
     fDontPruneRanged.Clear;
     fDontPruneGroups.Clear;
 
-    for var I := 0 to Count - 1 do
+    for I := 0 to Count - 1 do
     begin
-      var enemyUnit: TKMUnit;
       if fMembers[I].InFightAgaist(enemyUnit, False) then
       begin
-        var enemyWarrior := TKMUnitWarrior(enemyUnit);
+        enemyWarrior := TKMUnitWarrior(enemyUnit);
 
         if enemyWarrior.IsRanged then
           fDontPruneRanged.Add(enemyWarrior);
@@ -887,11 +891,15 @@ procedure TKMUnitGroup.OffendersPrune;
     // Remove melee offenders if group is not in fight with someone of this offenders group.
     if aForgetMinors and not aOffender.IsRanged and not fDontPruneGroups.Contains(aOffender.Group) then Exit(True);
   end;
+var
+  forgetMinorOffenders: Boolean;
+  I: Integer;
+  U: TKMUnit;
 begin
   // If we are Melee and we are fighting with Melee we should forget about Ranged offenders and Melee groups we are not fighting with
-  var forgetMinorOffenders := False;
+  forgetMinorOffenders := False;
   if not IsRanged then
-    for var I := 0 to fOffenders.Count - 1 do
+    for I := 0 to fOffenders.Count - 1 do
       if not fOffenders[I].IsRanged then
       begin
         forgetMinorOffenders := True;
@@ -902,10 +910,10 @@ begin
     UpdateProtectedUnitsAndGroups;
 
   // Do the pruning
-  for var I := fOffenders.Count - 1 downto 0 do
+  for I := fOffenders.Count - 1 downto 0 do
   if ShouldForgetOffender(fOffenders[I], forgetMinorOffenders) then
   begin
-    var U: TKMUnit := fOffenders[I]; // Need to pass var
+    U := fOffenders[I]; // Need to pass var
     gHands.CleanUpUnitPointer(U);
     fOffenders.Delete(I);
 
@@ -2632,7 +2640,7 @@ var
   I: Integer;
 begin
   SaveStream.PlaceMarker('UnitGroups');
-  SaveStream.Write(Count);
+  SaveStream.Write(Integer(Count));
   for I := 0 to Count - 1 do
     Groups[I].Save(SaveStream);
 end;

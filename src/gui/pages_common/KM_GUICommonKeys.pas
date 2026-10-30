@@ -55,6 +55,8 @@ const
   FULL_HEIGHT = 620;
   PAD = 20;
   BTN_WIDTH = ((FULL_WIDTH - PAD * 2) - 10 * 2) div 3;
+var
+  lbl: TKMLabel;
 begin
   inherited Create;
 
@@ -80,7 +82,7 @@ begin
     ColumnBox_OptionsKeys.OnChange := ListClick;
     ColumnBox_OptionsKeys.OnKeyUp := ListKeyUp;
 
-    var lbl := TKMLabel.Create(Panel_Content, 0, Panel_Content.Height - 30 * 2 - 10, Panel_Content.Width, 20, '* ' + gResTexts[TX_KEY_UNASSIGNABLE], fntMetal, taLeft);
+    lbl := TKMLabel.Create(Panel_Content, 0, Panel_Content.Height - 30 * 2 - 10, Panel_Content.Width, 20, '* ' + gResTexts[TX_KEY_UNASSIGNABLE], fntMetal, taLeft);
     lbl.Anchors := [anLeft, anRight, anBottom];
 
     Button_OptionsKeysClear := TKMButton.Create(Panel_Content, BTN_WIDTH * 2 + 10 * 2, Panel_Content.Height - 30 * 2 - 10, BTN_WIDTH, 30, gResTexts[TX_MENU_OPTIONS_CLEAR], bsMenu);

@@ -2,6 +2,7 @@ unit KromShellUtils;
 {$I KaM_Remake.inc}
 interface
 uses
+  {$IFDEF FPC} KM_FPCCompat, {$ENDIF}
   Classes,
   {$IFDEF MSWindows}Windows, MMSystem, {$ENDIF}
   {$IFDEF Unix}LCLType, {$ENDIF}

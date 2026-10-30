@@ -1826,13 +1826,16 @@ end;
 
 // Update replay marks according to Game SavedReplays (checkpoints)
 procedure TKMGamePlayInterface.UpdateReplayMarks;
+var
+  ticksList: TArray<Cardinal>;
+  I: Integer;
 begin
   if (Self = nil) or (gGame.SavePoints = nil) then Exit;
 
   ReplayBar_Replay.Clear; // Clear marks, we are going to refill them all
   
-  var ticksList := gGame.SavePoints.GetAvailableTicks;
-  for var I := 0 to High(ticksList) do
+  ticksList := gGame.SavePoints.GetAvailableTicks;
+  for I := 0 to High(ticksList) do
     AddReplayMark(ticksList[I]);
 end;
 
@@ -2158,6 +2161,7 @@ end;
 procedure TKMGamePlayInterface.MessageLog_Update(aFullRefresh: Boolean);
 var
   I, K: Integer;
+  newRow: TKMListRow;
 begin
   // Exit if synced already
   if not aFullRefresh and not gMySpectator.Hand.MessageLog.HasNewMessages then Exit;
@@ -2173,7 +2177,7 @@ begin
   K := 0;
   for I := Max(gMySpectator.Hand.MessageLog.CountLog - MAX_LOG_MSGS, 0) to gMySpectator.Hand.MessageLog.CountLog - 1 do
   begin
-    var newRow := MakeListRow(['', gMySpectator.Hand.MessageLog[I].Text], I);
+    newRow := MakeListRow(['', gMySpectator.Hand.MessageLog[I].Text], I);
 
     if gMySpectator.Hand.MessageLog[I].Kind = mkGroup then
     begin
@@ -3900,6 +3904,9 @@ begin
     fMyControls.MouseUp(X,Y,Shift,Button);
     Exit;
   end;
+
+  // A control callback can close the game or replace this interface.
+  if (gGame = nil) or (gGame.ActiveInterface <> Self) then Exit;
 
   if gGame.IsPaused and (fUIMode in [umSP, umMP]) and not DBG_LIVE_GAME_ON_PAUSE then Exit;
 

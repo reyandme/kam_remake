@@ -405,7 +405,7 @@ begin
   tickCount := TimeGet;
   //Sends current ping info to everyone
   M := TKMemoryStreamBinary.Create;
-  M.Write(fClientList.Count);
+  M.Write(Integer(fClientList.Count));
   for I := 0 to fClientList.Count - 1 do
   begin
     M.Write(fClientList[I].Handle);

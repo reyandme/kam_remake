@@ -586,6 +586,7 @@ var
   gX, gY: Single;
   Id, Id0: Integer;
   FOW: Byte;
+  rxData: PRXData;
 begin
   if (gMySpectator.FogOfWar.CheckVerticeRenderRev(aLocX, aLocY) <= FOG_OF_WAR_MIN) then Exit;
 
@@ -612,7 +613,7 @@ begin
     Id0 := gMapElements[aIndex].Anim.Step[1] + 1;
     if Id <= 0 then Exit;
 
-    var rxData: PRXData := @fRXData[rxTrees];
+    rxData := @fRXData[rxTrees];
     pX := aLocX - 1;
     pY := aLocY - 1;
     gX := pX + (rxData.Pivot[Id0].X + rxData.Size[Id0].X/2) / CELL_SIZE_PX;
