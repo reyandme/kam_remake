@@ -982,7 +982,7 @@ var
   I, senderRoom: Integer;
   packetSender, packetRecipient: TKMNetHandleIndex;
   packetLength: Word;
-  senderClient: TKMServerClient;
+  senderClient, recipientClient: TKMServerClient;
 //  Kind: TKMNetMessageKind;
 begin
   Inc(fBytesRX, aLength);
@@ -1025,7 +1025,8 @@ begin
     senderRoom := fClientList.GetByHandle(aHandle).Room;
 
     //If sender from packet contents doesn't match the socket handle, don't process this packet (client trying to fake sender)
-    if packetSender = aHandle then
+    if (packetSender = aHandle)
+      and ((packetRecipient = NET_ADDRESS_SERVER) or (senderRoom <> -1)) then
     begin
 //      Kind := GetMessKind(PacketSender, @SenderClient.fBuffer[6], PacketLength);
 //      gLog.AddTime('Got msg %s from %d to %d', [GetEnumName(TypeInfo(TKMNetMessageKind), Integer(Kind)), PacketSender, PacketRecipient]);
@@ -1045,7 +1046,12 @@ begin
                   SendDataQueue(fRoomInfo[senderRoom].HostHandle, @senderClient.fBuffer[0], packetLength+6);
         NET_ADDRESS_SERVER:
                 RecieveMessage(packetSender, @senderClient.fBuffer[6], packetLength);
-        else    SendDataQueue(packetRecipient, @senderClient.fBuffer[0], packetLength+6);
+        else
+          begin
+            recipientClient := fClientList.GetByHandle(packetRecipient);
+            if (recipientClient <> nil) and (recipientClient.Room = senderRoom) then
+              SendDataQueue(packetRecipient, @senderClient.fBuffer[0], packetLength+6);
+          end;
       end;
     end;
 
