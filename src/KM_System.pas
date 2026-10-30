@@ -40,7 +40,8 @@ var
 implementation
 uses
   SysUtils, Math,
-  Forms, Graphics;
+  Forms, Graphics
+  {$IFDEF DARWIN}, IntfGraphics, FPImage, GraphType{$ENDIF};
 
 const
   // Screen.Cursors[0] is used by System default cursor
@@ -99,6 +100,11 @@ var
   h : THandle;
   path: PChar;
   rxData: PRXData;
+  {$IFDEF DARWIN}
+  cursorImage: TLazIntfImage;
+  cursorColor: TFPColor;
+  rgba: Cardinal;
+  {$ENDIF}
 begin
   if SKIP_RENDER then Exit;
 
@@ -150,6 +156,29 @@ begin
       iconInfo.yHotspot := Max(-rxData.Pivot[CURSOR_SPRITE_INDEX[C]].y + CURSOR_OFFSET_Y[C], 0);
     end;
 
+    {$IFDEF DARWIN}
+    // Cocoa needs an alpha-aware image; pf32bit ScanLine alone does not
+    // describe an alpha channel, and the old empty mask made it opaque.
+    cursorImage := TLazIntfImage.Create(bm.Width, bm.Height, [riqfRGB, riqfAlpha]);
+    try
+      for y := 0 to bm.Height - 1 do
+        for x := 0 to bm.Width - 1 do
+        begin
+          rgba := 0;
+          if C <> kmcInvisible then
+            rgba := rxData.RGBA[CURSOR_SPRITE_INDEX[C], y * bm.Width + x];
+          cursorColor.Red := (rgba and $FF) * 257;
+          cursorColor.Green := ((rgba shr 8) and $FF) * 257;
+          cursorColor.Blue := ((rgba shr 16) and $FF) * 257;
+          cursorColor.Alpha := ((rgba shr 24) and $FF) * 257;
+          cursorImage.Colors[x, y] := cursorColor;
+        end;
+      bm.LoadFromIntfImage(cursorImage);
+    finally
+      cursorImage.Free;
+    end;
+    {$ENDIF}
+
     //Release the Mask, otherwise there is black rect in Lazarus
     //it works only from within the loop, means mask is recreated when we access canvas or something like that
     bm2.ReleaseMaskHandle;
@@ -163,10 +192,15 @@ begin
       iconInfo.hbmMask  := bm2.Handle;
       Screen.Cursors[Byte(C) + CURSOR_CNT_OFFSET] := CreateIconIndirect(iconInfo);
     {$ENDIF}
+    {$IFDEF DARWIN}
+      iconInfo.hbmMask := 0;
+      Screen.Cursors[Byte(C) + CURSOR_CNT_OFFSET] := CreateIconIndirect(@iconInfo);
+    {$ELSE}
     {$IFDEF Unix}
       bm2.Mask(clWhite);
       IconInfo.hbmMask  := bm2.MaskHandle;
       Screen.Cursors[Byte(C) + CURSOR_CNT_OFFSET] :=  CreateIconIndirect(@IconInfo);
+    {$ENDIF}
     {$ENDIF}
   end;
 

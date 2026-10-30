@@ -2,6 +2,7 @@ unit KM_FormMain;
 {$I KaM_Remake.inc}
 interface
 uses
+  {$IFDEF FPC} KM_LCLCompat, {$ENDIF}
   Classes,
   ComCtrls, Controls, Buttons, Dialogs, ExtCtrls, Forms, Graphics, Menus, StdCtrls,
   KM_RenderControl, KM_CommonTypes,
@@ -108,7 +109,6 @@ type
     chkShowSoil: TCheckBox;
     chkShowFlatArea: TCheckBox;
     chkShowEyeRoutes: TCheckBox;
-    {$IFDEF WDC}
     mainGroup: TCategoryPanelGroup;
     cpGameControls: TCategoryPanel;
     cpDebugRender: TCategoryPanel;
@@ -185,10 +185,7 @@ type
     tbWaterLight: TTrackBar;
     lblWaterLight: TLabel;
     chkSkipRenderText: TCheckBox;
-    {$ENDIF}
     {$IFDEF FPC}
-    mainGroup: TGroupBox;
-    GroupBox2: TGroupBox;
     GroupBox3: TGroupBox;
     GroupBox4: TGroupBox;
     GroupBox5: TGroupBox;
@@ -354,6 +351,9 @@ type
     procedure mnExportHDUnitThoughtsClick(Sender: TObject);
     procedure Openscriptfile1Click(Sender: TObject);
   private
+    {$IFDEF FPC}
+    fNativeKeysDown: array[0..255] of Boolean;
+    {$ENDIF}
     {$IFDEF MSWindows}
     fMenuItemHint: TKMVclMenuItemHint; // Custom hint over menu item
     {$ENDIF}
@@ -364,6 +364,11 @@ type
     fOnControlsUpdated: TObjectIntegerEvent;
 
     fResExporter: TKMResExporter;
+
+    {$IFDEF FPC}
+    procedure NativeDeactivate(Sender: TObject);
+    procedure CreateLCLDebugControls;
+    {$ENDIF}
 
     procedure FormKeyDownProc(aKey: Word; aShift: TShiftState; aIsFirst: Boolean);
     procedure FormKeyUpProc(aKey: Word; aShift: TShiftState);
@@ -379,8 +384,10 @@ type
 
     procedure FindObjByUID(aUID: Integer);
     function AllowFindObjByUID: Boolean;
-    {$IFDEF MSWindows}
     function GetWindowParams: TKMWindowParamsRecord;
+    procedure ShowInCustomWindow;
+    procedure ShowInDefaultWindow;
+    {$IFDEF MSWindows}
     procedure WMSysCommand(var Msg: TWMSysCommand); message WM_SYSCOMMAND;
     procedure WMExitSizeMove(var Msg: TMessage) ; message WM_EXITSIZEMOVE;
     procedure WMAppCommand(var Msg: TMessage); message WM_APPCOMMAND;
@@ -388,8 +395,6 @@ type
     procedure WMMenuSelect(var Msg: TWMMenuSelect); message WM_MENUSELECT;
     procedure DoMessage(var Msg: TMsg; var Handled: Boolean);
 
-    procedure ShowInCustomWindow;
-    procedure ShowInDefaultWindow;
   protected
     procedure WndProc(var Message: TMessage); override; //
     {$ENDIF}
@@ -451,9 +456,9 @@ uses
   KM_ResTypes,
   KM_GameAppSettings;
 
-//{$IFDEF WDC}
+{$IFDEF WDC}
   {$R *.dfm}
-//{$ENDIF}
+{$ENDIF}
 
 
 procedure ExportDone(aResourceName: String);
@@ -462,10 +467,166 @@ begin
 end;
 
 
+{$IFDEF FPC}
+// The Lazarus form predates the VCL developer controls. Keep their backing
+// components available for shared settings and diagnostic code.
+procedure TFormMain.CreateLCLDebugControls;
+begin
+  if mnExportHouseAnim = nil then mnExportHouseAnim := TMenuItem.Create(Self);
+  if mnExportUnitAnim = nil then mnExportUnitAnim := TMenuItem.Create(Self);
+  if btnGameStop = nil then btnGameStop := TButton.Create(Self);
+  if mnExportTreeAnim = nil then mnExportTreeAnim := TMenuItem.Create(Self);
+  if mnExportHousesDat = nil then mnExportHousesDat := TMenuItem.Create(Self);
+  if chkBuild = nil then chkBuild := TCheckBox.Create(Self);
+  if chkCombat = nil then chkCombat := TCheckBox.Create(Self);
+  if chkLogShowInChat = nil then chkLogShowInChat := TCheckBox.Create(Self);
+  if Debug_ShowLogistics = nil then Debug_ShowLogistics := TMenuItem.Create(Self);
+  if mnExportUnitAnimAll = nil then mnExportUnitAnimAll := TMenuItem.Create(Self);
+  if mnExportUnitAnimSoldiers = nil then mnExportUnitAnimSoldiers := TMenuItem.Create(Self);
+  if mnExportUnitAnimCivilians = nil then mnExportUnitAnimCivilians := TMenuItem.Create(Self);
+  if cpGameControls = nil then cpGameControls := TCategoryPanel.Create(Self);
+  if cpDebugRender = nil then cpDebugRender := TCategoryPanel.Create(Self);
+  if cpAI = nil then cpAI := TCategoryPanel.Create(Self);
+  if cpUserInreface = nil then cpUserInreface := TCategoryPanel.Create(Self);
+  if cpGraphicTweaks = nil then cpGraphicTweaks := TCategoryPanel.Create(Self);
+  if cpLogs = nil then cpLogs := TCategoryPanel.Create(Self);
+  if cpGameAdv = nil then cpGameAdv := TCategoryPanel.Create(Self);
+  if cpPerfLogs = nil then cpPerfLogs := TCategoryPanel.Create(Self);
+  if chkSnowHouses = nil then chkSnowHouses := TCheckBox.Create(Self);
+  if chkInterpolatedRender = nil then chkInterpolatedRender := TCheckBox.Create(Self);
+  if chkLoadUnsupSaves = nil then chkLoadUnsupSaves := TCheckBox.Create(Self);
+  if chkJamMeter = nil then chkJamMeter := TCheckBox.Create(Self);
+  if chkShowTerrainOverlays = nil then chkShowTerrainOverlays := TCheckBox.Create(Self);
+  if chkDebugScripting = nil then chkDebugScripting := TCheckBox.Create(Self);
+  if chkLogSkipTempCmd = nil then chkLogSkipTempCmd := TCheckBox.Create(Self);
+  if chkShowDefencesAnimate = nil then chkShowDefencesAnimate := TCheckBox.Create(Self);
+  if chkShowArmyVectorFieldEnemy = nil then chkShowArmyVectorFieldEnemy := TCheckBox.Create(Self);
+  if chkShowArmyVectorFieldAlly = nil then chkShowArmyVectorFieldAlly := TCheckBox.Create(Self);
+  if chkShowClusters = nil then chkShowClusters := TCheckBox.Create(Self);
+  if chkShowAlliedGroups = nil then chkShowAlliedGroups := TCheckBox.Create(Self);
+  if chkHeight = nil then chkHeight := TCheckBox.Create(Self);
+  if chkTreeAge = nil then chkTreeAge := TCheckBox.Create(Self);
+  if chkFieldAge = nil then chkFieldAge := TCheckBox.Create(Self);
+  if chkTileLock = nil then chkTileLock := TCheckBox.Create(Self);
+  if chkTileOwner = nil then chkTileOwner := TCheckBox.Create(Self);
+  if chkTileUnit = nil then chkTileUnit := TCheckBox.Create(Self);
+  if chkVertexUnit = nil then chkVertexUnit := TCheckBox.Create(Self);
+  if chkTileObject = nil then chkTileObject := TCheckBox.Create(Self);
+  if chkSupervisor = nil then chkSupervisor := TCheckBox.Create(Self);
+  if cpScripting = nil then cpScripting := TCategoryPanel.Create(Self);
+  if chkShowDefencePos = nil then chkShowDefencePos := TCheckBox.Create(Self);
+  if chkShowUnitRadius = nil then chkShowUnitRadius := TCheckBox.Create(Self);
+  if chkShowTowerRadius = nil then chkShowTowerRadius := TCheckBox.Create(Self);
+  if chkShowMiningRadius = nil then chkShowMiningRadius := TCheckBox.Create(Self);
+  if chkShowDeposits = nil then chkShowDeposits := TCheckBox.Create(Self);
+  if chkShowOverlays = nil then chkShowOverlays := TCheckBox.Create(Self);
+  if chkShowUnits = nil then chkShowUnits := TCheckBox.Create(Self);
+  if chkShowHouses = nil then chkShowHouses := TCheckBox.Create(Self);
+  if chkShowObjects = nil then chkShowObjects := TCheckBox.Create(Self);
+  if chkShowFlatTerrain = nil then chkShowFlatTerrain := TCheckBox.Create(Self);
+  if sePauseBeforeTick = nil then sePauseBeforeTick := TSpinEdit.Create(Self);
+  if Label8 = nil then Label8 := TLabel.Create(Self);
+  if Label9 = nil then Label9 := TLabel.Create(Self);
+  if seMakeSaveptBeforeTick = nil then seMakeSaveptBeforeTick := TSpinEdit.Create(Self);
+  if Label12 = nil then Label12 := TLabel.Create(Self);
+  if seCustomSeed = nil then seCustomSeed := TSpinEdit.Create(Self);
+  if chkUIFocusedControl = nil then chkUIFocusedControl := TCheckBox.Create(Self);
+  if chkUIControlOver = nil then chkUIControlOver := TCheckBox.Create(Self);
+  if chkPaintSounds = nil then chkPaintSounds := TCheckBox.Create(Self);
+  if cpMisc = nil then cpMisc := TCategoryPanel.Create(Self);
+  if rgDebugFont = nil then rgDebugFont := TRadioGroup.Create(Self);
+  if mnExportRPL = nil then mnExportRPL := TMenuItem.Create(Self);
+  if chkPathfinding = nil then chkPathfinding := TCheckBox.Create(Self);
+  if chkGipAsBytes = nil then chkGipAsBytes := TCheckBox.Create(Self);
+  if cpDebugInput = nil then cpDebugInput := TCategoryPanel.Create(Self);
+  if gbFindObjByUID = nil then gbFindObjByUID := TGroupBox.Create(Self);
+  if Label14 = nil then Label14 := TLabel.Create(Self);
+  if Label15 = nil then Label15 := TLabel.Create(Self);
+  if Label13 = nil then Label13 := TLabel.Create(Self);
+  if seFindObjByUID = nil then seFindObjByUID := TSpinEdit.Create(Self);
+  if btFindObjByUID = nil then btFindObjByUID := TButton.Create(Self);
+  if seEntityUID = nil then seEntityUID := TSpinEdit.Create(Self);
+  if seWarriorUID = nil then seWarriorUID := TSpinEdit.Create(Self);
+  if Label10 = nil then Label10 := TLabel.Create(Self);
+  if Label11 = nil then Label11 := TLabel.Create(Self);
+  if seDebugValue = nil then seDebugValue := TSpinEdit.Create(Self);
+  if edDebugText = nil then edDebugText := TEdit.Create(Self);
+  if chkFindObjByUID = nil then chkFindObjByUID := TCheckBox.Create(Self);
+  if tbWaterLight = nil then tbWaterLight := TTrackBar.Create(Self);
+  if lblWaterLight = nil then lblWaterLight := TLabel.Create(Self);
+  if chkSkipRenderText = nil then chkSkipRenderText := TCheckBox.Create(Self);
+  if N5 = nil then N5 := TMenuItem.Create(Self);
+  if LoadSavThenRpl = nil then LoadSavThenRpl := TMenuItem.Create(Self);
+  if N7 = nil then N7 := TMenuItem.Create(Self);
+  if ReloadLibx = nil then ReloadLibx := TMenuItem.Create(Self);
+  if N8 = nil then N8 := TMenuItem.Create(Self);
+  if N10 = nil then N10 := TMenuItem.Create(Self);
+  if N9 = nil then N9 := TMenuItem.Create(Self);
+  if Debug_UnlockCmpMissions = nil then Debug_UnlockCmpMissions := TMenuItem.Create(Self);
+  if N11 = nil then N11 := TMenuItem.Create(Self);
+  if mnExportRngChecks = nil then mnExportRngChecks := TMenuItem.Create(Self);
+  if chkLogShowInGUI = nil then chkLogShowInGUI := TCheckBox.Create(Self);
+  if chkLogUpdateForGUI = nil then chkLogUpdateForGUI := TCheckBox.Create(Self);
+  if chkCursorCoordinates = nil then chkCursorCoordinates := TCheckBox.Create(Self);
+  if chkInterpolatedAnims = nil then chkInterpolatedAnims := TCheckBox.Create(Self);
+  if cpDebugOutput = nil then cpDebugOutput := TCategoryPanel.Create(Self);
+  if chkGIP = nil then chkGIP := TCheckBox.Create(Self);
+  if CategoryPanel1 = nil then CategoryPanel1 := TCategoryPanel.Create(Self);
+  if chkDebugTerrainRender = nil then chkDebugTerrainRender := TCheckBox.Create(Self);
+  if gbRenderTerrain = nil then gbRenderTerrain := TGroupBox.Create(Self);
+  if chkTerrainRenderAnim = nil then chkTerrainRenderAnim := TCheckBox.Create(Self);
+  if chkTerrainRenderLight = nil then chkTerrainRenderLight := TCheckBox.Create(Self);
+  if chkTerrainRenderShadow = nil then chkTerrainRenderShadow := TCheckBox.Create(Self);
+  if gbDebugLayers = nil then gbDebugLayers := TGroupBox.Create(Self);
+  if chkDebugLayerBase = nil then chkDebugLayerBase := TCheckBox.Create(Self);
+  if chkDebugLayer1 = nil then chkDebugLayer1 := TCheckBox.Create(Self);
+  if chkDebugLayer2 = nil then chkDebugLayer2 := TCheckBox.Create(Self);
+  if chkDebugLayer3 = nil then chkDebugLayer3 := TCheckBox.Create(Self);
+  if Debug_SaveGameWholeMapToImage = nil then Debug_SaveGameWholeMapToImage := TMenuItem.Create(Self);
+  if chkViewport = nil then chkViewport := TCheckBox.Create(Self);
+  if gbSaveGameMapToImage = nil then gbSaveGameMapToImage := TGroupBox.Create(Self);
+  if seMaxImageSize = nil then seMaxImageSize := TSpinEdit.Create(Self);
+  if Label16 = nil then Label16 := TLabel.Create(Self);
+  if rgImageType = nil then rgImageType := TRadioGroup.Create(Self);
+  if btnSaveMapImage = nil then btnSaveMapImage := TButton.Create(Self);
+  if btnPrintScreen = nil then btnPrintScreen := TButton.Create(Self);
+  if N12 = nil then N12 := TMenuItem.Create(Self);
+  if miExportMemoryUsage = nil then miExportMemoryUsage := TMenuItem.Create(Self);
+  if chkShowRoutesSteps = nil then chkShowRoutesSteps := TCheckBox.Create(Self);
+  if btnGameSave = nil then btnGameSave := TButton.Create(Self);
+  if seHighlightNavMesh = nil then seHighlightNavMesh := TSpinEdit.Create(Self);
+  if mnExportUnitsDat = nil then mnExportUnitsDat := TMenuItem.Create(Self);
+  if mnOpenSettingsDir = nil then mnOpenSettingsDir := TMenuItem.Create(Self);
+  if mnScriptCode = nil then mnScriptCode := TMenuItem.Create(Self);
+  if btnGameRestart = nil then btnGameRestart := TButton.Create(Self);
+  if mnOpenSettingsXML = nil then mnOpenSettingsXML := TMenuItem.Create(Self);
+  if chkViewportPos = nil then chkViewportPos := TCheckBox.Create(Self);
+  if mnAnimations = nil then mnAnimations := TMenuItem.Create(Self);
+  if mnHDAnimations = nil then mnHDAnimations := TMenuItem.Create(Self);
+  if mnExportHDUnitAnim = nil then mnExportHDUnitAnim := TMenuItem.Create(Self);
+  if mnExportHDUnitAnimCivilians = nil then mnExportHDUnitAnimCivilians := TMenuItem.Create(Self);
+  if mnExportHDUnitAnimSoldiers = nil then mnExportHDUnitAnimSoldiers := TMenuItem.Create(Self);
+  if N13 = nil then N13 := TMenuItem.Create(Self);
+  if mnExportHDUnitAnimAll = nil then mnExportHDUnitAnimAll := TMenuItem.Create(Self);
+  if mnExportHDHouseAnim = nil then mnExportHDHouseAnim := TMenuItem.Create(Self);
+  if mnExportHDTreeAnim = nil then mnExportHDTreeAnim := TMenuItem.Create(Self);
+  if N14 = nil then N14 := TMenuItem.Create(Self);
+  if reesrxa1 = nil then reesrxa1 := TMenuItem.Create(Self);
+  if Housesrxa1 = nil then Housesrxa1 := TMenuItem.Create(Self);
+  if Unitsrxa1 = nil then Unitsrxa1 := TMenuItem.Create(Self);
+  if N15 = nil then N15 := TMenuItem.Create(Self);
+  if Openscriptfile1 = nil then Openscriptfile1 := TMenuItem.Create(Self);
+  if chkIgnoreMouseScroll = nil then chkIgnoreMouseScroll := TCheckBox.Create(Self);
+  if chkShowUnitsInHouse = nil then chkShowUnitsInHouse := TCheckBox.Create(Self);
+end;
+{$ENDIF}
+
+
 //Remove VCL panel and use flicker-free TMyPanel instead
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
-  Application.OnMessage := DoMessage;
+  {$IFDEF FPC}CreateLCLDebugControls;{$ENDIF}
+  {$IFDEF MSWindows}Application.OnMessage := DoMessage;{$ENDIF}
 
   fStartVideoPlayed := False;
   RenderArea := TKMRenderControl.Create(Self);
@@ -482,7 +643,10 @@ begin
   chkSuperSpeed.Caption := 'Speed x' + IntToStr(DEBUG_SPEEDUP_SPEED);
 
   //Lazarus needs OnMouseWheel event to be for the panel, not the entire form
-  {$IFDEF FPC} RenderArea.OnMouseWheel := RenderAreaMouseWheel; {$ENDIF}
+  {$IFDEF FPC}
+  RenderArea.OnMouseWheel := RenderAreaMouseWheel;
+  OnDeactivate := NativeDeactivate;
+  {$ENDIF}
 
   {$IFDEF MSWindows}
     fMenuItemHint := TKMVclMenuItemHint.Create(Self);
@@ -628,9 +792,25 @@ end;
 
 procedure TFormMain.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
-//  Assert(KeyPreview, 'MainForm should receive all keys to pass them to fGame');
-//  FormKeyDownProc(Key, Shift, True);
+  {$IFDEF FPC}
+  if Key <= High(fNativeKeysDown) then
+  begin
+    FormKeyDownProc(Key, Shift, not fNativeKeysDown[Key]);
+    fNativeKeysDown[Key] := True;
+  end
+  else
+    FormKeyDownProc(Key, Shift, True);
+  // Escape belongs to the game, not Cocoa's fullscreen cancellation.
+  if Key = VK_ESCAPE then Key := 0;
+  {$ENDIF}
 end;
+
+{$IFDEF FPC}
+procedure TFormMain.NativeDeactivate(Sender: TObject);
+begin
+  FillChar(fNativeKeysDown, SizeOf(fNativeKeysDown), 0);
+end;
+{$ENDIF}
 
 
 procedure TFormMain.FormKeyPress(Sender: TObject; var Key: Char);
@@ -644,7 +824,13 @@ procedure TFormMain.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState
 begin
   Assert(KeyPreview, 'MainForm should receive all keys to pass them to fGame');
 
+  {$IFDEF FPC}
+  if Key <= High(fNativeKeysDown) then fNativeKeysDown[Key] := False;
+  {$ENDIF}
   FormKeyUpProc(Key, Shift);
+  {$IFDEF FPC}
+  if Key = VK_ESCAPE then Key := 0;
+  {$ENDIF}
 end;
 
 
@@ -666,6 +852,13 @@ end;
 
 procedure TFormMain.RenderAreaMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
+  {$IFDEF FPC}
+  case Button of
+    mbLeft: Include(Shift, ssLeft);
+    mbRight: Include(Shift, ssRight);
+    mbMiddle: Include(Shift, ssMiddle);
+  end;
+  {$ENDIF}
   // Handle middle mouse button as Key
   if Button = mbMiddle then
     FormKeyDownProc(VK_MBUTTON, Shift, True)
@@ -703,7 +896,8 @@ end;
 
 procedure TFormMain.RenderAreaMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
 begin
-  gGameApp.MouseWheel(Shift, WheelDelta, MousePos.X, MousePos.Y, Handled);
+  gGameApp.MouseWheel(Shift, GetMouseWheelStepsCnt(WheelDelta),
+    RenderArea.ScreenToClient(MousePos).X, RenderArea.ScreenToClient(MousePos).Y, Handled);
 end;
 
 
@@ -765,11 +959,14 @@ end;
 
 
 procedure TFormMain.mnExportRngChecksClick(Sender: TObject);
+{$IFDEF DBG_RNG_SPY}
+var rngLogger: TKMRandomCheckLogger;
+{$ENDIF}
 begin
   {$IFDEF DBG_RNG_SPY}
   if RunOpenDialog(OpenDialog1, '', ExeDir, 'KaM Remake Random checks log (*.rng)|*.rng') then
   begin
-    var rngLogger := TKMRandomCheckLogger.Create;
+    rngLogger := TKMRandomCheckLogger.Create;
     rngLogger.LoadFromPathAndParseToDict(OpenDialog1.FileName);
     rngLogger.SaveAsText(OpenDialog1.FileName + '.log');
     rngLogger.Free;
@@ -779,10 +976,12 @@ end;
 
 
 procedure TFormMain.mnExportRPLClick(Sender: TObject);
+var
+  gip: TKMGameInputProcess;
 begin
   if RunOpenDialog(OpenDialog1, '', ExeDir, 'KaM Remake replay commands (*.rpl)|*.rpl') then
   begin
-    var gip := TKMGameInputProcess.Create(gipReplaying);
+    gip := TKMGameInputProcess.Create(gipReplaying);
     gip.LoadFromFile(OpenDialog1.FileName);
     gip.SaveToFileAsText(OpenDialog1.FileName + '.log');
     gip.Free;
@@ -1343,26 +1542,8 @@ procedure TFormMain.ControlsReset;
 
   {$IFDEF FPC}
   procedure ResetGroup(aBox: TGroupBox);
-  var
-    I: Integer;
   begin
-    for I := 0 to aBox.ControlCount - 1 do
-    begin
-      if SkipReset(aBox.Controls[I]) then Continue; //Skip reset for some controls
-
-      if aBox.Controls[I] is TCheckBox then
-        TCheckBox(aBox.Controls[I]).Checked :=    (aBox.Controls[I] = chkBevel)
-                                               or (aBox.Controls[I] = chkLogNetConnection)
-      else
-      if aBox.Controls[I] is TTrackBar then
-        TTrackBar(aBox.Controls[I]).Position := 0
-      else
-      if aBox.Controls[I] is TRadioGroup then
-        TRadioGroup(aBox.Controls[I]).ItemIndex := 0
-      else
-      if (aBox.Controls[I] is TGroupBox) then
-        ResetGroup(TGroupBox(aBox.Controls[I]));
-    end;
+    ResetSubPanel(aBox);
   end;
   {$ENDIF}
 
@@ -1916,13 +2097,15 @@ end;
 
 // Return current window params
 function TFormMain.GetWindowParams: TKMWindowParamsRecord;
+{$IFDEF MSWindows}
   // FindTaskBar returns the Task Bar's position, and fills in
   // ARect with the current bounding rectangle.
   function FindTaskBar(var aRect: TRect): Integer;
+  var
+    {$IFDEF MSWINDOWS}AppData: TAppBarData;{$ENDIF}
   begin
     Result := -1;
     {$IFDEF MSWINDOWS}
-    var AppData: TAppBarData;
     // 'Shell_TrayWnd' is the name of the task bar's window
     AppData.hWnd := FindWindow('Shell_TrayWnd', nil);
     if AppData.hWnd <> 0 then
@@ -1985,6 +2168,16 @@ begin
                   end;
   end;
 end;
+{$ELSE}
+begin
+  Result.State := WindowState;
+  Result.Position := Position;
+  Result.Width := ClientWidth;
+  Result.Height := ClientHeight;
+  Result.Left := Left;
+  Result.Top := Top;
+end;
+{$ENDIF}
 
 
 {$IFDEF MSWindows}
@@ -2150,7 +2343,7 @@ begin
   // We use WM_MOUSEWHEEL message handler on Windows, since it prevents some bugs from happaning
   // F.e. on Win10 it was reported, that we got event 3 times on single turn of mouse wheel, if use default form event handler
 {$IFNDEF MSWINDOWS}
-  var handled := False;
+  handled := False;
   gGameApp.MouseWheel(Shift, GetMouseWheelStepsCnt(WheelDelta), RenderArea.ScreenToClient(MousePos).X, RenderArea.ScreenToClient(MousePos).Y, handled);
 {$ENDIF}
 end;
@@ -2158,7 +2351,7 @@ end;
 
 function TFormMain.GetMouseWheelStepsCnt(aWheelData: Integer): Integer;
 begin
-  Result := aWheelData div WHEEL_DELTA;
+  Result := aWheelData div {$IFDEF FPC}120{$ELSE}WHEEL_DELTA{$ENDIF};
 end;
 
 
@@ -2245,8 +2438,7 @@ end;
 
 
 {$IFDEF FPC}
-initialization
-{$I KM_FormMain.lrs}
+{$R *.lfm}
 {$ENDIF}
 
 

@@ -16,6 +16,7 @@
 
 KaM Remake Beta r_____ []
 ------------------------------
++ Added experimental native macOS Apple Silicon build support
 + Fixed terrain connectivity after applying terrain brushes from dynamic script
 + Fixed error in watching replays without AI opponents
 + Fixed animals blocking units when walking back and forth diagonally
