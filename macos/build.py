@@ -95,6 +95,9 @@ def bundle():
     if not (source / 'data/sprites/GUI.rxx').exists():
         raise SystemExit('Game assets missing: run macos/prepare_assets.py first.')
     app = ROOT / 'out/KaM Remake.app'
+    # Never carry saves, settings or logs left by an older build into a new bundle.
+    if app.exists():
+        shutil.rmtree(app)
     binary_dir = app / 'Contents/MacOS'
     binary_dir.mkdir(parents=True, exist_ok=True)
     asset_dir = app / 'Contents/Resources/game'
