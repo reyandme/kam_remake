@@ -79,17 +79,16 @@ const
 { TKMMapEdMissionPlayers }
 constructor TKMMapEdMissionPlayers.Create(aParent: TKMPanel);
 var
-  I, top, panelH: Integer;
+  I, top: Integer;
   MPT: TKMMapEdPlayerType;
 begin
   inherited Create;
 
   fConfirmationType := mctNone;
 
-  panelH := LINE_H * MAX_HANDS + 80;
-
-  Form_PlayerTypes := TKMForm.Create(aParent.MasterParent, PANEL_W, panelH + 20, gResTexts[TX_MAPED_PLAYERS_TYPE],
+  Form_PlayerTypes := TKMForm.Create(aParent.MasterParent, PANEL_W, aParent.MasterParent.Height - 100, gResTexts[TX_MAPED_PLAYERS_TYPE],
                                             fbYellow, False, False);
+  Form_PlayerTypes.Anchors := [anTop, anBottom];
 
   top := 0;
   TKMLabel.Create(Players_ScrollPanel,  13, top, 20, 20, '#', fntGrey, taLeft);
