@@ -101,6 +101,7 @@ var
 implementation
 uses
   Classes, SysUtils, SysConst, StrUtils, Math,
+  {$IFDEF DARWIN}KM_MacPaths,{$ENDIF}
   Forms,
   {$IF DEFINED(MSWindows)}
   MMSystem,
@@ -137,6 +138,8 @@ end;
 
 { TKMMain }
 constructor TKMMain.Create;
+var
+  perfLogWasCollapsed: Boolean;
 begin
   inherited;
 
@@ -158,7 +161,7 @@ begin
   gPerfLogs.ShowForm(fFormMain.cpPerfLogs);
   gPerfLogs.OnFormChanged := fFormMain.OtherFormChanged;
 
-  var perfLogWasCollapsed := fFormMain.cpPerfLogs.Collapsed;
+  perfLogWasCollapsed := fFormMain.cpPerfLogs.Collapsed;
   fFormMain.DevSettings.SkipSave := True; // Skip save
   fFormMain.cpPerfLogs.Collapsed := False; //We can set TCategoryPanel height only when Collapsed set to False
   fFormMain.cpPerfLogs.Height := gPerfLogs.FormHeight;
@@ -175,7 +178,7 @@ begin
   // FormLoading is owned by the Application
   // If exception occurs and gMain is freed, make sure to remove fsStayOnTop from FormLoading,
   // so that madExcept dialogs (main and its child SendBugReport) are not overlapped by it
-  fFormLoading.FormStyle := fsNormal;
+  if fFormLoading <> nil then fFormLoading.FormStyle := fsNormal;
 
   {$IFDEF DBG_PERFLOG}gPerfLogs.Free;{$ENDIF}
 
@@ -255,6 +258,9 @@ begin
   time := TimeGet;
 
   ExeDir := ExtractFilePath(ParamStr(0));
+  {$IFDEF DARWIN}
+  ExeDir := MacGameDataDir;
+  {$ENDIF}
 
   // Set custom AssertErrorhandler to avoid dev paths in the error messages, which could be seen by players
   AssertErrorProc := @CustomAssertErrorHandler;
@@ -571,6 +577,8 @@ procedure TKMMain.DoIdle(Sender: TObject; var Done: Boolean);
 const
   MAX_TIME_BETWEEN_RENDERS = 1000; //Render at least 1 FPS
   UI_UPDATE_INTERVAL = 100;
+var
+  timeSinceTick, timeSinceUpdateUI, renderInterval, timeSinceRender: Cardinal;
 begin
   Done := False; //Repeats OnIdle asap without performing Form-specific idle code
 
@@ -580,16 +588,23 @@ begin
     Exit;
   end;
 
+  {$IFNDEF CPUAARCH64}
   if CHECK_8087CW then
     //$1F3F is used to mask out reserved/undefined bits
     Assert((Get8087CW and $1F3F = $133F), '8087CW is wrong');
+  {$ENDIF}
 
   //Some PCs seem to change 8087CW randomly between events like Timers and OnMouse*,
   //so we need to set it right before we do game logic processing
+  {$IFDEF CPUAARCH64}
+  SetExceptionMask([exInvalidOp, exDenormalized, exZeroDivide, exOverflow, exUnderflow, exPrecision]);
+  SetRoundMode(rmNearest);
+  {$ELSE}
   Set8087CW($133F);
+  {$ENDIF}
 
   //Priority 1. Do we need to tick?
-  var timeSinceTick := TimeSince(fTickSchedule);
+  timeSinceTick := TimeSince(fTickSchedule);
   if (timeSinceTick >= fGameTickInterval) and not ForcedRenderRequired then
   begin
     gGameApp.DoGameTick;
@@ -598,17 +613,17 @@ begin
   else
   begin
     //Priority 2. UI update and render
-    var timeSinceUpdateUI := TimeSince(fUpdateStateSchedule);
+    timeSinceUpdateUI := TimeSince(fUpdateStateSchedule);
     if timeSinceUpdateUI >= UI_UPDATE_INTERVAL then
     begin
       gGameApp.UpdateState;
       fUpdateStateSchedule := CalculateSchedule(fUpdateStateSchedule, timeSinceUpdateUI, UI_UPDATE_INTERVAL);
     end;
 
-    var renderInterval := GetRenderInterval;
+    renderInterval := GetRenderInterval;
     if renderInterval > 0 then
     begin
-      var timeSinceRender := TimeSince(fRenderSchedule);
+      timeSinceRender := TimeSince(fRenderSchedule);
       if timeSinceRender >= renderInterval then
       begin
         DoRender;

@@ -76,6 +76,10 @@ constructor TKMMenuLoad.Create(aParent: TKMPanel; aOnPageChange: TKMMenuChangeEv
 const
   DELETE_CONFIRM_FONT: TKMFont = fntMetal;
   PAD = 20;
+var
+  deleteConfirmStr: UnicodeString;
+  deleteConfirmWidth: Integer;
+  btnWidth: Integer;
 begin
   inherited Create(gpLoad);
 
@@ -123,8 +127,8 @@ begin
     MinimapView_Load.Anchors := [anLeft, anBottom];
 
     // Delete popup
-    var deleteConfirmStr := gResTexts[TX_MENU_LOAD_DELETE_CONFIRM];
-    var deleteConfirmWidth := Max(450, gRes.Fonts[DELETE_CONFIRM_FONT].GetTextSize(deleteConfirmStr).X + PAD*2);
+    deleteConfirmStr := gResTexts[TX_MENU_LOAD_DELETE_CONFIRM];
+    deleteConfirmWidth := Max(450, gRes.Fonts[DELETE_CONFIRM_FONT].GetTextSize(deleteConfirmStr).X + PAD*2);
     Form_Delete := TKMForm.Create(Panel_Load, deleteConfirmWidth, 200, gResTexts[TX_MENU_LOAD_DELETE], fbGray, False, False);
     Form_Delete.Left := (Panel_Load.Width div 2) - (Form_Delete.Width div 2);
     Form_Delete.Top := (Panel_Load.Height div 2) - 90;
@@ -132,7 +136,7 @@ begin
       Label_DeleteConfirm := TKMLabel.Create(Form_Delete.ItemsPanel, Form_Delete.ItemsPanel.Width div 2, 85, deleteConfirmStr, DELETE_CONFIRM_FONT, taCenter);
       Label_DeleteConfirm.Anchors := [anLeft,anBottom];
 
-      var btnWidth := (Form_Delete.ItemsPanel.Width - PAD*3) div 2;
+      btnWidth := (Form_Delete.ItemsPanel.Width - PAD*3) div 2;
 
       Button_DeleteYes := TKMButton.Create(Form_Delete.ItemsPanel, PAD, 155, btnWidth, 30, gResTexts[TX_MENU_LOAD_DELETE_DELETE], bsMenu);
       Button_DeleteYes.Anchors := [anLeft,anBottom];

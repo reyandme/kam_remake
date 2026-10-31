@@ -105,7 +105,7 @@ var
   FEAT_VIDEOS_UNDER_WINE          :Boolean = False; // Enable videos under Wine
   FEAT_WARFARE_ORDER_PROPORTIONAL :Boolean = False; //New proportional approach (looks like a bad idea)
 
-  {$IFDEF WDC} //Work only in Delphi
+  {$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30301)}
   CACHE_DELIVERY_BIDS: Boolean = True; //Cache delivery bids cost. Must be turned ON if we want to use pathfinding for bid calc, huge impact on performance in that case
   {$ENDIF}
 

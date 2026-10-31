@@ -61,7 +61,7 @@ object FormMain: TFormMain
         Width = 80
       end>
   end
-  object mainGroup: TGroupBox
+  object mainGroup: TCategoryPanelGroup
     Left = 328
     Height = 824
     Top = 8
@@ -258,7 +258,7 @@ object FormMain: TFormMain
       Top = 85
       Width = 89
       Caption = 'Stop the game'
-      OnClick = Button_StopClick
+      OnClick = btnGameStopClick
       TabOrder = 1
     end
     object GroupBox2: TGroupBox
@@ -578,7 +578,7 @@ object FormMain: TFormMain
         Top = 114
         Width = 79
         Caption = 'Update UI'
-        OnClick = Button_UpdateUI_Click
+        OnClick = ControlsUpdate
         TabOrder = 14
       end
     end
@@ -742,7 +742,7 @@ object FormMain: TFormMain
       end
       object ShowLogistics: TMenuItem
         Caption = 'Show Logistics'
-        OnClick = ShowLogisticsClick
+        OnClick = Debug_ShowLogisticsClick
       end
     end
     object Export1: TMenuItem
@@ -796,28 +796,28 @@ object FormMain: TFormMain
       end
       object Export_TreeAnim1: TMenuItem
         Caption = 'Tree Anim'
-        OnClick = Export_TreeAnim1Click
+        OnClick = mnExportTreeAnimClick
       end
       object Export_HouseAnim1: TMenuItem
         Caption = 'House Anim'
-        OnClick = Export_HouseAnim1Click
+        OnClick = mnExportHouseAnimClick
       end
       object Export_UnitAnim1: TMenuItem
         Caption = 'Unit Anim'
         object UnitAnim_All: TMenuItem
           Caption = 'All'
-          OnClick = UnitAnim_AllClick
+          OnClick = mnExportUnitAnimAllClick
         end
         object N3: TMenuItem
           Caption = '-'
         end
         object Soldiers: TMenuItem
           Caption = 'Soldiers'
-          OnClick = SoldiersClick
+          OnClick = mnExportUnitAnimSoldiersClick
         end
         object Civilians1: TMenuItem
           Caption = 'Civilians'
-          OnClick = Civilians1Click
+          OnClick = mnExportUnitAnimCiviliansClick
         end
       end
       object N2: TMenuItem
@@ -833,7 +833,7 @@ object FormMain: TFormMain
       end
       object HousesDat1: TMenuItem
         Caption = 'Houses Dat'
-        OnClick = HousesDat1Click
+        OnClick = mnExportHousesDatClick
       end
       object ScriptData1: TMenuItem
         Caption = 'Script Data'

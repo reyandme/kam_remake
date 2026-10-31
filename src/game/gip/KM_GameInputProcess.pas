@@ -646,11 +646,13 @@ end;
 
 
 function TKMGameInputProcess.GICHeaderToString(aCommandType: TKMGameInputCommandType; aHandIndex: TKMHandID): string;
+var
+  handName: UnicodeString;
 begin
   Result := Format('%-' + IntToStr(GIC_COMMAND_TYPE_MAX_LENGTH) + 's hand: %2d', [GetEnumName(TypeInfo(TKMGameInputCommandType), Ord(aCommandType)), aHandIndex]);
 
   // Include players name (will be empty in SP)
-  var handName := GetPlayerName(aHandIndex);
+  handName := GetPlayerName(aHandIndex);
   if handName <> '' then
     Result := Result + Format(' %-6s', [handName]);
 
@@ -1690,9 +1692,11 @@ end;
 
 
 function GetGICCommandTypeMaxLength: Byte;
+var
+  I: TKMGameInputCommandType;
 begin
   Result := 0;
-  for var I := Low(TKMGameInputCommandType) to High(TKMGameInputCommandType) do
+  for I := Low(TKMGameInputCommandType) to High(TKMGameInputCommandType) do
     Result := Max(Result, Length(GetEnumName(TypeInfo(TKMGameInputCommandType), Ord(I))));
 end;
 

@@ -2,6 +2,7 @@ unit KM_ResSprites;
 {$I KaM_Remake.inc}
 interface
 uses
+  {$IFDEF FPC} KM_FPCCompat, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Math, SysUtils, Generics.Collections,
   Graphics,
@@ -238,7 +239,7 @@ var
 
 implementation
 uses
-  Types,
+  Types, {$IFDEF FPC}StrUtils,{$ENDIF}
   {$IFDEF WDC}
   IOUtils,
   StrUtils,
@@ -1597,7 +1598,7 @@ begin
         if ((not aIsRXA and DBG_EXPORT_SPRITE_ATLASES) or (aIsRXA and DBG_EXPORT_SPRITE_ATLASES_RXA))
         and (fRT in EXPORT_SPRITE_ATLASES_LIST) then
           SaveToPng(Container.Width, Container.Height, Data,
-            ExeDir + 'Export\GenTextures\' + RX_INFO[fRT].FileName + IfThen(aIsRXA, '_rxa_', '_') + SPRITE_TYPE_EXPORT_NAME[SAT] + IntToStr(texID) + '.png');
+            ExeDir + 'Export\GenTextures\' + RX_INFO[fRT].FileName + StrUtils.IfThen(aIsRXA, '_rxa_', '_') + SPRITE_TYPE_EXPORT_NAME[SAT] + IntToStr(texID) + '.png');
       end;
     end;
   {$ENDIF}

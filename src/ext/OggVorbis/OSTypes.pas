@@ -42,10 +42,10 @@ interface
   for header conversion }
 
 type
-  size_t         = cardinal;
+  size_t         = {$IFDEF FPC}PtrUInt{$ELSE}cardinal{$ENDIF};
   int            = integer;
-  long           = integer;
-  unsigned_long  = cardinal;
+  long           = {$IF defined(FPC) and defined(UNIX)}PtrInt{$ELSE}integer{$ENDIF};
+  unsigned_long  = {$IF defined(FPC) and defined(UNIX)}PtrUInt{$ELSE}cardinal{$ENDIF};
   float          = single;
   signed_char    = shortint;
 

@@ -10,6 +10,14 @@ uses
   madListModules,
   {$ENDIF}
   {$IFDEF UNIX} cthreads, {$ENDIF} //Required for thread support on Unix/Linux
+  {$IFDEF FPC}
+  KM_FPCCompat in 'src\common\KM_FPCCompat.pas',
+  KM_LCLCompat in 'src\forms\KM_LCLCompat.pas',
+  KM_StreamWriter in 'src\utils\io\KM_StreamWriter.pas',
+  {$ENDIF}
+  {$IFDEF DARWIN}
+  KM_MacPaths in 'macos\KM_MacPaths.pas',
+  {$ENDIF}
   Forms,
   Dialogs,
   {$IFDEF WDC} 

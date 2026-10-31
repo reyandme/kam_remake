@@ -1439,16 +1439,22 @@ end;
 
 
 procedure TKMMapEdInterface.MoveObjectToCursorCell(aObjectToMove: TObject);
+var
+  H: TKMHouse;
+  houseOldPos: TKMPoint;
+  houseNewPos: TKMPoint;
+  G: TKMUnitGroup;
+  U: TKMUnit;
 begin
   if aObjectToMove = nil then Exit;
 
   // House
   if aObjectToMove is TKMHouse then
   begin
-    var H := TKMHouse(aObjectToMove);
+    H := TKMHouse(aObjectToMove);
 
-    var houseOldPos := H.Position;
-    var houseNewPos := KMPointAdd(gCursor.Cell, fDragHouseOffset);
+    houseOldPos := H.Position;
+    houseNewPos := KMPointAdd(gCursor.Cell, fDragHouseOffset);
 
     if not fDragingObject then
       SetHousePosition(H, houseNewPos) //handles Right click, when house is selected
@@ -1459,21 +1465,21 @@ begin
   // Group (as expected, right-clicking repositions the group)
   if aObjectToMove is TKMUnitGroup then
   begin
-    var G := TKMUnitGroup(aObjectToMove);
+    G := TKMUnitGroup(aObjectToMove);
     if G.SetGroupPosition(gCursor.Cell) then
       gGame.MapEditor.History.MakeCheckpoint(caUnits, Format(gResTexts[TX_MAPED_HISTORY_CHPOINT_MOVE_SMTH], [gRes.Units[G.UnitType].GUIName, G.Position.ToString]));
   end else
   // Warrior (a bit unexpectedly, dragging group leader around drags warriror)
   if aObjectToMove is TKMUnitWarrior then
   begin
-    var G := gHands.GetGroupByMember(TKMUnitWarrior(aObjectToMove));
+    G := gHands.GetGroupByMember(TKMUnitWarrior(aObjectToMove));
     if G.SetGroupPosition(gCursor.Cell) then
       gGame.MapEditor.History.MakeCheckpoint(caUnits, Format(gResTexts[TX_MAPED_HISTORY_CHPOINT_MOVE_SMTH], [gRes.Units[G.UnitType].GUIName, G.Position.ToString]));
   end else
   // Unit
   if aObjectToMove is TKMUnit then
   begin
-    var U := TKMUnit(aObjectToMove);
+    U := TKMUnit(aObjectToMove);
     if U.SetUnitPosition(gCursor.Cell) then
       gGame.MapEditor.History.MakeCheckpoint(caUnits, Format(gResTexts[TX_MAPED_HISTORY_CHPOINT_MOVE_SMTH], [gRes.Units[U.UnitType].GUIName, U.Position.ToString]));
   end;

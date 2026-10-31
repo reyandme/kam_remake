@@ -3,6 +3,7 @@ unit KM_Scripting;
 {$WARN IMPLICIT_STRING_CAST OFF}
 interface
 uses
+  {$IFDEF FPC} KM_FPCCompat, {$ENDIF}
   Classes, SysUtils,
   uPSCompiler, uPSRuntime, uPSUtils, uPSDisassembly, uPSDebugger,
   KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_FileIO,

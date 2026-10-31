@@ -394,7 +394,7 @@ begin
     readStream.Read(readSize);
     fileStream := TKMemoryStreamBinary.Create;
     // Don't try to CopyFrom, if file is empty!
-    // because, according to http://docwiki.embarcadero.com/Libraries/Sydney/en/System.Classes.TStream.CopyFrom
+    // because, according to http://docwiki.embarcadero.com/Libraries/Sydney/en/{$IFDEF WDC}System.{$ENDIF}Classes.TStream.CopyFrom
     // > If Count is 0, CopyFrom sets Source position to 0 before reading and then copies the entire contents of Source into the stream
     if readSize > 0 then
       fileStream.CopyFrom(readStream, readSize);

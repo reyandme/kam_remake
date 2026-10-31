@@ -1,7 +1,8 @@
-﻿unit KM_ResExporter;
+unit KM_ResExporter;
 {$I KaM_Remake.inc}
 interface
 uses
+  {$IFDEF FPC} KM_FPCCompat, {$ENDIF}
   SysUtils, Classes,
   Generics.Collections,
   KM_ResSprites, KM_ResTypes,
@@ -93,16 +94,21 @@ end;
 
 
 procedure TKMResExporter.PrepareAtlasMap(aSpritePack: TKMSpritePack);
+var
+  SAT: TKMSpriteAtlasType;
+  I: Integer;
+  atlas: TKMSpriteAtlasData;
+  K: Integer;
 begin
   fAtlasMap[saBase].Clear;
   fAtlasMap[saMask].Clear;
 
   // Map spriteID to loaded from RXA Atlases
-  for var SAT := Low(aSpritePack.Atlases) to High(aSpritePack.Atlases) do
-    for var I := Low(aSpritePack.Atlases[SAT]) to High(aSpritePack.Atlases[SAT]) do
+  for SAT := Low(aSpritePack.Atlases) to High(aSpritePack.Atlases) do
+    for I := Low(aSpritePack.Atlases[SAT]) to High(aSpritePack.Atlases[SAT]) do
     begin
-      var atlas := aSpritePack.Atlases[SAT, I];
-      for var K := 0 to High(atlas.Container.Sprites) do
+      atlas := aSpritePack.Atlases[SAT, I];
+      for K := 0 to High(atlas.Container.Sprites) do
         fAtlasMap[SAT].Add(atlas.Container.Sprites[K].SpriteID, TKMAtlasAddress.New(I, K));
     end;
 end;
@@ -721,12 +727,15 @@ end;
 procedure TKMResExporter.ExportImageAndDataFromAtlas(aSpritePack: TKMSpritePack; aSpriteID: Integer; const aPath: string);
 var
   textData: string;
+  strFilenameBase: UnicodeString;
+  strFilenameMask: UnicodeString;
+  strFilenameText: UnicodeString;
 begin
   if aSpritePack.RXData.Flag[aSpriteID] <> 1 then Exit;
 
-  var strFilenameBase := aPath + Format('%d_%.4d.png', [Ord(aSpritePack.RT)+1, aSpriteID]);
-  var strFilenameMask := aPath + Format('%d_%.4da.png', [Ord(aSpritePack.RT)+1, aSpriteID]);
-  var strFilenameText := aPath + Format('%d_%.4d.txt', [Ord(aSpritePack.RT)+1, aSpriteID]);
+  strFilenameBase := aPath + Format('%d_%.4d.png', [Ord(aSpritePack.RT)+1, aSpriteID]);
+  strFilenameMask := aPath + Format('%d_%.4da.png', [Ord(aSpritePack.RT)+1, aSpriteID]);
+  strFilenameText := aPath + Format('%d_%.4d.txt', [Ord(aSpritePack.RT)+1, aSpriteID]);
 
   ExportImageFromAtlas(aSpritePack, aSpriteID, strFilenameBase, strFilenameMask);
 
@@ -758,6 +767,10 @@ begin
       I, J, K, spriteID: Integer;
       sprites: TKMResSprites;
       spritePack: TKMSpritePack;
+    var
+      animExists: Boolean;
+    var
+      objAnim: PKMAnimLoop;
     begin
       sprites := TKMResSprites.Create(nil, nil, True);
       try
@@ -773,8 +786,8 @@ begin
 
         for I := 0 to gRes.MapElements.Count - 1 do
         begin
-          var objAnim: PKMAnimLoop := @gMapElements[I].Anim;
-          var animExists := (objAnim.Count > 0) and (objAnim.Step[1] > 0);
+          objAnim := @gMapElements[I].Anim;
+          animExists := (objAnim.Count > 0) and (objAnim.Step[1] > 0);
 
           if animExists then
             for J := 0 to objAnim.Count - 1 do
@@ -820,6 +833,10 @@ begin
       I, K, spriteID: Integer;
       sprites: TKMResSprites;
       spritePack: TKMSpritePack;
+    var
+      animExists: Boolean;
+    var
+      objAnim: PKMAnimLoop;
     begin
       sprites := TKMResSprites.Create(nil, nil, True);
       sprites.LoadSprites(rxTrees, False);
@@ -833,8 +850,8 @@ begin
       try
         for I := 0 to gRes.MapElements.Count - 1 do
         begin
-          var objAnim: PKMAnimLoop := @gMapElements[I].Anim;
-          var animExists := (objAnim.Count > 0) and (objAnim.Step[1] > 0);
+          objAnim := @gMapElements[I].Anim;
+          animExists := (objAnim.Count > 0) and (objAnim.Step[1] > 0);
 
           if animExists then
             for K := 1 to objAnim.Count do

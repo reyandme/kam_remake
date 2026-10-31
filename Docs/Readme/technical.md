@@ -4,6 +4,8 @@ The game uses a custom, open source engine, written from scratch - but still rel
 
 The KaM Remake executable is freeware and is built by enthusiasts. Applications used: Delphi XE2 - Delphi Yukon 12, FastMM4, Lazarus, OpenGL, OpenAL, Overbyte ICS, zLib, Ogg Vorbis, PNGImage, MadExcept, libZPlay.
 
+For the experimental native Apple Silicon build, see [the macOS build instructions](../../macos/README.md).
+
 ### 🌳 Contributing
 
 Get started at <https://trello.com/c/anU9APld/1265-faq-for-new-developers-testers> or <https://github.com/reyandme/kam_remake/wiki/ProjectCompilation>.  

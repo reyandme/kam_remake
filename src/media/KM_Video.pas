@@ -97,7 +97,7 @@ var
 
 implementation
 uses
-  System.Math,
+  {$IFDEF WDC}System.{$ENDIF}Math,
   dglOpenGL,
   KM_Render, KM_RenderTypes, KM_RenderUI, KM_ResLocales,
   KM_GameApp, KM_GameSettings,

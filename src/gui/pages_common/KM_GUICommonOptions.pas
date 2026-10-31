@@ -850,6 +850,7 @@ procedure TKMGUICommonOptions.RefreshResolutions;
 var
   I: Integer;
   resIndex: TKMScreenResIndex;
+  selectedResolutionIndex: Integer;
 begin
   DropBox_Resolution.Clear;
   DropBox_RefreshRate.Clear;
@@ -859,7 +860,7 @@ begin
   if fResolutions.Count > 0 then
   begin
     // Rarely, but resIndex.ResolutionId could be -1
-    var selectedResolutionIndex: Integer := 0;
+    selectedResolutionIndex := 0;
 
     for I := 0 to fResolutions.Count - 1 do
     begin

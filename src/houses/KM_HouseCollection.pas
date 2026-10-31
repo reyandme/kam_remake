@@ -359,7 +359,7 @@ var
 begin
   SaveStream.PlaceMarker('Houses');
 
-  SaveStream.Write(Count);
+  SaveStream.Write(Integer(Count));
   for I := 0 to Count - 1 do
   begin
     //We save house type to know which house class to load

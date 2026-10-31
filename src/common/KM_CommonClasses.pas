@@ -1479,7 +1479,8 @@ begin
   // We use only Latin for Markers, hence ANSI is fine
   // But since Android does not support "AnsiString" we take "string" as input
   ReadANSI(s);
-  Assert(s = aTitle);
+  if s <> aTitle then
+    raise EReadError.CreateFmt('Save marker mismatch at %d: expected %s, got %s', [Position, aTitle, s]);
 end;
 
 

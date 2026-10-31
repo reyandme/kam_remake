@@ -1850,6 +1850,8 @@ end;
 // Try to set the walk action for the unit
 // Used for warriors when they try to update route when attacking a house and their destination Loc is locked, so they try to avoid it
 function TKMUnit.TrySetActionWalk(const aLocB: TKMPoint; aActionType: TKMUnitActionType; aDistance: Single; aTargetUnit: TKMUnit; aTargetHouse: TKMHouse): Boolean;
+var
+  newAction: TKMUnitActionWalkTo;
 begin
   Result := False;
 
@@ -1860,7 +1862,7 @@ begin
   UpdateLastTimeTrySetActionWalk;
 
   // aSilent by default, as we consider fail could happen
-  var newAction := TKMUnitActionWalkTo.Create(Self, aLocB, aActionType, aDistance, False, aTargetUnit, aTargetHouse, tpNone, [], True, False, True);
+  newAction := TKMUnitActionWalkTo.Create(Self, aLocB, aActionType, aDistance, False, aTargetUnit, aTargetHouse, tpNone, [], True, False, True);
 
   //Update action only if route was built, otherwise just keep using previous action
   if newAction.RouteBuilt then

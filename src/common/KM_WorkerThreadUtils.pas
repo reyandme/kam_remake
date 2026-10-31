@@ -23,7 +23,7 @@ begin
   localStream := aStream;
   aStream := nil; //So caller doesn't use it by mistake
 
-  {$IFDEF WDC}
+  {$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30301)}
     aWorkerThread.QueueWork(
       procedure
       begin
@@ -51,7 +51,7 @@ begin
   localStream := aStream;
   aStream := nil; //So caller doesn't use it by mistake
 
-  {$IFDEF WDC}
+  {$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30301)}
     aWorkerThread.QueueWork(
       procedure
       begin
@@ -83,7 +83,7 @@ begin
   aSubStream1 := nil; //So caller doesn't use it by mistake
   aSubStream2 := nil; //So caller doesn't use it by mistake
 
-  {$IFDEF WDC}
+  {$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30301)}
     aWorkerThread.QueueWork(
       procedure
       begin

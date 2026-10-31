@@ -91,6 +91,10 @@ type
     function GetChildsCount: Integer;
     function GetChild(const aIndex: Integer): TKMXmlNode;
   public
+    {$IFDEF FPC}
+    procedure Clear;
+    procedure SetAttribute(const AttrName: string; const AttrValue: TKMSimpleVariant); reintroduce;
+    {$ENDIF}
     function AddChild(const Name: String): TKMXmlNode; {$IFDEF WDC}reintroduce;{$ENDIF}
     function FindNode(const Name: String): TKMXmlNode; {$IFDEF FPC}reintroduce;{$ENDIF}
     function AddOrFindChild(const aChildNodeName: string): TKMXmlNode;
@@ -106,6 +110,20 @@ implementation
 uses
   Variants, DateUtils, StrUtils;
 
+
+{$IFDEF FPC}
+procedure TKMXmlNode.SetAttribute(const AttrName: string; const AttrValue: TKMSimpleVariant);
+begin
+  SetAttrib(AttrName, AttrValue);
+end;
+
+procedure TKMXmlNode.Clear;
+begin
+  while FirstChild <> nil do RemoveChild(FirstChild).Free;
+  while TDOMElement(Self).Attributes.Length > 0 do
+    RemoveAttribute(TDOMElement(Self).Attributes.Item[0].NodeName);
+end;
+{$ENDIF}
 
 { TKMXMLDocument }
 class constructor TKMXmlDocument.Create;
@@ -190,7 +208,10 @@ begin
       fRoot := TKMXmlNode(fDocument.ChildNodes.Add(aRoot));
   {$ENDIF}
   {$IFDEF FPC}
-    fRoot := TKMXmlNode(fDocument.DocumentElement.FindNode(aRoot));
+    if (fDocument.DocumentElement <> nil) and (fDocument.DocumentElement.NodeName = UTF8Decode(aRoot)) then
+      fRoot := TKMXmlNode(fDocument.DocumentElement)
+    else
+      fRoot := nil;
 
     // Create root if it's missing, so that XML could be processed and default parameters created
     if fRoot = nil then
@@ -216,23 +237,34 @@ end;
 
 
 function TKMXmlDocument.GetText: String;
+{$IFDEF FPC}var S: TStringStream;{$ENDIF}
 begin
   {$IFDEF WDC}
   Result := fDocument.Xml;
   {$ENDIF}
   {$IFDEF FPC}
-  // Not implemented
+  S := TStringStream.Create('');
+  try
+    WriteXMLFile(fDocument, S);
+    Result := S.DataString;
+  finally S.Free; end;
   {$ENDIF}
 end;
 
 
 procedure TKMXmlDocument.SetText(const aText: string);
+{$IFDEF FPC}var S: TStringStream;{$ENDIF}
 begin
   {$IFDEF WDC}
   fDocument.Xml := aText;
   {$ENDIF}
   {$IFDEF FPC}
-  // Not implemented
+  S := TStringStream.Create(aText);
+  try
+    FreeAndNil(fDocument);
+    ReadXMLFile(fDocument, S);
+    fRoot := TKMXmlNode(fDocument.DocumentElement);
+  finally S.Free; end;
   {$ENDIF}
 end;
 
@@ -243,6 +275,10 @@ begin
   {$IFDEF WDC}
   Result := TKMXmlNode(inherited AddChild(Name));
   {$ENDIF}
+  {$IFDEF FPC}
+  Result := TKMXmlNode(OwnerDocument.CreateElement(UTF8Decode(Name)));
+  AppendChild(Result);
+  {$ENDIF}
 end;
 
 
@@ -250,6 +286,9 @@ function TKMXmlNode.FindNode(const Name: String): TKMXmlNode;
 begin
   {$IFDEF WDC}
   Result := TKMXmlNode(ChildNodes.Find(Name));
+  {$ENDIF}
+  {$IFDEF FPC}
+  Result := TKMXmlNode(inherited FindNode(UTF8Decode(Name)));
   {$ENDIF}
 end;
 
@@ -269,6 +308,9 @@ begin
   {$IFDEF WDC}
   Result := inherited HasAttribute(AttrName);
   {$ENDIF}
+  {$IFDEF FPC}
+  Result := inherited HasAttribute(UTF8Decode(AttrName));
+  {$ENDIF}
 end;
 
 
@@ -276,6 +318,9 @@ function TKMXmlNode.HasChild(const Name: String): Boolean;
 begin
   {$IFDEF WDC}
   Result := inherited HasChild(Name);
+  {$ENDIF}
+  {$IFDEF FPC}
+  Result := inherited FindNode(UTF8Decode(Name)) <> nil;
   {$ENDIF}
 end;
 
@@ -290,6 +335,9 @@ begin
   sv := inherited GetAttr(AttrName);
   Result.fValue := sv.AsString;
   {$ENDIF}
+  {$IFDEF FPC}
+  Result.fValue := UTF8Encode(GetAttribute(UTF8Decode(AttrName)));
+  {$ENDIF}
 end;
 
 
@@ -297,6 +345,9 @@ procedure TKMXmlNode.SetAttrib(const AttrName: String; const AttrValue: TKMSimpl
 begin
   {$IFDEF WDC}
   inherited SetAttr(AttrName, AttrValue.ToSimpleVariant);
+  {$ENDIF}
+  {$IFDEF FPC}
+  inherited SetAttribute(UTF8Decode(AttrName), UTF8Decode(AttrValue.fValue));
   {$ENDIF}
 end;
 
@@ -306,6 +357,9 @@ begin
   {$IFDEF WDC}
   Result := ChildNodes.Count;
   {$ENDIF}
+  {$IFDEF FPC}
+  Result := ChildNodes.Count;
+  {$ENDIF}
 end;
 
 
@@ -313,6 +367,9 @@ function TKMXmlNode.GetChild(const aIndex: Integer): TKMXmlNode;
 begin
   {$IFDEF WDC}
   Result := TKMXmlNode(ChildNodes[aIndex]);
+  {$ENDIF}
+  {$IFDEF FPC}
+  Result := TKMXmlNode(ChildNodes.Item[aIndex]);
   {$ENDIF}
 end;
 

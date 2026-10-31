@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWINDOWS} Windows, {$ENDIF}
   KM_CommonClasses, KM_CommonTypes, KM_Points
   {$IFDEF Unix}
-  , Mouse
+  , {$IFDEF FPC}Controls{$ELSE}Mouse{$ENDIF}
   {$ENDIF}
   {$IFDEF FPC}
   {$IFDEF Unix}
@@ -406,8 +406,12 @@ begin
     if not Windows.GetCursorPos(mousePos) then Exit;
   {$ENDIF}
   {$IFDEF Unix}
+    {$IFDEF FPC}
+    mousePos := Controls.Mouse.CursorPos;
+    {$ELSE}
     MousePos.X := GetMouseX;
     MousePos.Y := GetMouseY;
+    {$ENDIF}
   {$ENDIF}
   if not gMain.GetScreenBounds(screenBounds) then Exit;
 

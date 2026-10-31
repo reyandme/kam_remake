@@ -1989,6 +1989,7 @@ type
   end;
 
 var
+  posRound: TKMPoint;
   I,K: Integer; //Counters
   boundsRect: TKMRect;
   dX,dY: Integer;
@@ -2061,7 +2062,7 @@ begin
     if (aMaxRad = 1) and KMStepIsDiag(aLoc, posNext) then
       requiredMaxRad := 1.42; //Use diagonal radius sqrt(2) instead
 
-    var posRound := U.Position;
+    posRound := U.Position;
     if (not aTestDiagWalkable
         or CheckVertex(posRound, posNext))
       and InRange(KMLength(KMPointF(aLoc), U.PositionF), aMinRad, requiredMaxRad) //Unit's exact position must be close enough
@@ -4171,14 +4172,19 @@ end;
 function TKMTerrain.GetClosestTile(const aTargetLoc, aOriginLoc: TKMPoint; aPass: TKMTerrainPassability; aAcceptTargetLoc: Boolean; aNeedToFight: Boolean = False): TKMPoint;
 const
   TEST_DEPTH = 255;
+var
+  wcType: TKMWalkConnect;
+  walkConnectID: Byte;
+  I: Integer;
+  newTile: TKMPoint;
 begin
-  var wcType := wcWalk; // wcWalk is default
+  wcType := wcWalk; // wcWalk is default
   case aPass of
     tpWalkRoad: wcType := wcRoad;
     tpFish:     wcType := wcFish;
   end;
 
-  var walkConnectID := Land^[aOriginLoc.Y,aOriginLoc.X].WalkConnect[wcType]; //Store WalkConnect ID of origin
+  walkConnectID := Land^[aOriginLoc.Y,aOriginLoc.X].WalkConnect[wcType]; //Store WalkConnect ID of origin
 
   // If target is accessable then use it
   if aAcceptTargetLoc and CheckPassability(aTargetLoc, aPass) and (walkConnectID = Land^[aTargetLoc.Y,aTargetLoc.X].WalkConnect[wcType]) then
@@ -4186,9 +4192,9 @@ begin
 
   // If target is not accessable then choose a tile near to the target that is accessable
   // As we Cannot reach our destination we are "low priority" so do not choose a tile with another unit on it (don't bump important units)
-  for var I := 0 to TEST_DEPTH do
+  for I := 0 to TEST_DEPTH do
   begin
-    var newTile := GetPositionFromIndex(aTargetLoc, I);
+    newTile := GetPositionFromIndex(aTargetLoc, I);
 
     if not TileInMapCoords(newTile) then Continue;
 
@@ -4480,12 +4486,14 @@ end;
 
 // Flatten a list of points on mission init
 procedure TKMTerrain.FlattenTerrain(aLocList: TKMPointList);
+var
+  I: Integer;
 begin
   // Flatten terrain will extend fBoundsWC as necessary, which cannot be predicted due to EnsureWalkable effecting a larger area
   if not aLocList.GetBounds(fBoundsWC) then
     Exit;
 
-  for var I := 0 to aLocList.Count - 1 do
+  for I := 0 to aLocList.Count - 1 do
     FlattenTerrain(aLocList[I], False); // Rebuild the Walk Connect at the end, rather than every time
 
   // wcFish not affected by height

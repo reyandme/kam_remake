@@ -720,40 +720,57 @@ end;
 
 
 procedure TKMMemo.Paint;
+var
+  paintWidth: Integer;
+  I: Integer;
+  rowText: UnicodeString;
+  rowTextPlain: UnicodeString;
+  rowStartPos: Integer;
+  rowEndPos: Integer;
+  selStartPosInRow: Integer;
+  selEndPosInRow: Integer;
+  beforeSelectionText: UnicodeString;
+  selectionText: UnicodeString;
+  beforeSelectionW: Integer;
+  selectionW: Integer;
+  selPaintHeight: Integer;
+  selPaintTop: Integer;
+  offX: Integer;
+  offY: Integer;
 begin
   inherited;
 
   // Leave space for scrollbar if it's visible
-  var paintWidth := Width - fScrollBar.Width * Ord(fScrollBar.Visible);
+  paintWidth := Width - fScrollBar.Width * Ord(fScrollBar.Visible);
 
   TKMRenderUI.WriteBevel(AbsLeft, AbsTop, paintWidth, Height, 1, 0.5);
 
-  for var I := 0 to Min(fItems.Count, GetVisibleRows) - 1 do
+  for I := 0 to Min(fItems.Count, GetVisibleRows) - 1 do
   begin
-    var rowText := fItems[TopIndex + I];
+    rowText := fItems[TopIndex + I];
 
-    var rowTextPlain := GetNoColorMarkupText(rowText);
-    var rowStartPos := PointToLinearPos(0, TopIndex + I);
-    var rowEndPos := rowStartPos + Length(rowTextPlain);
+    rowTextPlain := GetNoColorMarkupText(rowText);
+    rowStartPos := PointToLinearPos(0, TopIndex + I);
+    rowEndPos := rowStartPos + Length(rowTextPlain);
 
     if HasSelection then
     begin
-      var selStartPosInRow := fSelectionStart - rowStartPos;
-      var selEndPosInRow := fSelectionEnd - rowStartPos;
+      selStartPosInRow := fSelectionStart - rowStartPos;
+      selEndPosInRow := fSelectionEnd - rowStartPos;
 
       selStartPosInRow := EnsureRange(selStartPosInRow, 0, rowEndPos);
       selEndPosInRow := EnsureRange(selEndPosInRow, selStartPosInRow, rowEndPos);
 
       if selStartPosInRow <> selEndPosInRow then
       begin
-        var beforeSelectionText := Copy(rowTextPlain, 1, selStartPosInRow);
-        var selectionText := Copy(rowTextPlain, selStartPosInRow + 1, selEndPosInRow - selStartPosInRow);
+        beforeSelectionText := Copy(rowTextPlain, 1, selStartPosInRow);
+        selectionText := Copy(rowTextPlain, selStartPosInRow + 1, selEndPosInRow - selStartPosInRow);
 
-        var beforeSelectionW := gRes.Fonts[fFont].GetTextSize(beforeSelectionText).X;
-        var selectionW := gRes.Fonts[fFont].GetTextSize(selectionText).X;
+        beforeSelectionW := gRes.Fonts[fFont].GetTextSize(beforeSelectionText).X;
+        selectionW := gRes.Fonts[fFont].GetTextSize(selectionText).X;
 
-        var selPaintHeight := fItemHeight;
-        var selPaintTop := AbsTop + I * fItemHeight;
+        selPaintHeight := fItemHeight;
+        selPaintTop := AbsTop + I * fItemHeight;
         if I = 0 then
         begin
           Dec(selPaintHeight, 3);
@@ -769,8 +786,8 @@ begin
     and ((TimeGet div 500) mod 2 = 0)
     and InRange(CursorPos, rowStartPos, rowEndPos) then
     begin
-      var offX := AbsLeft + 2 + gRes.Fonts[fFont].GetTextSize(Copy(rowTextPlain, 1, CursorPos - rowStartPos)).X;
-      var offY := AbsTop + 2 + I * fItemHeight;
+      offX := AbsLeft + 2 + gRes.Fonts[fFont].GetTextSize(Copy(rowTextPlain, 1, CursorPos - rowStartPos)).X;
+      offY := AbsTop + 2 + I * fItemHeight;
       TKMRenderUI.WriteShape(offX, offY, 3, fItemHeight - 4, $FFFFFFFF, $FF000000);
     end;
 

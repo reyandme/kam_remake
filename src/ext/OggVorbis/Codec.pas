@@ -37,6 +37,7 @@ unit Codec;
 {************************************************************************}
 
 interface
+{$IFDEF DARWIN}{$LINKLIB vorbis}{$ENDIF}
 
 uses OSTypes, Ogg;
 
@@ -46,7 +47,7 @@ const
 {$ENDIF WIN32}
 
 {$IFDEF UNIX}
-  VorbisLib = 'libvorbis.so';
+  VorbisLib = {$IFDEF DARWIN}'libvorbis.dylib'{$ELSE}'libvorbis.so'{$ENDIF};
 {$ENDIF UNIX}
 
 {$IFDEF FPC}

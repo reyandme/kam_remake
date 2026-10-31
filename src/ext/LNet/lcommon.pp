@@ -461,7 +461,7 @@ end;
 
 function TZSeconds: Integer; inline;
 begin
-  Result := unixutil.TZSeconds;
+  Result := GetLocalTimeOffset * 60;
 end;
 
 {$ENDIF}

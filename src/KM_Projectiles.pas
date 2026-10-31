@@ -196,6 +196,7 @@ var
   speed, arc: Single;
   distanceToHit, distanceInRange: Single;
   aim, target: TKMPointF;
+  arcRandom: Single;
 begin
   speed := PROJECTILE_SPEED[aProjType] + KaMRandomS2(0.05{$IFDEF DBG_RNG_SPY}, 'TKMProjectiles.AimTarget 5'{$ENDIF});
 
@@ -207,7 +208,7 @@ begin
   distanceToHit := GetLength(aStart.X - target.X, aStart.Y - target.Y);
   distanceInRange := EnsureRange(distanceToHit, aMinRange, aMaxRange);
 
-  var arcRandom := KaMRandomS2(PROJECTILE_ARC[aProjType, 2]{$IFDEF DBG_RNG_SPY}, 'TKMProjectiles.AimTarget 8'{$ENDIF});
+  arcRandom := KaMRandomS2(PROJECTILE_ARC[aProjType, 2]{$IFDEF DBG_RNG_SPY}, 'TKMProjectiles.AimTarget 8'{$ENDIF});
   arc := Math.Max((distanceInRange - aMinRange) / (aMaxRange - aMinRange) * PROJECTILE_ARC[aProjType, 1] + arcRandom, 0);
 
   Result := AddItem(aStart, aim, target, speed, arc, aMaxRange, aProjType, aOwner);

@@ -539,6 +539,7 @@ var
   P: TKMPoint;
   fieldsChanged, isCorn, isWine: Boolean;
   removeTxID: Integer;
+  U: TKMUnit;
 begin
   fieldsChanged := False;
   P := gCursor.Cell;
@@ -548,7 +549,7 @@ begin
   try
     case entity.EntityType of
       etUnit: begin
-                var U := TKMUnit(entity);
+                U := TKMUnit(entity);
 
                 // Delete unit by using precise HitTest result from gCursor (rather than Position)
                 if gHands.RemAnyUnit(U.Position) then
@@ -830,6 +831,7 @@ var
   GT: TKMGroupType;
   dir: TKMDirection;
   U: TKMUnit;
+  unitType: TKMUnitType;
 begin
   P := gCursor.Cell;
   if gCursor.Tag1 = UNIT_REMOVE_TAG then
@@ -846,7 +848,7 @@ begin
   else
   if gTerrain.CanPlaceUnit(P, TKMUnitType(gCursor.Tag1)) then
   begin
-    var unitType := TKMUnitType(gCursor.Tag1);
+    unitType := TKMUnitType(gCursor.Tag1);
     formation.NumUnits := 1;
     formation.UnitsPerRow := 1;
 
@@ -917,6 +919,7 @@ var
   dir: TKMDirection;
   G: TKMUnitGroup;
   formation : TKMFormation;
+  unitType: TKMUnitType;
 begin
   dir := gCursor.MapEdDirection;
   groupType := gCursor.MapEdDefPosGroupType;
@@ -938,7 +941,7 @@ begin
     if (G = nil)
     and (gTerrain.UnitsHitTest(aLoc.X, aLoc.Y) = nil) then
     begin
-      var unitType := UNIT_TYPES_BY_GT_LVL[groupType, gCursor.MapEdDefPosGroupLevel];
+      unitType := UNIT_TYPES_BY_GT_LVL[groupType, gCursor.MapEdDefPosGroupLevel];
       gMySpectator.Hand.AddUnitGroup(unitType, aLoc, dir, formation.UnitsPerRow, formation.NumUnits);
       fHistory.MakeCheckpoint(caUnits, Format(gResTexts[TX_MAPED_HISTORY_CHPOINT_ADD_SMTH], [gRes.Units[unitType].GUIName, aLoc.ToString]));
     end;

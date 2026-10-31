@@ -2,7 +2,7 @@ unit KM_RenderControl;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Types,
+  Classes, Types, SysUtils,
   ExtCtrls, Forms,
   KromOGLUtils
   {$IFDEF MSWindows} , Windows, dglOpenGL  {$ENDIF}
@@ -120,8 +120,8 @@ begin
     BuildFont(h_DC, 14, FW_SEMIBOLD);
   {$ENDIF}
   {$IFDEF Unix}
-    MakeCurrent;
-    InitOpenGL;
+    if not MakeCurrent then raise Exception.Create('Could not activate the OpenGL context');
+    if not InitOpenGL then raise Exception.Create('Could not load OpenGL');
     ReadExtensions;
     ReadImplementationProperties;
   {$ENDIF}

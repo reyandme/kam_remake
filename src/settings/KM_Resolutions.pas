@@ -46,7 +46,7 @@ type
 
 implementation
 uses
-  Math,
+  Math, {$IFDEF DARWIN}Forms,{$ENDIF}
   {$IFDEF MSWindows} Windows, {$ENDIF}
   KM_Defaults;
 
@@ -79,12 +79,39 @@ end;
 
 
 procedure TKMResolutions.ReadAvailable;
+{$IFDEF DARWIN}
+const
+  WINDOW_WIDTHS: array[0..5] of Word = (1024, 1280, 1440, 1600, 1920, 2560);
+  WINDOW_HEIGHTS: array[0..5] of Word = (768, 720, 900, 900, 1080, 1440);
+var
+  I: Integer;
+
+  procedure AddMode(aWidth, aHeight: Integer);
+  begin
+    SetLength(fItems, fCount + 1);
+    fItems[fCount].Width := aWidth;
+    fItems[fCount].Height := aHeight;
+    fItems[fCount].RefreshRateCount := 1;
+    SetLength(fItems[fCount].RefreshRate, 1);
+    fItems[fCount].RefreshRate[0] := 60;
+    Inc(fCount);
+  end;
+{$ENDIF}
 {$IFDEF MSWindows}
 var
   I, M, N: Integer;
   devMode: TDevMode;
 {$ENDIF}
 begin
+  {$IFDEF DARWIN}
+  // Fullscreen uses the desktop mode; these are window sizes in Cocoa points.
+  fCount := 0;
+  for I := 0 to High(WINDOW_WIDTHS) do
+    if (WINDOW_WIDTHS[I] <= Screen.Width) and (WINDOW_HEIGHTS[I] <= Screen.Height) and
+      ((WINDOW_WIDTHS[I] <> Screen.Width) or (WINDOW_HEIGHTS[I] <> Screen.Height)) then
+      AddMode(WINDOW_WIDTHS[I], WINDOW_HEIGHTS[I]);
+  AddMode(Screen.Width, Screen.Height);
+  {$ENDIF}
   {$IFDEF MSWindows}
   I := 0;
   fCount := 0;

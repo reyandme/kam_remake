@@ -98,10 +98,12 @@ end;
 
 
 function TKMTaskDismiss.FindSchool: TKMHouse;
+var
+  newSchool: TKMHouse;
 begin
   fSchool := nil;
 
-  var newSchool := gHands[fUnit.Owner].FindHouse(htSchool, fUnit.Position);
+  newSchool := gHands[fUnit.Owner].FindHouse(htSchool, fUnit.Position);
 
   if (newSchool <> nil) and fUnit.CanWalkTo(fUnit.Position, newSchool.PointBelowEntrance, tpWalk, 0) then
     fSchool := newSchool.GetPointer;

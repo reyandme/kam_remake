@@ -191,8 +191,13 @@ begin
     begin
       gLog.AddTime('OpenAL init started');
 
-      fIsSoundInitialized := InitOpenAL;
-      Set8087CW($133F); //Above OpenAL call messes up FPU settings
+      fIsSoundInitialized := InitOpenAL{$IFDEF DARWIN}(ExtractFilePath(ParamStr(0)) + 'libopenal.dylib'){$ENDIF};
+      {$IFDEF CPUAARCH64}
+  SetExceptionMask([exInvalidOp, exDenormalized, exZeroDivide, exOverflow, exUnderflow, exPrecision]);
+  SetRoundMode(rmNearest);
+  {$ELSE}
+  Set8087CW($133F);
+  {$ENDIF} //Above OpenAL call messes up FPU settings
       if not fIsSoundInitialized then
       begin
         gLog.AddNoTime('OpenAL warning. OpenAL could not be initialized.');
@@ -205,7 +210,12 @@ begin
       // Open device (this is quite slow, 700-800 ms)
       //todo -cPractical: OpenAL init can be perfomed in a thread
       fALDevice := alcOpenDevice(nil); // this is supposed to select the "preferred device"
-      Set8087CW($133F); //Above OpenAL call messes up FPU settings
+      {$IFDEF CPUAARCH64}
+  SetExceptionMask([exInvalidOp, exDenormalized, exZeroDivide, exOverflow, exUnderflow, exPrecision]);
+  SetRoundMode(rmNearest);
+  {$ELSE}
+  Set8087CW($133F);
+  {$ENDIF} //Above OpenAL call messes up FPU settings
       if fALDevice = nil then
       begin
         gLog.AddNoTime('OpenAL warning. Device could not be opened.');
@@ -217,7 +227,12 @@ begin
 
       // Create context
       context := alcCreateContext(fALDevice, nil);
-      Set8087CW($133F); //Above OpenAL call messes up FPU settings
+      {$IFDEF CPUAARCH64}
+  SetExceptionMask([exInvalidOp, exDenormalized, exZeroDivide, exOverflow, exUnderflow, exPrecision]);
+  SetRoundMode(rmNearest);
+  {$ELSE}
+  Set8087CW($133F);
+  {$ENDIF} //Above OpenAL call messes up FPU settings
       if context = nil then
       begin
         gLog.AddNoTime('OpenAL warning. Context could not be created.');
@@ -229,7 +244,12 @@ begin
 
       // Set active context
       I := alcMakeContextCurrent(context);
-      Set8087CW($133F); //Above OpenAL call messes up FPU settings
+      {$IFDEF CPUAARCH64}
+  SetExceptionMask([exInvalidOp, exDenormalized, exZeroDivide, exOverflow, exUnderflow, exPrecision]);
+  SetRoundMode(rmNearest);
+  {$ELSE}
+  Set8087CW($133F);
+  {$ENDIF} //Above OpenAL call messes up FPU settings
       if not (I in [AL_NO_ERROR, AL_TRUE]) then
       begin
         gLog.AddNoTime('OpenAL warning. Context could not be made current.');
@@ -489,6 +509,10 @@ var
   oggBytesRead, oggBytesChanged: Longword;
   oggBuffer: PChar;
   {$ENDIF}
+  I: Integer;
+  soundId: Integer;
+  W: TKMSoundData;
+  wavSampleRate: Integer;
 begin
   Result := -1;
   if not fIsSoundInitialized then Exit;
@@ -521,7 +545,7 @@ begin
 
   //Find free buffer and use it
   freeBuf := -1;
-  for var I := Low(fALSounds) to High(fALSounds) do
+  for I := Low(fALSounds) to High(fALSounds) do
   begin
     alGetSourcei(fALSounds[i].ALSource, AL_SOURCE_STATE, @alState);
     if alState <> AL_PLAYING then
@@ -620,12 +644,12 @@ begin
   end
   else
   begin
-    var soundId := Ord(aSoundID);
+    soundId := Ord(aSoundID);
     // Can not find sound with this Id, silently Exit...
     if soundId > gRes.Sounds.WavesCount then
       Exit;
 
-    var W := gRes.Sounds.fWaves[soundId];
+    W := gRes.Sounds.fWaves[soundId];
 
     Assert(W.IsLoaded, 'Sounds.dat seems to be short');
 
@@ -638,7 +662,7 @@ begin
         raise Exception.Create('Unexpected wave bit depth');
       end;
 
-      var wavSampleRate := gRes.Sounds.GetSoundSampleRate(aSoundID);
+      wavSampleRate := gRes.Sounds.GetSoundSampleRate(aSoundID);
       AlBufferData(fALSounds[freeBuf].ALBuffer, wavFormat, @W.Data[0], W.Head.DataSize, wavSampleRate);
       wavDuration := Round(W.Head.DataSize / wavSampleRate / W.Head.BytesPerSample * 1000);
     end else

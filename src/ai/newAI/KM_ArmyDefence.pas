@@ -229,7 +229,7 @@ begin
   SaveStream.Write(fFirstLineCnt);
   SaveStream.Write(TroopFormations, SizeOf(TroopFormations));
 
-  SaveStream.Write(Count);
+  SaveStream.Write(Integer(Count));
   for I := 0 to Count - 1 do
     Positions[I].Save(SaveStream);
 end;

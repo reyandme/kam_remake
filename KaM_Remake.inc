@@ -25,6 +25,10 @@
 {$IFDEF FPC}
   // Set FPC to work in Delphi mode
   {$MODE Delphi}
+  {$IF FPC_FULLVERSION >= 30301}
+    {$MODESWITCH FUNCTIONREFERENCES}
+    {$MODESWITCH ANONYMOUSFUNCTIONS}
+  {$ENDIF}
   // Allow advanced records in Lazarus
   {$modeSwitch advancedRecords}
 

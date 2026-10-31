@@ -265,7 +265,7 @@ begin
 
   TicksArray := fTickTimes.Keys.ToArray;
   {$IFNDEF FPC}
-  TArray.Sort<Cardinal>(TicksArray);
+  {$IFDEF FPC}TArrayHelper<Cardinal>.Sort{$ELSE}TArray.Sort<Cardinal>{$ENDIF}(TicksArray);
   {$ELSE}
   SortCustom(TicksArray, Low(TicksArray), High(TicksArray), SizeOf(TicksArray[0]), CompareTicks);
   {$ENDIF}
@@ -291,7 +291,7 @@ begin
 
     SectsArray := SectDict.Keys.ToArray;
     {$IFNDEF FPC}
-    TArray.Sort<TKMPerfSection>(SectsArray);
+    {$IFDEF FPC}TArrayHelper<TKMPerfSection>.Sort{$ELSE}TArray.Sort<TKMPerfSection>{$ENDIF}(SectsArray);
     {$ELSE}
     SortCustom(SectsArray, Low(SectsArray), High(SectsArray), SizeOf(SectsArray[0]), CompareSects);
     {$ENDIF}

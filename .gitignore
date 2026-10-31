@@ -103,3 +103,5 @@ Modding graphics/*.txt
 KaM_Remake_exe.aqt
 
 SavesCMP/
+
+/macos/__pycache__/

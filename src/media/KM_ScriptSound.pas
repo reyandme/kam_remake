@@ -321,7 +321,7 @@ var
 begin
   SaveStream.PlaceMarker('ScriptSoundsManager');
   SaveStream.Write(fLastScriptUID);
-  SaveStream.Write(fScriptSounds.Count);
+  SaveStream.Write(Integer(fScriptSounds.Count));
 
   for I := 0 to fScriptSounds.Count - 1 do
   begin
@@ -338,11 +338,11 @@ begin
   end;
 
   SaveStream.PlaceMarker('ScriptSoundsRemoveRq');
-  SaveStream.Write(fSoundRemoveRequests.Count);
+  SaveStream.Write(Integer(fSoundRemoveRequests.Count));
 
   keyArray := fSoundRemoveRequests.Keys.ToArray;
   {$IFNDEF FPC}
-  TArray.Sort<Integer>(keyArray);
+  {$IFDEF FPC}TArrayHelper<Integer>.Sort{$ELSE}TArray.Sort<Integer>{$ENDIF}(keyArray);
   {$ELSE}
   SortCustom(keyArray, Low(keyArray), High(keyArray), SizeOf(keyArray[0]), CompareKeys);
   {$ENDIF}
