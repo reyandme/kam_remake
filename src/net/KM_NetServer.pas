@@ -398,22 +398,26 @@ end;
 
 procedure TKMNetServer.MeasurePings;
 var
-  I: Integer;
+  I, room: Integer;
   M: TKMemoryStream;
   tickCount: DWord;
 begin
   tickCount := TimeGet;
-  //Sends current ping info to everyone
   M := TKMemoryStreamBinary.Create;
-  M.Write(fClientList.Count);
-  for I := 0 to fClientList.Count - 1 do
+  for room := 0 to fRoomCount - 1 do
   begin
-    M.Write(fClientList[I].Handle);
-    M.Write(fClientList[I].Ping);
-    M.Write(fClientList[I].FPS);
-    //gLog.AddTime('Client %d measured ping = %d FPS = %d', [fClientList[I].Handle, fClientList[I].Ping, fClientList[I].FPS]);
+    M.Clear;
+    M.Write(GetRoomClientsCount(room));
+    for I := 0 to fClientList.Count - 1 do
+      if fClientList[I].Room = room then
+      begin
+        //gLog.AddTime('Client %d measured ping = %d FPS = %d', [fClientList[I].Handle, fClientList[I].Ping, fClientList[I].FPS]);
+        M.Write(fClientList[I].Handle);
+        M.Write(fClientList[I].Ping);
+        M.Write(fClientList[I].FPS);
+      end;
+    PacketSendToRoom(mkPingFpsInfo, room, M);
   end;
-  PacketSend(NET_ADDRESS_ALL, mkPingFpsInfo, M);
   M.Free;
 
   //Measure pings. Iterate backwards so the indexes are maintained after kicking clients
@@ -592,8 +596,10 @@ begin
 
   if room = -1 then Exit; //The client was not assigned a room yet
 
-  //Send message to all remaining clients that client has disconnected
-  PacketSendInd(NET_ADDRESS_ALL, mkClientLost, aHandle);
+  M := TKMemoryStreamBinary.Create;
+  M.Write(aHandle);
+  PacketSendToRoom(mkClientLost, room, M);
+  M.Free;
 
   //Assign a new host
   if fRoomInfo[room].HostHandle = aHandle then
@@ -897,7 +903,8 @@ begin
             if senderIsHost then
             begin
               aData.Read(tmpSmallInt);
-              if fClientList.GetByHandle(tmpSmallInt) <> nil then
+              client := fClientList.GetByHandle(tmpSmallInt);
+              if (client <> nil) and (client.Room = senderRoom) then
               begin
                 PacketSend(tmpSmallInt, mkKicked, TX_NET_KICK_BY_HOST, True);
                 fServer.Kick(tmpSmallInt);
@@ -907,7 +914,8 @@ begin
             if senderIsHost then
             begin
               aData.Read(tmpSmallInt);
-              if fClientList.GetByHandle(tmpSmallInt) <> nil then
+              client := fClientList.GetByHandle(tmpSmallInt);
+              if (client <> nil) and (client.Room = senderRoom) then
               begin
                 BanPlayerFromRoom(tmpSmallInt, senderRoom);
                 PacketSend(tmpSmallInt, mkKicked, TX_NET_BANNED_BY_HOST, True);
@@ -918,7 +926,8 @@ begin
             if senderIsHost then
             begin
               aData.Read(tmpSmallInt);
-              if fClientList.GetByHandle(tmpSmallInt) <> nil then
+              client := fClientList.GetByHandle(tmpSmallInt);
+              if (client <> nil) and (client.Room = senderRoom) then
               begin
                 fRoomInfo[senderRoom].HostHandle := tmpSmallInt;
                 //Tell everyone about the new host and password/description (so new host knows it)
@@ -979,7 +988,7 @@ var
   I, senderRoom: Integer;
   packetSender, packetRecipient: TKMNetHandleIndex;
   packetLength: Word;
-  senderClient: TKMServerClient;
+  senderClient, recipientClient: TKMServerClient;
 //  Kind: TKMNetMessageKind;
 begin
   Inc(fBytesRX, aLength);
@@ -1022,7 +1031,8 @@ begin
     senderRoom := fClientList.GetByHandle(aHandle).Room;
 
     //If sender from packet contents doesn't match the socket handle, don't process this packet (client trying to fake sender)
-    if packetSender = aHandle then
+    if (packetSender = aHandle)
+      and ((packetRecipient = NET_ADDRESS_SERVER) or (senderRoom <> -1)) then
     begin
 //      Kind := GetMessKind(PacketSender, @SenderClient.fBuffer[6], PacketLength);
 //      gLog.AddTime('Got msg %s from %d to %d', [GetEnumName(TypeInfo(TKMNetMessageKind), Integer(Kind)), PacketSender, PacketRecipient]);
@@ -1042,7 +1052,12 @@ begin
                   SendDataQueue(fRoomInfo[senderRoom].HostHandle, @senderClient.fBuffer[0], packetLength+6);
         NET_ADDRESS_SERVER:
                 RecieveMessage(packetSender, @senderClient.fBuffer[6], packetLength);
-        else    SendDataQueue(packetRecipient, @senderClient.fBuffer[0], packetLength+6);
+        else
+          begin
+            recipientClient := fClientList.GetByHandle(packetRecipient);
+            if (recipientClient <> nil) and (recipientClient.Room = senderRoom) then
+              SendDataQueue(packetRecipient, @senderClient.fBuffer[0], packetLength+6);
+          end;
       end;
     end;
 
