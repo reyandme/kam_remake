@@ -1,290 +1,298 @@
-﻿0:Xưởng cưa\n
+﻿0:Xưởng cưa
 1:Lò rèn sắt
 2:Lò rèn vũ khí
 3:Mỏ than
 4:Mỏ sắt
 5:Mỏ vàng
-6:Nhà câu cá
-7:Nhà bánh
-8:Ruộng
-9:Nhà cưa gỗ
+6:Nhà ngư dân
+7:Tiệm bánh
+8:Nông trại
+9:Nhà tiều phu
 10:Lò rèn giáp
-11:Nhà chứa
-12:chuồng ngựa
-13:Nhà gọi dân
-14:Nhà đá
-15:Người luyện kim
-16:Nhà chăn lợn
-17:Chòi
-18:tòa thị chính
-19:Nhà vũ khí gỗ
-20:Nhà giáp
-21:Doanh trại
-22:Cối xay gió
-23:xưởng cơ khí
-24:Nhà xúc xích
-25:Nhà da thuộc
-26:Trại huấn luyện
-27:Nhà ăn
-28:Nhà trồng nho
+11:Kho chứa
+12:Chuồng ngựa
+13:Trường học
+14:Mỏ đá
+15:Xưởng luyện kim
+16:Trang trại nuôi lợn
+17:Tháp canh
+18:Tòa thị chính
+19:Xưởng chế tạo vũ khí
+20:Xưởng chế tạo áo giáp
+21:Trại lính
+22:Cối xay
+23:Xưởng vũ khí công thành
+24:Tiệm thịt
+25:Xưởng thuộc da
+26:Hội trường huấn luyện
+27:Quán trọ
+28:Vườn nho
 29:Chợ
-30:Gỗ cây
+30:Thân cây
 31:Đá
-32:Gỗ ván
+32:Gỗ xẻ
 33:Quặng sắt
 34:Quặng vàng
 35:Than
 36:Sắt
 37:Vàng
 38:Thùng rượu
-39:Lúa
-40:Bánh mì
-41:Bột
+39:Ngô
+40:Ổ bánh mì
+41:Bột mì
 42:Da thuộc
 43:Xúc xích
 44:Lợn
-45:Da thú
-46:khiên gỗ
+45:Bộ da thú
+46:Khiên gỗ
 47:Khiên sắt
-48:Giáp da
-49:Giáp sắt
-50:Rìu gỗ
-51:Kiếm sắt
-52:Thương gỗ
-53:Thương sắt
-54:Cung gỗ
-55:Cung sắt
+48:Áo giáp da
+49:Áo giáp sắt
+50:Rìu tay
+51:Kiếm
+52:Giáo dài
+53:Thương
+54:Cung dài
+55:Nỏ
 56:Ngựa
 57:Cá
-58:Khuân vác
+58:Dân phu
 59:Tiều phu
 60:Thợ mỏ
 61:Người chăn nuôi
 62:Nông dân
 63:Thợ mộc
 64:Thợ làm bánh
-65:Người bán thịt, làm da
-66:Người câu cá
+65:Thợ mổ
+66:Ngư dân
 67:Thợ xây
-68:Thợ đào đá
+68:Thợ đẽo đá
 69:Thợ rèn
-70:Nhà luyện kim
-71:Lính
-72:Lính rìu gỗ
-73:Lính rìu giáp gỗ
-74:Lính kiếm giáp sắt
-75:Lính cung gỗ
-76:Lính cung sắt
-77:Lính thương gỗ
-78:Lính thương sắt
-79:Lính ngưa gỗ
+70:Thợ luyện kim
+71:Tân binh
+72:Dân quân
+73:Chiến binh rìu
+74:Chiến binh kiếm
+75:Cung thủ
+76:Nỏ thủ
+77:Kỵ sĩ mang giáo
+78:Lính thương
+79:Trinh sát
 80:Hiệp sĩ
-81:Lính rìu
-88:Những người khuân vác sẽ mang vật liệu là gỗ và đá đến các công trình. Lưu ý là phải có con đường nối công trình đó với dường chính đến nhà kho.
-89:Để có được gỗ cây cho xưởng cưa, bạn sẽ cần tiều phu.Những người tiều phu thực hiện việc trồng rừng một cách độc lập.
-90:Những người thợ mỏ sẽ đào quặng từ các mỏ than, sắt và vàng.
-91:Những người chăn nuôi sẽ dùng lúa để sinh ra lợn ở nhà chăn lợn và ngựa ở nhà chăn ngựa.
-92:Nông dân sẽ trồng và thu hoạch lúa ở trên cánh đồng. Họ cũng sản suất rượu ở cánh đồng nho.
-93:Thợ mộc sẽ làm việc ở nhà xưởng cưa, nhà vũ khí gỗ và nhà giáp gỗ, da.Họ cũng chế tạo máy bắn đá và ballista trong xưởng cơ khí.
-94:Thợ làm bánh sẽ xay lúa thành bột mì ở trong nhà cối xay gió. Họ cũng sẽ làm bánh trong nhà bánh.
-95:Người bán thịt, làm da sẽ làm xúc xích ở nhà xúc xích và da thuộc ở nhà da thuộc.
-96:Người bắt cá sẽ câu cá ở ven hồ.
-97:Thợ xây sẽ xây dựng các công trình, đường đi. Đơn giản chỉ cần đánh dấu vị trí bạn cần xây công trình hay đường và họ sẽ nhận lệnh từ bạn ngay lập tức. Họ cũng sẽ sửa lại công trình của bạn.
-98:Để cung cấp vật liệu xây dựng cho việc xây đường và công trình, thợ đào đá sẽ đục và cắt đá thành khối, mỗi lần đi đục đá thợ đào sẽ cắt được 3 đá.
-99:Thợ rèn sẽ rèn vũ khí và áo giáp trong lò rèn vũ khí và áo giáp.
-100:Nhà luyện kim sẽ dùng than để luyện vàng và sắt.
-101:Lính có thể được dùng như quân lính ở trong các doanh trại. Họ cũng sẽ đứng ở các chòi bảo vệ.
-102:Để lựa chọn các công trình
-103:Để phân phối vật phẩm
-104:Để thống kê
-105:Để tùy chọn
+81:Kẻ man rợ
+82:Kẻ nổi loạn
+83:Côn đồ
+84:Chiến binh
+85:Kẻ lang thang
+86:Máy bắn đá
+87:Máy bắn tên
+88:Dân phu cung cấp nguyên liệu thô cần thiết cho các tòa nhà của bạn.||Lưu ý rằng phải có đường nối giữa các tòa nhà.
+89:Để sản xuất thân cây cho xưởng cưa, bạn cần thợ tiều phu.||Tiều phu tự động thực hiện việc trồng lại rừng.
+90:Thợ mỏ khai thác quặng từ các mỏ than, sắt và vàng.
+91:Người chăn nuôi sử dụng ngô để nuôi lợn trong trang trại lợn và ngựa trong chuồng ngựa.
+92:Nông dân gieo trồng và thu hoạch ngô ở nông trại.||Anh ta cũng sản xuất rượu vang ở vườn nho.
+93:Thợ mộc làm việc trong xưởng cưa, xưởng chế tạo vũ khí và xưởng chế tạo áo giáp.
+94:Thợ làm bánh xay ngô thành bột mì trong cối xay.||Anh ta cũng nướng bánh mì trong tiệm bánh.
+95:Thợ mổ làm xúc xích ở tiệm thịt và thuộc da ở xưởng thuộc da.
+96:Ngư dân bắt cá ở các vùng nước gần đó.
+97:Thợ xây dựng các tòa nhà và đường đi. Chỉ cần đánh dấu vị trí bạn muốn và anh ta sẽ tự động thực hiện lệnh của bạn.||Anh ta cũng sửa chữa các tòa nhà bị hỏng.
+98:Để cung cấp cho thợ xây đủ vật liệu làm đường và nhà cửa, thợ đẽo đá sẽ cắt và đẽo đá.
+99:Thợ rèn rèn vũ khí và áo giáp sắt trong các xưởng vũ khí và áo giáp.
+100:Thợ luyện kim dùng than để tinh luyện quặng vàng và sắt.
+101:Tân binh có thể được trang bị làm binh lính trong trại lính.||Anh ta cũng chiếm giữ tháp canh.
+102:Chọn tòa nhà
+103:Phân phối hàng hóa
+104:Thống kê
+105:Tùy chọn
 106:Quay lại
-107:Xậy dựng| sự lựa chọn
-108:Phân phối| vật phẩm
-109:Bảng thống kê
+107:Chọn|tòa nhà
+108:Phân phối|hàng hóa
+109:Thống kê
 110:Tùy chọn
-111:Load game.
-112:Lưu game
-113:Bạn có chác|muốn thoát|nhiệm vụ này?
+111:Tải trò chơi
+112:Lưu trò chơi
+113:Bạn có chắc chắn muốn|thoát khỏi nhiệm vụ|này không?
 114:Thoát nhiệm vụ
 115:Quay lại
-117:Thoát việc chỉnh sửa
-118:SFX
+116:Cài đặt
+117:Thoát trình chỉnh sửa
+118:Hiệu ứng âm thanh
 119:Thay đổi âm lượng
 120:Thay đổi âm lượng
-121:Âm nhạc
+121:Nhạc
+122:Bật/tắt nhạc
 123:Tự động lưu
-124:Máy chạy nhạc
-125:Bản trước
-126:Bản tiếp theo
-127:Phá hủy công trình
-128:Xóa bỏ công trình|điểm xây dựng
-129:Xây dựng đường
-130:Xây dựng nhiều đường
-131:Ruộng cày
-132:Nhiều ruộng cày
-133:Ruộng nho
-134:Nhiều ruộng nho
+124:Trình phát nhạc
+125:Bài trước
+126:Bài tiếp theo
+127:Phá hủy
+128:Xóa tòa nhà/bản thiết kế|Giữ Shift và Ctrl để xóa tòa nhà mà không cần xác nhận
+129:Xây đường
+130:Xây đường
+131:Tạo ruộng
+132:Tạo ruộng
+133:Dựng vườn nho
+134:Dựng vườn nho
 135:Hủy
-136:Hủy việc huấn luyện
-137:Cần thiết
-140:Người vận chuyển
-141:Nhà chưa được|xây dựng
-142:Phá hủy
-143:Bạn muốn|phá hủy công trình này?
-144:Phá hủy công trình đã chọn.
+136:Hủy huấn luyện hiện tại
+137:Cần:
+140:Cung cấp
+141:Nhà đang|xây dựng
+142:Tiêu hủy
+143:Bạn có thực sự muốn|phá hủy tòa nhà này không?
+144:Tiêu hủy tòa nhà đã chọn
 145:Giảm số lượng đặt hàng
 146:Tăng số lượng đặt hàng
-147:Loại quân lính trước
-148:Loại quân lính tiếp theo
-149:Trang bị quân lính loại này
-150:Nghề nghiệp tiếp theo
-151:Nghề nghiệp trước
-152:Thêm vào hàng chờ
-153:Bật/tắt việc chuyển vật phẩm
-154:Giá:
-155:Bật/Tắt chế độ sửa công trình
-156:Xây dựng không có sẵn tại thời điểm này
+147:Loại binh lính trước. Dùng chuột phải hoặc Alt để về loại lính đầu tiên
+148:Loại binh lính tiếp theo. Dùng chuột phải hoặc Alt để đến loại lính cuối cùng
+149:Trang bị cho loại lính hiện tại. Dùng chuột phải hoặc Alt để trang bị cho 10 lính
+150:Nghề nghiệp tiếp theo. Dùng chuột phải hoặc Alt để đến nghề cuối cùng
+151:Nghề nghiệp trước. Dùng chuột phải hoặc Alt để về nghề đầu tiên
+152:Thêm vào hàng đợi.|Dùng Shift hoặc Ctrl để sửa hàng đợi và chuột phải hoặc Alt để làm đầy
+153:Chuyển đổi chế độ giao hàng: nhu cầu / đóng / cung cấp|Dùng chuột trái/phải để chuyển tới/lui
+154:Chi phí:
+155:Bật/tắt sửa nhà
+156:Tòa nhà hiện chưa mở khóa
 157:Điều kiện
-158:Quay quân lính sang trái
-159:Quay quân lính sang phải
-160:Tấn công ('a)
-161:Cử quân lính đi ('d')
-162:Cho quân lính ăn
-163:Bắt đầu tấn công bão táp
-164:Thêm hàng
-165:Rút ngắn hàng
-166:Lựa chọn|nhóm
+158:Quay đội quân sang trái|Nhấp chuột phải hoặc nhấn Alt để xoay 90 độ, nhấn Shift để xoay 180 độ
+159:Quay đội quân sang phải|Nhấp chuột phải hoặc nhấn Alt để xoay 90 độ, nhấn Shift để xoay 180 độ
+160:Tấn công
+161:Điều động quân
+162:Cung cấp lương thực cho quân
+163:Bắt đầu tấn công chớp nhoáng
+164:Thêm hàng|Nhấp chuột phải hoặc nhấn Shift để thêm 5 hàng
+165:Rút bớt hàng|Nhấp chuột phải hoặc nhấn Shift để rút bớt 5 hàng
+166:Chọn|nhóm
 167:Hủy
-168:Xóa bỏ
-169:Xóa thư hiện tại
+168:Xóa
+169:Xóa thông báo hiện tại
 170:Đi tới
-171:ĐI tới vị trí tin nhắn hiện tại
+171:Chuyển đến vị trí thông báo hiện tại
 172:Đóng
 173:Đóng cửa sổ
-174:Thợ đào đá của bạn không thể tìm thấy mỏ đá nào nữa.
-175:Mỏ than của bạn đã cạn kiệt
-176:Mỏ sắt của bạn đã cạn kiệt
-177:Mỏ vàng của bạn đã cạn kiệt
-178:Tiều phu của bạn không thể tìm thấy cây nào xung quanh nữa
-179:Nhà này chưa có thợ
-180:Quân lính này đang đói, họ cần được cho ăn sớm!
-181:DỪNG
-182:Đang chuyển đồ
+174:Thợ đẽo đá của bạn không thể với tới các mỏ đá nào khác nữa.
+175:Các mạch mỏ than của bạn đã cạn kiệt.
+176:Các mạch mỏ sắt của bạn đã cạn kiệt.
+177:Các mạch mỏ vàng của bạn đã cạn kiệt.
+178:Tiều phu của bạn không thể tìm thấy cây nào khác để chặt
+179:Ngôi nhà này không có người ở.
+180:Đội quân này rất đói, tốt hơn là họ nên sớm kiếm gì đó ăn!
+181:TẠM DỪNG
+182:Đang giao hàng
 183:Đang xây đường
-184:Đang đào ruộng cày
-185:Đang đào ruộng nho
-186:Đang đào móng công trình
-187:Đang xây công trình
-188:Đang sửa công trình
-189:Đang về công trình
-190:Đang đi tới nhà ăn
-191:Đang tấn công công trình
-192:Đang khai hỏa
-193:Đang đánh
-194:Tấn công bão táp
+184:Đang đào ruộng
+185:Đang làm vườn nho
+186:Đang san bằng mặt bằng nhà
+187:Đang xây nhà
+188:Đang sửa nhà
+189:Đang về nhà
+190:Đang đi đến quán trọ
+191:Đang tấn công nhà
+192:Đang bắn
+193:Đang giao chiến
+194:Tấn công chớp nhoáng
 195:Đang tấn công
 196:Đang di chuyển
-197:Nhàn rỗi
-198:Đang đào đá
-199:Đang gieo mạ
-200:Đang gặt lúa
+197:Đang rảnh rỗi
+198:Đang khai thác đá
+199:Đang gieo hạt ngô
+200:Đang thu hoạch ngô
 201:Đang thu hoạch nho
 202:Đang câu cá
 203:Đang chặt cây
 204:Đang trồng cây
-205:Spirit
-206:Busy
-207:Middle Ages Horn
-208:Spring
-209:Lute
-210:Mercenary
-211:The Princess
-212:The Queen
-213:In the Marketplace
-214:On the Battlefield
-215:Court Dance
-216:The Army
-217:In the Castle
-218:Fanfares
-219:At Court
-220:Entree
-221:Deep Blue
-222:Struggle
-223:Royal Quarters
-224:Aristocracy
-225:At the Harbor
-226:Journey
+205:Tinh thần
+206:Đang bận
+207:Kèn thời Trung Cổ
+208:Mùa xuân
+209:Đàn luýt
+210:Lính đánh thuê
+211:Công chúa
+212:Nữ hoàng
+213:Trong chợ
+214:Trên chiến trường
+215:Điệu múa cung đình
+216:Quân đội
+217:Trong lâu đài
+218:Tiếng kèn hiệu
+219:Tại triều đình
+220:Khúc dạo đầu
+221:Xanh thẳm
+222:Tranh đấu
+223:Khu hoàng gia
+224:Tầng lớp quý tộc
+225:Tại cảng
+226:Hành trình
 227:Chiến dịch
 228:Chiến dịch
 229:Bắt đầu chiến dịch!
-230:Chơi đơn
-231:Bắt đầu ván
-232:Trờ lại Menu
-233:Load game đã lưu
-234:Chơi nhiều người
+230:Chơi bản đồ đơn
+231:Bắt đầu bản đồ
+232:Quay lại menu
+233:Tải trò chơi đã lưu
+234:Nhiều người chơi
 235:Tùy chọn
-236:Credits
-237:Thoát game
+236:Giới thiệu
+237:Thoát trò chơi
 238:Tiếp tục
-239:Chơi lại nhiệm vụ
+239:Khởi động lại nhiệm vụ
 240:Độ phân giải:
-241:Không hỗ trợ
-242:Không hỗ trợ
-243:CHIẾN THẮNG~!
-244:THUA RỒI~!
-245:Đơn vị đã mất:
-246:Đơn vị đã tiêu diệt:
-247:Công trình đã mất:
-248:Công trình đã phá hủy:
-249:Công trình đã xây:
-250:Đơn vị đã huấn luyện:
-251:Vũ khí đã sản xuất:
-252:Quân lính đã sử dụng:
+241:Không được hỗ trợ
+242:Không được hỗ trợ
+243:CHIẾN THẮNG!
+244:THẤT BẠI!
+245:Đơn vị mất:
+246:Đơn vị tiêu diệt:
+247:Tòa nhà mất:
+248:Tòa nhà bị phá hủy:
+249:Tòa nhà được xây:
+250:Đơn vị được huấn luyện:
+251:Vũ khí sản xuất:
+252:Lính được trang bị:
 253:Nhiệm vụ hoàn thành trong:
-254:Bảng thống kê
+254:Thống kê
 255:Kinh tế
-256:Công dân|đã huấn luyện
-257:Công dân|đã mất
-258:Quân lính|đã sử dụng
-259:Quân lính|đã mất
-260:Quân lính|đã tiêu diệt
-261:Công trình|đã xây
-262:Công trình|đã mất
-263:Công trình|đã phá hủy
-264:Vật phẩm|đã sản xuất
-265:Vũ khí|đã sản xuất
-266:Đội quân
-267:Công dân
-268:Các công trình
-269:Các tài nguyên
-270:Các tài nguyên đã sản xuất
-271:Không dữ liệu
+256:Dân thường|được huấn luyện
+257:Dân thường|mất
+258:Lính|được trang bị
+259:Lính|mất
+260:Lính|bị tiêu diệt
+261:Tòa nhà|được xây
+262:Tòa nhà|mất
+263:Tòa nhà|bị phá hủy
+264:Hàng hóa|sản xuất
+265:Vũ khí|sản xuất
+266:Quân đội
+267:Dân thường
+268:Nhà cửa
+269:Tài nguyên
+270:Số lượng sản xuất
+271:Không có dữ liệu
 272:Bạn
 273:Người chơi %d
-274:Trở lại chế độ nhiều người chơi
-275:Quay lại mục phát lại
-276:Tất cả
-277:Chiến tranh
-278:Đồ ăn
-279:JOYMANIA ENTERTAINMENT||Lập trình viên:|Peter Ohlmann||Đồ họa game :|Adam Sprys||Các mức độ chơi:|Adam Sprys|André Quaß||Âm thanh và phối âm:|Tonstudio Mannheim||Âm nhạc:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||Iminh họa:|Boleslaw Kasza|Christoph Werner||Dịch giả:|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||Nhà sản xuất:|Uwe Schäfer||Hướng dẫn:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||Hiệu ứng hoạt ảnh đầu:|Uwe Schäfer|Christian Bigalk|Mô hình 3D bổ sung:|Niels Horstmann||SPECIAL THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
-280:Nhiệm vũ đã hủy
-281:Kết thúc phát lại
-282:Hướng dẫn xây dựng
-283:Hướng dẫn đánh trận
+274:Quay lại mục Nhiều người chơi
+275:Quay lại mục Xem lại
+276:Tất cả hàng hóa
+277:Chiến trận
+278:Lương thực
+279:JOYMANIA ENTERTAINMENT||LẬP TRÌNH:|Peter Ohlmann||ĐỒ HỌA TRÒ CHƠI:|Adam Sprys||THIẾT KẾ MÀN CHƠI:|Adam Sprys|André Quaß||CHỈNH SỬA VÀ PHỐI ÂM THANH:|Tonstudio Mannheim||NHẠC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||HÌNH MINH HỌA:|Boleslaw Kasza|Christoph Werner||DỊCH THUẬT:|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||NHÀ SẢN XUẤT:|Uwe Schäfer||SÁCH HƯỚNG DẪN:|Peter Ohlmann|Uwe Schäfer||KIỂM THỬ BETA:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||ĐẠO DIỄN TRÒ CHƠI:|Achim Heidelauf||PHÁT HÀNH BỞI:|TopWare Interactive||CẮT CẢNH:||ĐẠO DIỄN:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||LỒNG TIẾNG:|Claus Boyen (Người kể chuyện)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||MỸ THUẬT:|Boleslaw Kasza|Adam Sprys||HOẠT HÌNH MỞ ĐẦU:|Uwe Schäfer|Christian Bigalk|Mô hình 3D bổ sung:|Niels Horstmann||ĐẶC BIỆT CẢM ƠN:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
+280:Nhiệm vụ đã hủy
+281:Đã kết thúc xem lại
+282:Hướng dẫn Thị trấn
+283:Hướng dẫn Chiến đấu
 284:Chơi đơn
-285:Xây dựng màn
+285:Chỉnh sửa bản đồ
 286:Bắt đầu nhiệm vụ
 287:Tiêu đề
-288:Kích cỡ
-289:Điều kiện thắng
-290:Điều kiện thua
-291:Đồng minh
-292:Quân địch
+288:Kích thước
+289:Điều kiện thắng:
+290:Điều kiện thua:
+291:Đồng minh:
+292:Kẻ địch:
 293:Thời gian
 294:Kích thước bản đồ mới
-295:Độ rộng
-296:Độ cao
+295:Chiều rộng
+296:Chiều cao
 297:Tạo bản đồ mới
 298:Bản đồ có sẵn
 299:Tải bản đồ có sẵn
@@ -295,44 +303,1249 @@
 304:Tắt nhạc
 305:Đồ họa:
 306:Độ sáng
-307:Vertical Sync
+307:Đồng bộ dọc
 308:Toàn màn hình
 309:Áp dụng
-310:Ngôn ngữ.
-311:Chất lượng bóng:
-312:Thấp
-313:Cao
-314:Đang tải... 
-315:Một lỗi đã xảy ra!
-316:Tải ngôn ngữ mới
-317:Danh sách lưu game
+310:Ngôn ngữ:
+311:Chất lượng bóng đổ cao
+312:Đồng ý
+313:|Giữ Shift để đặt liên tiếp
+314:Đang tải... Vui lòng đợi
+315:Đã xảy ra lỗi!
+316:Đang tải ngôn ngữ mới
+317:Danh sách tệp lưu
 318:Tên tệp
-319:Dòng miêu tả
+319:Mô tả
 320:Tải
 321:Xóa
-322:Bạn có chắc muốn xóa bản lưu này không?
+322:Bạn có chắc chắn muốn xóa bản lưu này không?
 323:Xóa
 324:Hủy
 325:Tiêu đề
 326:Bản đồ
-327:Đã mở 
+327:Đã mở khóa
+328:Bạn đã chiến thắng!
+329:Tiếp tục chơi
+330:Chiến thắng!
+331:Bạn đã thua!
+332:Tiếp tục xem
+333:Thất bại
+334:Đã kết thúc xem lại
+335:Tiếp tục xem
+336:Thoát về menu
+337:Không được phép
+338:Nhấn %s để tiếp tục trò chơi
+339:Thông tin người chơi
+340:Trò chuyện
+341:Bản lưu đã tồn tại
+342:Ghi đè
+343:Lưu
+344:Tải
+345:Phát hiện phiên bản OpenGL cũ, trò chơi có thể chạy chậm và/hoặc gặp lỗi đồ họa
+346:Vui lòng cập nhật trình điều khiển đồ họa của bạn để có hiệu suất tốt hơn
+347:Lỗi mạng:
+348:Lỗi: Tên người chơi không được để trống
+349:Error: Tên người chơi không được dài quá %d ký tự
+350:Lỗi: Tên người chơi chứa ký tự không hợp lệ
+351:Kết nối thất bại: %s
+352:Bạn đã ngắt kết nối
+353:Nhiệm vụ %d
+354:Nhật ký tin nhắn
+355:Lều ngư dân của bạn ở quá xa nguồn nước.
+356:Ngư dân của bạn không thể bắt thêm cá ở vùng nước gần đó.
+357:Chạy lại bản xem lại
+358:Tạm dừng xem lại
+359:Tiến lên 1 nhịp
+360:Tiếp tục bản xem lại đang tạm dừng
+361:Thoát xem lại
+362:Chuyển đổi góc nhìn cá nhân của người chơi
+364:Sử dụng nút chuột trái để chọn hàng hóa cần giao dịch
+365:Sử dụng nút chuột phải để chọn hàng hóa cần giao dịch
+366:Từ x%d
+367:Đến x%d
+368:Chỉnh sửa địa hình
+369:Cọ vẽ
+370:Độ cao
+371:Ô bản đồ
+372:Đối tượng
+373:Độ dốc/Cao độ
+374:Hình dạng cọ vẽ
+375:Kích thước
+376:Trượt để thay đổi kích thước cọ
+377:Độ dốc
+378:Trượt để thay đổi độ dốc cao độ: 1 = cao nguyên ... 15 = đỉnh núi
+379:Tốc độ
+380:Trượt để thay đổi tốc độ cao độ: 1 = chậm ... 15 = rất nhanh
+381:Cọ hình tròn
+382:Cọ hình vuông
+383:Nâng lên / Hạ xuống
+384:Làm gồ ghề / San phẳng
+385:Nâng lên (nhấp trái) / Hạ xuống (nhấp phải)
+386:Làm gồ ghề (nhấp trái) / San phẳng (nhấp phải)
+387:Cọ & Mặt nạ
+388:Các yếu tố ngẫu nhiên
+389:Hướng ngẫu nhiên
+390:Đánh dấu để xoay hướng ô ngẫu nhiên hoặc dùng chuột phải để xoay ô đã chọn
+392:Chặn đi lại
+393:Xóa đối tượng
+394:Lập kế hoạch làng
+395:Kịch bản trực quan
+396:Kịch bản toàn cục
+397:Menu
+398:Đối tượng
+399:Hiển thị mỏ tài nguyên
+400:Hiển thị đơn vị quân
+401:Hiển thị nhà cửa
+402:Hiển thị đối tượng
+403:Xem khả năng đi lại
+404:Mọi thay đổi chưa lưu|sẽ bị mất
+405:Hủy
+406:Tải
+407:Tải bản đồ
+408:Hủy
+409:Lưu
+410:Ghi đè
+411:Bản đồ đã tồn tại
+412:Người chơi:
+413:Người chơi người mặc định
+414:Loại người chơi
+415:Đối xứng
+416:Liên minh
+417:Chiến thuật
+418:Bình thường
+419:Chế độ nhiệm vụ
+420:Nhảy đến vị trí
+421:Căn giữa màn hình khi bắt đầu nhiệm vụ
+422:Căn giữa màn hình
+423:Lộ toàn bộ bản đồ
+424:Lộ một phần bản đồ
+425:Lộ sương mù chiến thuật
+426:Chặn giao dịch
+427:Chặn/Bật nhà cửa
+428:Màu sắc
+429:Mục tiêu
+432:Người chơi
+433:Tòa nhà kinh tế
+434:Dân phu và trường học
+435:Tài sản quân sự
+436:Không rõ
+437:Quân đội
+438:Tòa nhà
+439:Thời gian
+440:Hướng dẫn xây dựng
+441:Không có
+442:Điều kiện
+443:Sống sót
+444:Chiến thắng
+445:Không có
+446:Loại
+447:Mục tiêu
+448:ĐỒNG Ý
+449:Hủy
+450:Cột
+451:Số lượng
+452:Đội hình quân
+453:Chỉnh sửa đội hình
+454:Đặt giới hạn số lượng binh lính mà AI có thể sở hữu
+455:Số lượng lính tối đa AI có thể có cùng lúc
+456:Đặt số lính tối đa
+457:AI cổ điển: Số lượng tân binh AI nên có trong trại lính|AI nâng cao: Tham số không sử dụng
+458:Tân binh mỗi Trại lính
+460:Vị trí tùy chỉnh
+463:Đơn vị gần nhất
+465:Số lượng nhóm
+466:Thông tin tấn công
+468:Lặp lại
+469:Tấn công đơn lẻ
+470:Kỵ binh
+471:Tấn công tầm xa
+472:Khắc chế kỵ binh
+473:Cận chiến
+474:Vị trí
+475:Mục tiêu
+476:Quân số
+477:Độ trễ
+478:Loại
+479:Tự động tấn công
+480:AI tấn công
+481:Tỷ lệ trang bị giáp da
+482:Tỷ lệ trang bị giáp sắt
+483:Tự động phòng thủ
+484:AI tự động tạo và quản lý vị trí phòng thủ. Bỏ qua mọi vị trí phòng thủ đặt thủ công
+485:Đặt vị trí phòng thủ cho AI.|Để thay đổi tham số vị trí phòng thủ dùng:|Chuột phải - hướng, Ctrl + Chuột phải - loại nhóm, Alt + Chuột phải - phòng thủ / tấn công
+486:Vị trí phòng thủ của AI
+487:Dân phu
+488:Dân phu mỗi 10 ngôi nhà
+489:Tự động sửa chữa
+490:Tự động xây dựng
+491:Cài đặt AI
+492:Nhà cửa
+493:Công trình đường sá
+494:Lật dọc vùng chọn
+495:Lật ngang vùng chọn
+496:Dán địa hình
+497:Sao chép địa hình
+498:Sao chép/dán
+499:Nhiệm vụ mới
+500:Tên người chơi
+501:Trạng thái:
+502:Tạo máy chủ
+503:TẠO MÁY CHỦ
+504:Tên
+505:Cổng
+506:Tạo máy chủ nội bộ
+507:Tạo máy chủ Internet
+508:Hủy
+509:Tìm máy chủ bằng IP
+510:TÌM MÁY CHỦ
+511:Địa chỉ
+512:Cổng
+513:Phòng
+514:Kết nối
+515:Hủy
+516:Phòng được bảo vệ bằng mật khẩu
+517:Mật khẩu
+518:Tên máy chủ
+519:Trạng thái
+520:Người chơi
+521:Độ trễ
+522:Làm mới danh sách máy chủ
+523:CHI TIẾT MÁY CHỦ
+524:Danh sách người chơi:
+525:Tham gia
+526:Đang kết nối, vui lòng đợi...
+527:Đang tải thông báo...
+528:Đang làm mới...
+529:Danh sách người chơi
+530:Vị trí bắt đầu
+531:Đội
+532:Màu
+533:Sẵn sàng
+534:Ping
+535:Ping / FPS
+536:Mở
+537:Người chơi AI
+538:Chọn...
+539:Ngẫu nhiên
+540:Không có
+541:Trò chơi đã lưu
+542:Chọn một bản đồ...
+543:Chọn một bản lưu...
+544:Thoát phòng chờ
+545:Sẵn sàng
+546:Chưa sẵn sàng
+547:Bắt đầu!
+548:Tốc độ trò chơi (PT)
+549:Tốc độ trò chơi
+550:Đồng ý
+551:Hủy
+552:Mô tả
+553:Mật khẩu
+554:Cài đặt phòng
+556:Cấm khỏi phòng chờ này
+557:Đá ra
+558:Xáo trộn vị trí ngẫu nhiên trong các đội
+559:Mô tả
+560:Tùy chọn
+561:Vị trí %d
+562:Lỗi: Vui lòng chọn một người chơi từ bản lưu để điều khiển
+563:Lỗi: Bản đồ tải thất bại hoặc không có bản đồ nào được chọn
+564:Không thể bắt đầu: %s
+565:Không phải ai cũng đã sẵn sàng để bắt đầu
+566:Không thể chỉ định vị trí ngẫu nhiên
+567:Máy chủ đã chuyển quyền chủ phòng cho bạn
+568:Trò chơi đã bắt đầu
+569:Bản đồ xây dựng
+570:Bản đồ chiến đấu
+571:Bản đồ hợp tác
+572:Bản đồ đặc biệt
+573:Tùy chọn trò chơi:
+574:Thời gian hòa bình (phút)
+575:Đóng
+576:Chủ phòng thiết lập người chơi
+577:Đang đợi người chơi:
+578:Tất cả
+579:Đội
+580:Người đóng góp KaM Remake
+581:Người đóng góp Knights and Merchants gốc
+582:LẬP TRÌNH:
+583:LẬP TRÌNH BỔ SUNG:
+584:ĐỒ HỌA BỔ SUNG:
+585:ÂM THANH BỔ SUNG:
+586:NHẠC BỔ SUNG:
+587:DỊCH THUẬT BỔ SUNG:
+588:ĐẶC BIỆT CẢM ƠN:
+589:Bản đồ nhiều người chơi
+590:Bản đồ chơi đơn
+591:Tốc độ cuộn màn hình
+592:Không tìm thấy máy chủ nào
+593:Trộn bài nhạc ngẫu nhiên
+594:Thông tin trò chơi:
+595:-
+596:Phòng chờ
+597:Đang tải
+598:Trò chơi
+599:Xây dựng và Chiến đấu
+600:Chiến đấu
+601:Sẵn sàng
+602:Sai phiên bản giao thức: %s. Máy chủ đang dùng: %s
+603:Tăng số lượng giao dịch
+604:Giảm số lượng giao dịch
+605:Đang lưu trò chơi...
+606:%s đã bị đánh bại!
+607:Đuổi người chơi
+608:Chủ phòng sẽ được phép đuổi những người chơi này sau %d giây
+609:Chủ phòng hiện đã được phép đuổi những người chơi này
+610:Chủ phòng (%s) đã thoát
+611:Mất kết nối với máy chủ. Đang thử kết nối lại...
+612:Bạn có chắc chắn muốn thoát không?
+613:Bạn có chắc chắn muốn vĩnh viễn đuổi những người chơi này không?
+614:Hủy
+615:Không thể giao dịch tài nguyên này trong nhiệm vụ này
+616:Trồng và chặt
+617:Chỉ chặt
+618:Bạn không được phép làm điều đó trong thời gian hòa bình
+619:Thời gian hòa bình còn lại: %s
+620:Đã hết thời gian hòa bình. Cầm vũ khí lên!
+621:Thời gian trò chơi:|%s
+622:Dừng quân
+623:Liên kết quân|Giữ Shift để liên kết nhiều nhóm
+624:Tách quân (%s). Tách một đơn vị khỏi nhóm (Ctrl + %s)
+625:Xem lại
+626:Xem bản xem lại
+627:Định dạng không được hỗ trợ %s
+628:Phiên bản không được hỗ trợ %s
+629:Các chỉnh sửa không được hỗ trợ
+630:Đã xảy ra lỗi khi phân tích tệp %s
+631:đang khởi tạo
+632:kịch bản
+633:đơn vị quân
+634:tòa nhà
+635:cây cối
+636:định nghĩa
+637:bộ ô bản đồ
+638:Không tìm thấy bản đồ: %s
+639:Không tìm thấy tệp lưu: %s
+640:Tệp bản đồ không khớp với máy chủ cho bản đồ: %s
+641:Tệp lưu không khớp với máy chủ cho bản lưu: %s
+642:Bản xem lại không vượt qua kiểm tra tính nhất quán. Đây là một lỗi đã biết ảnh hưởng đến việc phát lại một số bản xem lại.\nNếu bạn tiếp tục xem, bản xem lại sẽ không còn chính xác và trò chơi có thể bị sự cố.\nBạn có muốn tiếp tục xem không? Chọn 'Có tất cả' để bỏ qua các lỗi kiểm tra tính nhất quán trong tương lai.
+643:Bạn chỉ có thể mở một phiên bản trò chơi ở chế độ nhiều người chơi cùng lúc
+644:Không cho phép chỉnh sửa trò chơi ở chế độ nhiều người chơi.|Vui lòng cài đặt lại để khôi phục các tệp gốc.
+645:Đã xảy ra lỗi trong ứng dụng. Vui lòng nhấp vào Gửi Báo cáo Lỗi để chúng tôi có thể điều tra sự cố này. Cảm ơn sự giúp đỡ của bạn!
+646:Gửi báo cáo lỗi
+647:Hiển thị dữ liệu thô
+648:Tiếp tục ứng dụng
+649:Đóng ứng dụng
+650:Tiếp theo
+651:Chi tiết liên hệ
+652:Tên của bạn: (tùy chọn)
+653:Email của bạn: (tùy chọn)
+654:Ghi nhớ tôi
+655:Chi tiết lỗi
+656:Lỗi xảy ra trong hoàn cảnh nào? Bạn có thể cung cấp thêm thông tin không? (Ưu tiên tiếng Anh)
+657:Ảnh chụp màn hình
+658:Đính kèm ảnh chụp màn hình vào báo cáo lỗi
+659:(nhấp để chỉnh sửa ảnh)
+660:Gửi báo cáo
+661:Hủy
+662:Đang gửi báo cáo lỗi...
+663:Đang kết nối với máy chủ...
+664:Đang gửi dữ liệu...
+665:Gửi báo cáo sự cố thất bại! Máy chủ của chúng tôi có thể đang bận, vui lòng thử gửi lại.
+666:Thông tin
+667:Vui lòng đợi một lát...
+668:Lưu bản đồ
+669:Độ trễ tính bằng phút trước khi AI bắt đầu huấn luyện tân binh. Tân binh cho tháp canh không bị ảnh hưởng
+670:Độ trễ tân binh (phút)
+671:Nước phép: Đặt hướng cho tất cả các ô trong một vùng nước
+672:Nước phép
+673:Sao chép
+674:Dán
+675:Áp dụng dán
+676:Hủy dán
+677:Lật dọc
+678:Lật ngang
+679:Kéo để chọn một vùng trên bản đồ
+680:Tùy chọn phòng thủ của AI
+681:Tắt
+682:Bán kính
+683:Xóa vùng sáng hiện tại
+684:Quay lại trang hiển thị sương mù
+685:Đóng
+686:Lệnh nhóm
+687:Không có
+688:Vị trí tấn công
+689:Đi đến
+690:Hướng
+693:Bán kính phòng thủ
+694:Xóa vị trí phòng thủ hiện tại
+695:Quay lại trang phòng thủ
+696:Vị trí phòng thủ
+697:Đơn vị & Động vật
 698:Sói
 699:Cá
 700:Rắn nước
 701:Sao biển
-702:cua
-703:Rong biển
-704:Là rong biển
+702:Cua
+703:Hoa nước
+704:Lá nước
 705:Vịt
-706:Quân lính loại này không có sẵn
-707:Đơn vị loại này không có sẵn
-770:Ngày
-795:Để chơi lại những chiến dịch trước, chọn cờ của chiến dịch đó trên bản đồ tổng.
-801:Xóa một bản phát lại cũng đồng thời xóa phần lưu đã liên kết. Bạn có chắc muốn xóa phần lưu này?
-804:Xóa bản phát lại
+706:Loại lính này chưa thể chiêu mộ
+707:Loại đơn vị này chưa thể chiêu mộ
+708:Chặn đơn vị quân
+736:Tải xuống
+737:đang tải xuống...
+738:Ghi đè các tệp hiện có
+739:%s đã mất kết nối
+740:%s đã thoát
+741:%s đã kết nối lại
+742:Không thể tham gia khi trò chơi đang diễn ra
+743:Phòng đã đầy. Không thể có thêm người chơi tham gia trò chơi
+744:Người chơi có cùng tên đã tham gia phòng
+746:Lỗi: %s có tệp dữ liệu khác với máy chủ nên không thể tham gia trò chơi này
+747:Tệp dữ liệu của bạn không khớp với máy chủ
+748:Đã chuyển lại quyền chủ phòng cho %s
+749:%s có phiên bản %s khác nhau
+750:%s không có %s
+751:Truy vấn quá thời gian chờ
+752:Chủ phòng đã đuổi %s khỏi trò chơi
+753:%s đã bị chủ phòng đá ra
+754:Đang thử kết nối lại với trò chơi...
+755:%s đã tham gia
+756:Kết nối lại thất bại: %s
+757:Chủ phòng quyết định tiếp tục chơi mà không có bạn :(
+758:Bị ngắt kết nối bởi máy chủ: Phát hiện quá thời gian chờ
+759:Bạn đã bị chủ phòng đá ra
+760:Máy chủ ngừng phản hồi
+761:Số phòng không hợp lệ
+765:Thì thầm với %s
+766:%s đã bị chủ phòng cấm khỏi phòng chờ này
+767:Bạn đã bị chủ phòng cấm
+768:Đặt lại tất cả lệnh cấm
+769:Chủ phòng đã đặt lại tất cả lệnh cấm cho phòng chờ này
+770:Ngày tháng
+771:Hiển thị sương mù
+772:Xem trận đấu
+773:Khán giả
+774:Tầm đánh tự động
+775:Các nhóm AI sẽ tự động tấn công nếu bạn ở gần hơn số ô này
+776:Bảo vệ đồng minh
+777:Nếu bật, AI sẽ bảo vệ các đơn vị và nhà của đồng minh như của chính mình
+778:Cho phép khán giả
+779:Thăng cấp làm chủ phòng
+780:Khán giả
+781:Không thể tắt khán giả: Danh sách khán giả phải trống
+782:Làm lại
+783:Hoàn tác
+784:Đặt vị trí bắt đầu của AI dùng để làm mục tiêu cho các cuộc tấn công của AI
+785:Vị trí bắt đầu của AI
+786:Thứ tự
+788:Độ trễ ban đầu (giây)
+790:Nhà gần nhất từ quân đội
+791:Nhà gần nhất từ vị trí bắt đầu
+792:Bên tấn công
+793:Bên phòng thủ
+794:Khán giả
+795:Để chơi một màn chiến dịch đã mở khóa trước đó, hãy chọn cờ nhiệm vụ trên bản đồ tóm tắt chiến dịch
+796:%s đã bỏ phiếu quay lại phòng chờ (cần thêm %s phiếu bầu)
+797:Bỏ phiếu đưa phòng này quay lại phòng chờ. Trò chơi sau đó có thể tiếp tục hoặc thay đổi
+798:Bỏ phiếu Về phòng chờ
+799:%s đã bỏ phiếu quay lại phòng chờ (bỏ phiếu thành công)
+800:Phiếu bầu quay lại phòng chờ đã thất bại
+801:Xóa bản xem lại cũng sẽ xóa tệp lưu liên quan. Bạn có chắc chắn muốn xóa tệp lưu này không?
+802:Lấy tất cả
+803:Số lượng đơn vị tối thiểu để tấn công
+804:Xóa bản xem lại
 805:Xóa bản đồ
-806:Bạn có chắc muốn xóa bản đồ này?
+806:Bạn có chắc chắn muốn xóa bản đồ này không?
+807:Ẩn lớp phủ kịch bản
+808:Hiển thị lớp phủ kịch bản
+809:Bạn không thể thay đổi chủ phòng khi máy chủ đang chạy trong client của bạn
+810:AI tự động tạo và quản lý các cuộc tấn công. Bỏ qua các cuộc tấn công được đặt thủ công
+811:Trang bị không giới hạn
+812:AI cổ điển: Lính được trang bị nhanh nhất có thể. Tỷ lệ trang bị vẫn ảnh hưởng đến việc quy hoạch làng|AI nâng cao: Không giới hạn trang bị
+813:Áp dụng mặc định của AI
+814:Trình xây dựng nhiều người chơi
+815:Áp dụng cài đặt xây dựng AI hung hăng cho tất cả người chơi (dành cho bản đồ xây dựng nhiều người chơi)
+816:Cảnh báo: Thao tác này sẽ ghi đè lên tất cả cài đặt AI hiện có cho tất cả người chơi. Tiếp tục?
+817:Loại quân đội
+818:Sắt rồi đến da
+819:Sắt
+820:Da
+821:Hỗn hợp
+822:Bản đồ đã tải xuống
+823:Lưu ý: Cuộc tấn công "Lặp lại" đầu tiên sẽ cử tất cả quân mà người chơi AI có tại các tiền tuyến tấn công. Tuy nhiên, đối với mọi cuộc tấn công "Lặp lại" tiếp theo (cũng như "Tấn công đơn lẻ"), AI sẽ cử đủ nhóm để vượt quá "Số lượng đơn vị tối thiểu để tấn công"
 824:Di chuyển
+825:Xem tệp PDF hướng dẫn
+826:Không mở được trình xem PDF
+827:Đặt số lượng dân phu trên mỗi 10 ngôi nhà cho người chơi AI được chỉ định. AI được chọn có %d nhà
+828:Lỗi: Tệp tạm dừng của chủ phòng không khớp với tệp tạm dừng cục bộ. Đã xảy ra lỗi hoặc chủ phòng có thể đang gian lận.
 829:Đơn hàng đã được hoàn thành
-830:Tải phông chữ châu Á
-831:Xóa khỏi phần tải
+830:Tải phông chữ Châu Á
+831:Di chuyển ra khỏi thư mục tải xuống
+832:Đổi tên Bản xem lại này
+833:Đổi tên Bản xem lại
+834:Xóa Bản xem lại này
+835:Tên:
+836:Xác nhận
+838:Phím tắt
+839:Đồng ý
+840:Chức năng
+841:Phím
+844:Đặt lại phím tắt
+845:Cuộn sang trái
+846:Cuộn sang phải
+847:Cuộn lên
+848:Cuộn xuống
+849:Menu Xây dựng
+850:Menu Tỷ lệ
+851:Menu Thống kê
+852:Menu Tùy chọn
+853:Lệnh Dừng
+854:Lệnh Tách nhóm
+855:Lệnh Liên kết nhóm
+856:Lệnh Lương thực
+857:Lệnh Tấn công chớp nhoáng
+858:Tăng đội hình
+859:Giảm đội hình
+860:Quay theo chiều kim đồng hồ
+861:Quay ngược chiều kim đồng hồ
+862:Tốc độ trò chơi bình thường (x1)
+863:Tốc độ trò chơi x%s
+864:Tốc độ trò chơi x%s
+865:Tốc độ trò chơi x%s
+866:Điểm tín hiệu
+867:Tạm dừng
+868:Hiển thị đội (MP)
+869:Phóng to
+870:Thu nhỏ
+871:Đặt lại thu phóng
+872:Chọn Nhóm 1
+873:Chọn Nhóm 2
+874:Chọn Nhóm 3
+875:Chọn Nhóm 4
+876:Chọn Nhóm 5
+877:Chọn Nhóm 6
+878:Chọn Nhóm 7
+879:Chọn Nhóm 8
+880:Chọn Nhóm 9
+881:Chọn Nhóm 10
+882:Căn giữa cảnh báo
+883:Xóa tin nhắn
+884:Hiển thị trò chuyện trò chơi (MP)
+885:Đóng Menu
+886:Gỡ lỗi: Hiển thị bản đồ
+887:Gỡ lỗi: Chiến thắng
+888:Gỡ lỗi: Thất bại
+889:Gỡ lỗi: Thêm trinh sát
+890:Menu Tiện ích mở rộng
+891:Trình chỉnh sửa địa hình
+892:Quy hoạch làng
+893:Kịch bản trực quan
+894:Kịch bản toàn cục
+895:Menu chính
+896:Menu phụ 1
+897:Menu phụ 2
+898:Menu phụ 3
+899:Menu phụ 4
+900:Menu phụ 5
+901:Menu phụ 6
+902:Ctrl và Shift không thể gán phím
+903:~~~ Giá trị không xác định
+904:Nút chuột trái
+905:Nút chuột giữa
+906:Nút chuột phải
+907:Break
+908:Backspace
+909:TAB
+910:Clear
+911:Return
+912:Shift
+913:Control
+914:Alt
+915:Pause
+916:Caps Lock
+917:Escape
+918:Phím cách
+919:Page Up
+920:Page Down
+921:End
+922:Home
+923:Phím mũi tên trái
+924:Phím mũi tên lên
+925:Phím mũi tên phải
+926:Phím mũi tên xuống
+927:Select
+928:Print
+929:Execute
+930:Print Screen
+931:Insert
+932:Delete
+933:Help
+934:Bàn phím số 0
+935:Bàn phím số 1
+936:Bàn phím số 2
+937:Bàn phím số 3
+938:Bàn phím số 4
+939:Bàn phím số 5
+940:Bàn phím số 6
+941:Bàn phím số 7
+942:Bàn phím số 8
+943:Bàn phím số 9
+944:Bàn phím số *
+945:Separator
+946:Bàn phím số -
+947:Bàn phím số .
+948:Bàn phím số /
+949:Num Lock
+950:Scroll Lock
+951:Shift trái
+952:Shift phải
+953:Control trái
+954:Control phải
+955:Alt trái
+956:Alt phải
+957:Play
+958:Zoom
+960:Bàn phím số +
+961:Phím thông dụng
+962:Phím trong trò chơi
+963:Phím trình chỉnh sửa bản đồ
+964:Đang đợi dữ liệu người chơi ngắt kết nối:
+965:Ống hút màu: Chọn loại ô dưới con trỏ
+966:Lò rèn giáp này không có người ở
+967:Xưởng chế tạo áo giáp này không có người ở
+968:Tiệm bánh này không có người ở
+969:Tiệm thịt này không có người ở
+970:Mỏ than này không có người ở
+971:Nông trại này không có người ở
+972:Nhà ngư dân này không có người ở
+973:Mỏ vàng này không có người ở
+974:Mỏ sắt này không có người ở
+975:Lò rèn sắt này không có người ở
+976:Xưởng luyện kim này không có người ở
+977:Cối xay này không có người ở
+978:Mỏ đá này không có người ở
+979:Xưởng cưa này không có người ở
+980:Xưởng vũ khí công thành này không có người ở
+981:Chuồng ngựa này không có người ở
+982:Trang trại lợn này không có người ở
+983:Xưởng thuộc da này không có người ở
+984:Tháp canh này không có người ở
+985:Lò rèn vũ khí này không có người ở
+986:Xưởng chế tạo vũ khí này không có người ở
+987:Vườn nho này không có người ở
+988:Nhà tiều phu này không có người ở
+989:%s đã thoát và bị đánh bại
+990:Chủ phòng (%s) đã thoát và bị đánh bại
+991:Hủy
+992:Xóa phím
+993:Chọn Nhóm 11
+994:Chọn Nhóm 12
+995:Chọn Nhóm 13
+996:Chọn Nhóm 14
+997:Chọn Nhóm 15
+998:Chọn Nhóm 16
+999:Chọn Nhóm 17
+1000:Chọn Nhóm 18
+1001:Chọn Nhóm 19
+1002:Chọn Nhóm 20
+1003:Xây đường
+1004:Tạo ruộng
+1005:Lập vườn nho
+1006:Xóa tòa nhà/vùng chọn
+1007:Chọn nhà/đơn vị tiếp theo có cùng loại
+1008:Cửa sổ gỡ lỗi
+1009:Xem người chơi 1
+1010:Xem người chơi 2
+1011:Xem người chơi 3
+1012:Xem người chơi 4
+1013:Xem người chơi 5
+1014:Xem người chơi 6
+1015:Xem người chơi 7
+1016:Xem người chơi 8
+1017:Cuộn màn hình bằng bản đồ
+1018:Phím chế độ Khán giả/Xem lại
+1019:%s đã tắt tiếng bạn. Bạn không thể gửi tin nhắn hoặc tín hiệu cho anh ấy nữa
+1020:Bảng đối tượng
+1021:Cục tẩy vạn năng
+1022:Tiều phu của bạn không thể tìm thấy chỗ trống nào để trồng cây
+1023:PT-
+1024:%s đã chiến thắng!
+1025:%s không còn kết nối với trò chơi nữa
+1026:Vàng tối đa
+1027:Số lượng vàng tối đa giao vào tòa thị chính
+1028:Chỉ trồng
+1029:Mở / Đóng nhà cho %s
+1030:Tất cả
+1031:Tất cả
+1032:Tất cả
+1033:Đổi tên bản đồ
+1034:Tạm dừng khi hết thời gian hòa bình
+1035:Thời gian chơi
+1036:Tên
+1037:Sức mạnh quân đội
+1038:Tất cả lính
+1039:Loại biểu đồ
+1040:Số lượng
+1041:GDP
+1042:Tức thời
+1043:Tổng trang bị
+1044:Bị tiêu diệt
+1045:Mất
+1046:Quay lại kết quả trò chơi
+1047:theo Người chơi
+1048:theo Đội
+1049:Thêm|thống kê
+1050:Quay lại Trình chỉnh sửa bản đồ
+1051:Quay lại Trình chỉnh sửa bản đồ
+1052:Bạn có chắc chắn muốn|thoát khỏi bản xem lại|này không?
+1053:Bản đồ không hợp lệ
+1054:Bản đồ được chọn không hợp lệ. Vui lòng chọn bản đồ khác
+1055:Tệp bản đồ đã tải xuống đã thay đổi
+1056:Đã chọn bản đồ tải xuống có tệp bị thay đổi. Vui lòng di chuyển nó ra khỏi thư mục tải xuống trước
+1057:Tệp bản đồ đã thay đổi. Vui lòng chọn lại bản đồ
+1058:Nút chuột chuyển tiếp
+1059:Nút chuột lùi
+1060:Tất cả
+1061:Cục tẩy vạn năng
+1062:Hiển thị chủ sở hữu ô bản đồ
+1063:Hiển thị lưới ô bản đồ
+1064:Điểm chặt
+1065:Đặt điểm chặt cho tiều phu. Hoặc bạn có thể đặt bằng Shift + Nhút chuột phải
+1066:Điểm tập kết
+1067:Đặt điểm tập kết cho %s. Hoặc bạn có thể đặt bằng Shift + Nút chuột phải
+1068:Thay đổi kích thước bản đồ
+1069:Di chuyển biên giới:
+1070:Thay đổi kích thước và Lưu
+1071:Thay đổi kích thước bản đồ rồi lưu lại
+1072:Thay đổi kích thước bản đồ
+1073:Bạn có chắc chắn muốn thay đổi kích thước bản đồ không?||Thao tác này sẽ tự động ghi đè bản đồ hiện tại
+1074:Thay đổi kích thước không thể thực hiện||Bạn cần lưu bản đồ mới trước
+1075:Thay đổi chủ sở hữu cho đối tượng
+1076:Chơi nhanh
+1077:Bắt đầu trò chơi chơi đơn trên bản đồ hiện tại
+1078:Chọn người chơi:
+1079:Chọn người chơi để bắt đầu bản đồ với tư cách
+1080:Bắt đầu không cần lưu
+1081:Hủy thay đổi và bắt đầu trò chơi với tư cách người chơi đã chọn
+1082:Lưu và bắt đầu
+1083:Lưu bản đồ và bắt đầu trò chơi với tư cách người chơi đã chọn
+1084:Trong Trại lính:
+1085:Trong Tòa thị chính:
+1086:Xoay ô trên bản đồ
+1087:Bảng đối tượng
+1088:Đóng bảng
+1089:Xóa đơn vị/nhóm
+1090:Tự động tạm dừng xem lại
+1091:Tự động tạm dừng bản xem lại khi hết thời gian hòa bình
+1092:Hiển thị điểm tín hiệu
+1093:Hiển thị điểm tín hiệu của người chơi
+1094:Tắt tiếng người chơi
+1095:Bật tiếng người chơi
+1096:Ghi nhớ mật khẩu này
+1097:Sử dụng mật khẩu đã biết gần nhất
+1098:Quay lại menu trước
+1099:Có
+1100:Không
+1101:Hủy
+1102:Bản đồ
+1103:Xem lại
+1104:Người chơi
+1105:Đội
+1106:Xem người chơi 9
+1107:Xem người chơi 10
+1108:Xem người chơi 11
+1109:Xem người chơi 12
+1110:Kích thước bản đồ hiện tại:|[ %d : %d ]
+1111:Kích thước bản đồ mới:|[ %d : %d ]
+1112:Thay đổi kích thước bản đồ
+1113:Chủ sở hữu: %s
+1114:Xóa Người chơi %d
+1115:Xóa Người chơi %d
+1116:Bạn có chắc chắn muốn xóa sạch người chơi này không?|Tất cả dữ liệu của anh ta sẽ bị xóa!
+1117:Đóng
+1118:Bản đồ nhiều người chơi
+1119:Tắt nhạc
+1120:Trộn bài nhạc
+1121:Bật/tắt trộn bài nhạc
+1122:Loại bản đồ
+1123:Bản đồ cốt truyện
+1124:Có thể chơi đơn
+1125:Cây có thể chặt
+1126:Chặn đi chéo
+1127:Chặn mọi thứ trừ tòa nhà
+1128:Hiển thị đường/ruộng/vườn nho
+1129:Hành động menu phụ 1
+1130:Hành động menu phụ 2
+1131:Hành động menu phụ 3
+1132:Hành động menu phụ 4
+1133:Hành động menu phụ 5
+1134:Hành động menu phụ 6
+1135:Hành động menu phụ 7
+1136:Hũ sơn (thổi đổi chủ sở hữu)
+1137:Thêm tấn công của AI
+1138:Xóa tấn công của AI
+1139:Đang cho về hưu
+1140:Sa thải
+1141:Bạn có thực sự muốn sa thải đơn vị này không?|Anh ta sẽ đến trường học và rời khỏi thị trấn của bạn mãi mãi
+1142:Sa thải đơn vị
+1143:Hủy sa thải đơn vị
+1144:Không thể sa thải do thị trấn thiếu trường học
+1145:Tham số|nhiệm vụ
+1146:Sửa đổi tham số nhiệm vụ
+1147:Tham số nhiệm vụ
+1148:Tác giả
+1149:Mô tả ngắn
+1150:Mô tả dài
+1151:ID văn bản Libx
+1152:Bản đồ này sẽ luôn hiển thị trong danh sách bản đồ chơi đơn
+1153:Chặn chọn đội
+1154:Chặn chọn đội trong phòng chờ
+1155:Chặn thời gian hòa bình
+1156:Chặn thay đổi thời gian hòa bình trong phòng chờ
+1157:Chặn xem trước toàn bộ bản đồ
+1158:Chặn xem trước toàn bộ bản đồ trong phòng chờ
+1159:Văn bản
+1160:Hiển thị bán kính khai thác mỏ
+1161:Hiển thị bán kính tấn công của tháp
+1162:Hiển thị bán kính tấn công của đơn vị
+1163:Mã màu:
+1164:Xanh dương / Xanh lá / Đỏ
+1165:Đỏ / Xanh lá / Xanh dương
+1166:Màu văn bản:
+1167:Màu giảm độ bão hòa, có thể dùng cho văn bản (ví dụ: trong lớp phủ kịch bản) [chỉ đọc]
+1168:Bộ lọc bản đồ
+1169:Đặt lại bộ lọc
+1170:Số lượng người chơi
+1171:Quay lại trò chơi
+1172:Hiển thị thống kê trò chơi chi tiết
+1173:Mức độ khó
+1174:Dễ
+1175:Bình thường
+1176:Khó
+1177:Các mức độ khó
+1178:Thiết lập các mức độ khó khác nhau, có thể dùng trong kịch bản để sửa đổi logic và độ khó nhiệm vụ
+1179:Người chơi AI nâng cao
+1180:AI nâng cao
+1181:AI cổ điển
+1182:Người chiến thắng
+1183:Bị đánh bại
+1184:Chủ phòng
+1185:Đi đến ngôi nhà đã chọn
+1186:Đi đến đơn vị đã chọn
+1187:Chế độ màu Đồng minh / Kẻ địch
+1188:Màu Bản thân / Đồng minh / Kẻ địch cho người chơi thay vì màu ban đầu của họ
+1189:[$404040]Chủ phòng đã sẵn sàng bắt đầu. Vui lòng nhấn '[][$0707FF]%s[][$404040]'[]
+1190:Yêu cầu nhấn Sẵn sàng
+1191:Đã gửi cảnh báo chuẩn bị sẵn sàng tới %s người chơi
+1192:Chuyển đổi chế độ màu của người chơi
+1193:Không thể sa thải trong khi đơn vị đang thực hiện hành động
+1194:Ctrl + Con lăn chuột
+1195:Alt + Con lăn chuột
+1196:Shift + Con lăn chuột
+1197:Ghi đè ô bản đồ|đã đặt thủ công
+1198:Buộc ghi đè các ô được đặt thủ công từ bảng ô khi tô bằng cọ (nếu có thể)
+1199:Cọ phép: Sử dụng mặt nạ đã chọn, sửa lỗi chuyển đổi ô cho các ô không có đồ họa chuyển đổi từ loại địa hình này sang loại khác
+1200:Không có mặt nạ - sử dụng các ô hiện có để chuyển đổi
+1201:Mặt nạ Soft1 - sử dụng các chuyển đổi được tạo tự động
+1202:Mặt nạ Soft2 - sử dụng các chuyển đổi được tạo tự động
+1203:Mặt nạ Soft3 - sử dụng các chuyển đổi được tạo tự động
+1204:Chi phí đơn vị Tòa thị chính tùy chỉnh
+1205:Giá chợ vàng tùy chỉnh
+1209:Sửa cọ địa hình
+1210:Cố gắng sửa chữa thông tin địa hình nội bộ để làm cọ hoạt động
+1211:Sửa cọ địa hình
+1212:Bạn có chắc chắn muốn sửa chữa|tất cả thông tin nội bộ của cọ địa hình không?||Thao tác này sẽ cho phép sử dụng cọ|ở những nơi từng dùng ô thủ công
+1213:Mặc định
+1214:Người chơi người
+1215:Người chơi AI cổ điển %d
+1216:Người chơi AI nâng cao %d
+1217:AI cổ điển %d
+1218:AI nâng cao %d
+1219:Người chơi AI cổ điển
+1220:Loại người chơi AI
+1221:T.động lưu khi k.thúc game
+1222:Không có
+1223:Tài nguyên
+1224:Nhà cửa
+1225:Đang xây dựng
+1226:Dân thường
+1227:Quân đội
+1228:Không thể sa thải các đơn vị đang đói
+1229:Tham số|AI cổ điển
+1230:Thiết lập tham số AI chỉ được sử dụng bởi AI cổ điển
+1231:Tham số AI cổ điển
+1232:Lấy bất kỳ loại nhóm nào
+1233:Độ khó
+1234:%s đã rời bàn phím trong %s phút gần nhất [$00B0FF][]
+1235:Xuất dữ liệu có thể mất đến vài phút.\nDữ liệu xuất sẽ được lưu trong thư mục '%s'.\nBạn có muốn tiếp tục không?
+1236:Thủ tục [ %s ] được khai báo cho lệnh bảng điều khiển kịch bản /%s không được tìm thấy
+1237:Sai loại tham số cho lệnh bảng điều khiển kịch bản /%s: [%s]
+1238:Sai loại tham số đầu tiên cho lệnh kịch bản /%s. Mong đợi: [ %s ], thực tế: [ %s ]
+1239:Quá nhiều tham số cho lệnh kịch bản /%s: [ %s ]. Số lượng tham số tối đa là [ %s ] (bao gồm cả tham số bắt buộc HandID)
+1240:Sai tham số cho lệnh kịch bản /%s. Các loại tham số mong đợi là: [ %s ]
+1241:Truyền quá nhiều tham số vào lệnh kịch bản /%s: Số lượng tham số mong đợi [ %s ], thực tế: [ %s ]
+1242:Đã gọi lệnh: /%s(%s)
+1243:Lỗi khi gọi lệnh kịch bản /%s(%s)|
+1244:Không tìm thấy lệnh bảng điều khiển kịch bản /%s
+1245:Bật/tắt lịch sử trò chuyện và sao chép từ cửa sổ trò chuyện
+1246:Lưu trạng thái bản xem lại để có thể tải trong khi xem bản xem lại này
+1247:Tải bản xem lại tại %s
+1248:Màu sắc người chơi:
+1249:Mặc định
+1250:Đồng minh / Kẻ địch
+1251:Đội
+1252:Hiển thị màu người chơi theo lựa chọn của họ trong phòng chờ
+1253:Hiển thị 3 màu khác nhau (của bạn, đồng minh, thù địch) cho dân thường và tòa nhà
+1254:Hiển thị màu theo tư cách thành viên trong đội
+1255:Lỗi: Tên người chơi '%s' đã được đặt trước
+1256:Dân thường (S/L/R)
+1257:Dân thường (Khác)
+1258:Mở/Đóng bảng thống kê khán giả
+1259:Việc giao %s bị cấm
+1260:Việc cung cấp %s bị cấm
+1261:Tân binh không được phép vào Trại lính
+1262:Tìm ô theo ID
+1263:Trình tạo bản đồ ngẫu nhiên - Cài đặt
+1264:Cài đặt trình tạo bản đồ ngẫu nhiên
+1265:Cài đặt RMG
+1266:Kích thước bản đồ:
+1267:Vị trí
+1268:Bật vị trí có tài nguyên
+1269:Số lượng vị trí
+1270:Đặt số lượng vị trí
+1271:Bán kính được bảo vệ
+1272:Chỉ định kích thước khu vực được bảo vệ. Giúp bảo vệ khu vực có thể xây dựng xung quanh mỗi vị trí.
+1273:Kết nối các vị trí
+1274:Tạo đường đi bộ giữa các vị trí
+1275:Bố cục
+1276:Bố cục của các vị trí
+1277:Hình chữ nhật
+1278:Dọc
+1279:Ngang
+1280:Ngẫu nhiên
+1281:Căn giữa màn hình
+1282:Tài nguyên
+1283:Bật tài nguyên ở mỗi vị trí (than được tính tự động)
+1284:Sửa mỏ
+1285:Đảm bảo tài nguyên có thể khai thác được (mỏ vàng và mỏ sắt)
+1286:Số lượng tài nguyên: đá
+1287:Số lượng tài nguyên: vàng
+1288:Số lượng tài nguyên: sắt
+1289:Chướng ngại vật
+1290:Bật chướng ngại vật (núi, sông, đầm lầy, v.v.)
+1291:Kích thước
+1292:Kích thước trung bình của các chướng ngại vật được tạo
+1293:Mật độ
+1294:Mật độ của các chướng ngại vật được tạo
+1295:Độ biến thiên
+1296:Độ biến thiên về kích thước của các chướng ngại vật được tạo
+1297:Tỷ lệ
+1298:Loại và tỷ lệ của các chướng ngại vật được tạo
+1299:Vàng trống
+1300:Tỷ lệ vàng trống
+1301:Sắt trống
+1302:Tỷ lệ sắt trống
+1303:Đầm lầy
+1304:Tỷ lệ đầm lầy
+1305:Vùng đất ngập nước
+1306:Tỷ lệ vùng đất ngập nước
+1307:Nước
+1308:Tỷ lệ nước
+1309:Hệ sinh thái
+1310:Bật hệ sinh thái
+1311:Loại hệ sinh thái
+1312:Chọn hệ sinh thái cần thiết
+1313:Cỏ
+1314:Cỏ là hệ sinh thái mặc định và không thể xóa
+1315:Đất
+1316:Bật đất
+1317:Tuyết
+1318:Bật tuyết
+1319:Cát
+1320:Bật cát
+1321:Lớp đầu tiên
+1322:Lớp đầu tiên của hệ sinh thái (thuộc tính của kết cấu chính)
+1323:Lớp thứ hai
+1324:Lớp thứ hai của hệ sinh thái (thuộc tính của kết cấu phụ)
+1325:Bước
+1326:Bước của kết cấu chính (giá trị cao hơn = hệ sinh thái lớn hơn)
+1327:Bước của kết cấu phụ (giá trị cao hơn = hệ sinh thái lớn hơn)
+1328:Giới hạn
+1329:Giới hạn biên giới hệ sinh thái (giá trị cao hơn = hệ sinh thái lớn hơn)
+1330:Độ cao
+1331:Bật độ cao
+1332:Ẩn các cạnh răng cưa
+1333:Điều chỉnh độ cao địa hình để ẩn các chuyển đổi kết cấu thô
+1334:Nơi không thể tiếp cận
+1335:Xử lý các nơi không thể tiếp cận
+1336:Chặn đi lại
+1337:Chặn đi lại (cải thiện tìm đường và tạo lưới điều hướng trong trò chơi)
+1338:Thay đổi kết cấu
+1339:Thay thế địa hình bằng hệ sinh thái đặc biệt
+1340:Đối tượng
+1341:Bật đối tượng
+1342:Động vật
+1343:Bật động vật
+1344:Mật độ đối tượng
+1345:Mật độ rừng
+1346:Mật độ rừng
+1347:Cây
+1348:Số lượng cây trong rừng
+1349:Hạt giống
+1350:Một số được dùng làm định danh để tạo bản đồ với cấu hình cụ thể
+1351:Tạo hạt giống ngẫu nhiên
+1352:Tạo bản đồ với Hạt giống mới
+1353:Tạo bản đồ
+1354:Tạo bản đồ với Hạt giống hiện tại
+1355:Đóng Trình tạo bản đồ ngẫu nhiên
+1356:H
+1357:Phát nhịp tiếp theo trong bản xem lại
+1358:Dễ hơn
+1359:Rất dễ
+1360:Khó hơn
+1361:Rất khó
+1362:Phiên bản trò chơi của chủ phòng không khớp với phiên bản trò chơi của bạn
+1363:Tất cả
+1364:Cho phép '%s' cho tất cả các vị trí có sẵn
+1365:Cấm '%s' cho tất cả các vị trí có sẵn
+1366:Bước của thuật toán độ cao
+1367:Độ dốc của đánh giá độ cao (0 = cao nguyên, 100 = đỉnh núi)
+1368:Độ cao tối đa của các ô đi qua được
+1369:Bản đồ ngẫu nhiên
+1370:Bản đồ được tạo tự động bằng trình tạo bản đồ ngẫu nhiên
+1371:Tài nguyên ban đầu
+1372:Số lượng tài nguyên ban đầu trong kho chứa
+1373:Thấp
+1374:Trung bình
+1375:Cao
+1376:Chọn kích thước của bản đồ
+1377:Thử bắt đầu
+1378:Thử tải bản lưu
+1379:Thử xem bản xem lại
+1380:Lỗi tải tệp lưu phiên bản không được hỗ trợ %s từ %s
+1381:Lỗi tải bản xem lại phiên bản không được hỗ trợ %s từ %s
+1382:Tên bản đồ
+1383:Thời gian
+1384:Phiên bản
+1385:Tải phiên bản không được hỗ trợ có thể khiến trò chơi không tải đúng cách hoặc thậm chí gây sự cố trò chơi
+1386:Phiên bản không được hỗ trợ
+1387:Bạn có chắc chắn muốn mở khóa tất cả các chiến dịch không?\nThao tác này không thể hoàn tác.\n\nNếu muốn lưu tiến trình chiến dịch, hãy đảm bảo bạn đã sao lưu tệp 'Campaigns.dat' nằm tại\n'%s'\n\nBạn có xác nhận thao tác này không?
+1388:Mặt nạ cứng - sử dụng các chuyển đổi được tạo tự động
+1389:Độ trễ tính bằng nhịp trò chơi trước khi AI trang bị lính giáp da
+1390:Độ trễ tính bằng nhịp trò chơi trước khi AI trang bị lính giáp sắt
+1391:Đặt số lượng công nhân AI
+1392:Cấp độ pha trộn
+1393:Cấp độ pha trộn của các chuyển đổi địa hình thông qua mặt nạ
+1394:Chặn xây dựng
+1395:Chặn đi lại và xây dựng
+1396:Lớp phủ ô bản đồ
+1397:Đặt lớp phủ ô bản đồ.|Dùng chuột trái cho chế độ an toàn và chuột trái + Shift để ghi đè đường
+1398:Video clip:
+1399:Bật
+1400:Kéo giãn
+1401:Hiển thị khi khởi động
+1402:Âm lượng
+1403:Kiểm tra video
+1404:Bản mod
+1405:Nhà tuyết
+1406:Chặn chọn màu người chơi
+1407:Chặn chọn màu người chơi
+1408:Lịch sử
+1409:Lịch sử thay đổi trên bản đồ
+1410:Lịch sử
+1411:Nhảy đến
+1412:Đi đến điểm đã chọn trong lịch sử
+1413:Ban đầu
+1414:Thêm %s %s
+1415:Xóa %s %s
+1416:Cập nhật %s %s
+1417:Di chuyển %s %s
+1418:Thay đổi chủ sở hữu: %s %s
+1419:đường
+1420:ruộng ngô
+1421:vườn nho
+1422:lớp phủ
+1423:đối tượng
+1424:Bạn không có đủ quyền trong thư mục cài đặt KaM Remake:\n'%s'\n\nHãy thử chạy với quyền quản trị viên, cài đặt lại trò chơi vào thư mục khác hoặc loại trừ tệp KaM_Remake.exe khỏi trình quét chống vi-rút
+1425:Bảng ô bản đồ
+1426:Bảng ô bản đồ
+1427:Phiên bản
+1428:Sửa cọ địa hình
+1429:Tạo điểm lưu bản xem lại
+1430:Đi đến đơn vị trước
+1431:Huấn luyện hoặc Trang bị đơn vị
+1432:Đi đến đơn vị tiếp theo
+1433:Phím lệnh đơn vị
+1434:Phím nhà cửa
+1435:Hiển thị vị trí phòng thủ
+1436:Hiển thị địa hình bằng phẳng
+1437:Tốc độ trò chơi chỉ có thể được thay đổi bởi chủ phòng nếu không có người chơi hoạt động nào trên bản đồ
+1438:Xuất tài nguyên hoàn tất: [ %s ]
+1439:Quay lại trình duyệt
+1440:Tiến tới trình duyệt
+1441:Làm mới trình duyệt
+1442:Dừng trình duyệt
+1443:Tìm kiếm trên trình duyệt
+1444:Trang ưa thích trên trình duyệt
+1445:Trang chủ trình duyệt
+1446:Tắt tiếng âm lượng
+1447:Giảm âm lượng
+1448:Tăng âm lượng
+1449:Bài phương tiện tiếp theo
+1450:Bài phương tiện trước
+1451:Dừng phương tiện
+1452:Phát/tạm dừng phương tiện
+1453:Mở thư điện tử
+1454:Mở chọn phương tiện
+1455:Khởi chạy ứng dụng 1
+1456:Khởi chạy ứng dụng 2
+1457:Bài nhạc trước
+1458:Bài nhạc tiếp theo
+1459:Tắt nhạc
+1460:Trộn nhạc
+1461:Tăng âm lượng nhạc
+1462:Giảm âm lượng nhạc
+1463:Tắt tiếng nhạc
+1464:Tăng âm lượng âm thanh
+1465:Giảm âm lượng âm thanh
+1466:Tắt tiếng âm thanh
+1467:Tắt tiếng tất cả (nhạc và âm thanh)
+1468:Cọ đối tượng
+1469:Cây cối
+1470:Tất cả đối tượng trừ cây cối
+1471:Đá
+1472:Hoa
+1473:Nấm
+1474:Gốc cây
+1475:Cây chết
+1476:Cây xương rồng
+1477:Bụi sa mạc
+1478:Tàn tích
+1479:Đối tượng địa hình
+1480:Khi tô, đặt các đối tượng khớp với cọ địa hình đã chọn
+1481:Mật độ
+1482:Mật độ đối tượng / rừng
+1483:Tuổi rừng
+1484:Cọ làm sạch, xóa tất cả đối tượng
+1485:Tất cả
+1486:Non
+1487:Trung bình
+1488:Chặt
+1489:Tất cả độ tuổi
+1490:Cây non
+1491:Cây trung bình
+1492:Cây sẵn sàng chặt
+1493:Áp dụng địa hình từ vùng đã sao chép
+1494:Áp dụng độ cao từ vùng đã sao chép
+1495:Áp dụng đối tượng từ vùng đã sao chép
+1496:Áp dụng lớp phủ địa hình từ vùng đã sao chép
+1497:Độ cao hằng định
+1498:Cấp độ độ cao hằng định của cọ
+1499:Cấp độ độ cao
+1500:Cấp độ độ cao được sử dụng trong 'Độ cao hằng định'
+1501:Nâng tất cả
+1502:Nâng lên (nhấp trái) / Hạ xuống (nhấp phải) tất cả các ô trên bản đồ có loại địa hình tại con trỏ trò chơi
+1503:Ghi đè đối tượng
+1504:Đối tượng sẽ được thay thế bằng đối tượng khác hoặc bị xóa
+1505:Mặt nạ gradient - sử dụng các chuyển đổi được tạo tự động
+1506:Lớn
+1507:Cây lớn
+1508:Gốc cây
+1509:Gốc cây
+1510:Tất cả-
+1511:Tất cả độ tuổi, trừ gốc cây
+1512:Thời gian nhiệm vụ:
+1513:Tốc độ trò chơi hiện tại
+1514:Tốc độ xem lại hiện tại
+1515:Tốc độ trò chơi đã ghi lại
+1516:Chuyển động HD
+1517:Chuyển động HD
+1518:Tăng độ phân giải chuyển động của đơn vị và đạn đạo
+1519:Đối với người chơi %0:s, đối với người chơi %1:s thì %2:s %3:s phải là %4:s
+1520:thắng
+1521:sống sót
+1522:bị phá hủy
+1523:được cứu
+1524:tòa nhà chính ( %s )
+1525:Chỉ cho phép các liên minh đối xứng
+1526:Hoạt ảnh HD
+1527:Hoạt ảnh HD
+1528:Tăng số lượng khung hình được sử dụng trong hoạt ảnh
+1529:Làm mượt đỉnh núi
+1530:Làm cho các đỉnh núi mượt mà hơn
+1531:Cài đặt trò chơi
+1532:Cài đặt xem lại
+1533:Cài đặt trình chỉnh sửa bản đồ
+1534:Lưu ý: AI nâng cao sử dụng các tham số đội hình riêng và sẽ bỏ qua các cài đặt này
+1535:Đến bản đồ chiến dịch
+1536:Lấy bất kỳ loại nhóm nào
+1537:Yếu
+1538:Lính không giáp, đơn vị giáp da hoặc đơn vị giáp sắt
+1539:Thêm nhóm
+1540:Thêm nhóm sau khi đặt vị trí phòng thủ. Nhóm phụ thuộc vào đội hình AI
+1541:Số lượng
+1542:Số lượng đơn vị trong nhóm. Ở mức 0, lấy theo đội hình AI
+1543:Cột
+1544:Số cột trong nhóm. Nếu số lượng đơn vị là 0, lấy số cột theo đội hình AI
+1545:Làm than mượt mà
+1546:Các mỏ than trong vùng chọn sẽ được tự động thiết lập từ các ô có số lượng than thấp nhất ở rìa đến cao nhất ở giữa
+1547:Người chơi khác gặp lỗi bất đồng bộ (desync). Vui lòng gửi cho chúng tôi báo cáo sự cố này, nó sẽ giúp chúng tôi khắc phục.%sThông báo lỗi của người chơi khác là:%s
+1548:Hoàn tác
+1549:Làm lại
+1550:Cỏ
+1551:Rêu
+1552:Cỏ nhạt
+1553:Cỏ trên đất
+1554:Đất
+1555:Cát ven biển
+1556:Cát cỏ 1
+1557:Cát cỏ 2
+1558:Cát cỏ 3
+1559:Cát
+1560:Đầm lầy
+1561:Nước cỏ
+1562:Nước
+1563:Nước chảy xiết
+1564:Tùy chỉnh
+1565:Tuyết trên cỏ
+1566:Tuyết trên đất
+1567:Tuyết
+1568:Tuyết sâu
+1569:Băng
+1570:Đá
+1571:Núi vàng
+1572:Núi sắt
+1573:Đá cuội
+1574:Sỏi
+1575:Than
+1576:Vàng
+1577:Sắt
+1578:Dung nham
+1579:Vực thẳm
+1580:Mọi thay đổi chưa lưu sẽ bị mất. Thoát chứ?
+1581:Cảnh báo
+1582:Không có lớp phủ
+1583:Lớp phủ đào giai đoạn 1
+1584:Lớp phủ đào giai đoạn 2
+1585:Lớp phủ đào giai đoạn 3
+1586:Lớp phủ đào giai đoạn 4
+1587:Lớp phủ đường
+1588:Mặc định
+1589:Áp dụng cài đặt xây dựng AI nhiều người chơi cho người chơi %d
+1590:Thiết lập nhiều người chơi cho người chơi AI %d
+1591:Cảnh báo: Thao tác này sẽ ghi đè tất cả cài đặt AI hiện có cho người chơi %d. Tiếp tục?
+1592:Lưu mật khẩu hiện tại để sử dụng trong tương lai
+1593:Số lượng cá
+1594:Lưu bản đồ
+1595:Đã lưu bản đồ
+1596:Đang lưu bản đồ...
+1597:Địa hình bằng phẳng
+1598:Lưới ô bản đồ
+1599:Tệp lưu không tồn tại
+1600:Lưu phân phối hàng hóa|giữa các ván chơi
+1601:Chiến dịch... đang tải...
+1602:%s|dùng chuột trái để chặn giao hàng / chuột phải để chặn lấy ra ở chế độ 'lấy ra' và Shift để áp dụng cho tất cả hàng hóa
+1603:Dân thường|đã sa thải
+1604:Dân thường đã sa thải:
