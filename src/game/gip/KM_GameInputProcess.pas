@@ -1114,13 +1114,12 @@ begin
         raise Exception.Create('Unexpected gic command');
       end;
     except
-      begin
-        // for actions which are game-state neutral, in official release builds outside of
-        // beta cycle, we want to ignore exceptions, so we don't desynchronize a MP game
-        if not (CommandType in COMMAND_IS_GAMESTATE_NEUTRAL) then raise
-        else
-          gLog.AddTime('Failed to execute GIP command: ' + GetEnumName(TypeInfo(TKMGameInputCommandType),integer(CommandType)));
-      end;
+      // for actions which are game-state neutral, in official release builds outside of
+      // beta cycle, we want to ignore exceptions, so we don't desynchronize a MP game
+      if not (CommandType in COMMAND_IS_GAMESTATE_NEUTRAL) then
+        raise
+      else
+        gLog.AddTime('Failed to execute GIP command: ' + GetEnumName(TypeInfo(TKMGameInputCommandType), Ord(CommandType)));
     end;
   end;
 end;
