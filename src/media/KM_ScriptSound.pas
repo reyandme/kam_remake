@@ -238,14 +238,12 @@ function TKMScriptSoundsManager.AddSound(aHandIndex: TKMHandID; const aSoundName
                                          aLoc: TKMPoint; aAttenuate: Boolean; aVolume: Single; aRadius: Single; aFadeMusic, aLooped: Boolean): Integer;
 const
   ERROR_EXIT_CODE = -1;
-var
-  newSound: TKMScriptSound;
 begin
   if Self = nil then Exit(ERROR_EXIT_CODE);
 
   Inc(fLastScriptUID); // fLastScriptUID always increases
 
-  newSound := TKMScriptSound.Create;
+  var newSound := TKMScriptSound.Create;
   newSound.ScriptUID := fLastScriptUID;
   newSound.PlayingIndex := -1;
   newSound.Looped := aLooped;
@@ -258,7 +256,10 @@ begin
   newSound.Radius := aRadius;
   newSound.HandIndex := aHandIndex;
 
-  StartSound(fScriptSounds.Add(newSound));
+  fScriptSounds.Add(newSound);
+
+  // Start playing it immediately
+  StartSound(fScriptSounds.Count - 1);
 
   // Always return ScriptUID, since game logic should not depend on client sound subsystem
   Result := fLastScriptUID;
