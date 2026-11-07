@@ -35,8 +35,7 @@ type
 
     function CanPlay(aIndex: Integer): Boolean; overload;
     function CanPlay(const aScriptSound: TKMScriptSound): Boolean; overload;
-    function StartSound(aIndex: Integer): Integer; overload;
-    function StartSound(aScriptSound: TKMScriptSound): Integer; overload;
+    function StartSound(aIndex: Integer): Integer;
     procedure StopSound(aIndex: Integer);
     procedure RemoveSoundByIndex(aIndex: Integer);
   public
@@ -201,23 +200,19 @@ end;
 
 
 function TKMScriptSoundsManager.StartSound(aIndex: Integer): Integer;
-begin
-  Result := StartSound(fScriptSounds[aIndex]);
-end;
-
-
-function TKMScriptSoundsManager.StartSound(aScriptSound: TKMScriptSound): Integer;
 var
   soundFile: UnicodeString;
 begin
-  Result := -1;
-  soundFile := gGame.GetScriptSoundFilePath(aScriptSound.SoundName, aScriptSound.AudioFormat);
+  var scriptSound := fScriptSounds[aIndex];
 
-  //Silently ignore missing files
-  if not FileExists(soundFile) or not CanPlay(aScriptSound) then
+  Result := -1;
+  soundFile := gGame.GetScriptSoundFilePath(scriptSound.SoundName, scriptSound.AudioFormat);
+
+  // Ignore missing files
+  if not FileExists(soundFile) or not CanPlay(scriptSound) then
     Exit;
 
-  with aScriptSound do
+  with scriptSound do
   begin
     PlayingIndex := gSoundPlayer.PlayScriptSound(soundFile, KMPointF(Loc), Attenuate, Volume, Radius, FadeMusic, Looped);
     Result := PlayingIndex;
