@@ -209,7 +209,7 @@ begin
   soundFile := gGame.GetScriptSoundFilePath(scriptSound.SoundName, scriptSound.AudioFormat);
 
   // Ignore missing files
-  if not FileExists(soundFile) or not CanPlay(scriptSound) then
+  if not FileExists(soundFile) or not CanPlay(aIndex) then
     Exit;
 
   with scriptSound do
