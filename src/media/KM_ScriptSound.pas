@@ -62,7 +62,7 @@ var
 
 implementation
 uses
-  SysUtils,
+  Math, SysUtils,
   KM_Game,
   KM_HandsCollection, KM_HandTypes,
   KM_Sound
@@ -297,9 +297,7 @@ var
   k1: Integer absolute aKey1;
   k2: Integer absolute aKey2;
 begin
-  if      k1 < k2 then Result := -1
-  else if k1 > k2 then Result := +1
-  else                 Result :=  0;
+  Result := CompareValue(k1, k2);
 end;
 
 
