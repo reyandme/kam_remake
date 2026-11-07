@@ -56,9 +56,9 @@ type
     function IsSoundPlaying(aIndex: Integer): Boolean;
 
     function PlayWave(const aFile: UnicodeString; const aLoc: TKMPointF; aSoundType: TKMSoundType; aAttenuated: Boolean = True;
-                      aVolume: Single = 1; aFadeMusic: Boolean = False; aLoop: Boolean = False): Integer;
+      aVolume: Single = 1; aFadeMusic: Boolean = False; aLoop: Boolean = False): Integer;
     function PlaySound(aSoundID: TKMSoundEffectOriginal; const aFile: UnicodeString; const Loc: TKMPointF; aSoundType: TKMSoundType;
-                       aAttenuated: Boolean; aVolume: Single; aRadius: Single; aFadeMusic, aLooped: Boolean; aFromScript: Boolean = False): Integer;
+      aAttenuated: Boolean; aVolume: Single; aRadius: Single; aFadeMusic, aLooped: Boolean; aFromScript: Boolean = False): Integer;
     function CanAddLoopSound: Boolean;
 
     function GetMuted: Boolean;
@@ -166,6 +166,7 @@ begin
     end;
     AlutExit;
   end;
+
   inherited;
 end;
 
@@ -173,7 +174,6 @@ end;
 procedure TKMSoundPlayer.Init;
 var
   I: Integer;
-
 begin
   for I := Low(fScriptSoundALIndex) to High(fScriptSoundALIndex) do
     fScriptSoundALIndex[I] := -1;
@@ -465,8 +465,7 @@ end;
 {Attenuated means if sound should fade over distance or not}
 //Returns index in fALSound array
 function TKMSoundPlayer.PlaySound(aSoundID: TKMSoundEffectOriginal; const aFile: UnicodeString; const Loc: TKMPointF; aSoundType: TKMSoundType;
-                                  aAttenuated: Boolean; aVolume: Single; aRadius: Single; aFadeMusic, aLooped: Boolean;
-                                  aFromScript: Boolean = False): Integer;
+  aAttenuated: Boolean; aVolume: Single; aRadius: Single; aFadeMusic, aLooped: Boolean; aFromScript: Boolean = False): Integer;
 var
   dif: array[1..3]of Single;
   freeBuf{,FreeSrc}: Integer;
@@ -604,8 +603,8 @@ begin
       wavDuration := round(wavSize / wavFreq * 1000);
       case wavFormat of
         AL_FORMAT_STEREO16: wavDuration := wavDuration div 4;
-        AL_FORMAT_STEREO8: wavDuration := wavDuration div 2;
-        AL_FORMAT_MONO16: wavDuration := wavDuration div 2;
+        AL_FORMAT_STEREO8:  wavDuration := wavDuration div 2;
+        AL_FORMAT_MONO16:   wavDuration := wavDuration div 2;
       end;
     except
       //This happens regularly if you run two copies of the game out of one folder and they share the MP chat sound.
@@ -697,8 +696,8 @@ end;
 procedure TKMSoundPlayer.PlayCitizen(aUnitType: TKMUnitType; aSound: TKMWarriorSpeech);
 begin
   if SKIP_SOUND
-    or not fIsSoundInitialized
-    or ((gMySpectator.Selected <> nil) and not gMySpectator.IsSelectedMyObj) then // Do not play sound for ally's citizens selection
+  or not fIsSoundInitialized
+  or ((gMySpectator.Selected <> nil) and not gMySpectator.IsSelectedMyObj) then // Do not play sound for ally's citizens selection
     Exit;
 
   PlayCitizen(aUnitType, aSound, KMPOINTF_ZERO);
@@ -774,6 +773,7 @@ begin
   begin
     if (fScriptSoundALIndex[I] <> -1) and fALSounds[fScriptSoundALIndex[I]].Looped then
       Inc(cnt);
+
     if cnt >= MAX_LOOP_SOUNDS then
       Exit(False);
   end;
@@ -888,6 +888,7 @@ begin
       else
         fALSounds[I].FadesMusic := False; //Make sure we don't resume more than once for this sound
     end;
+
   //If we reached the end without exiting then we need to resume the music
   fMusicIsFaded := False;
   if Assigned(fOnUnfadeMusic) then
