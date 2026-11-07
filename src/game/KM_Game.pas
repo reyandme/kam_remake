@@ -112,7 +112,7 @@ type
 
     procedure GameMPDisconnect(const aReason: UnicodeString);
     procedure OtherPlayerDisconnected(aDefeatedPlayerHandId: Integer);
-    function GetActiveHandIDs: TKMByteSet;
+    function GetListenersHandIDs: TKMByteSet;
 
     procedure VisibleLayersWereSet;
 
@@ -1063,8 +1063,8 @@ begin
 end;
 
 
-// Get active hand ids as set (enabled hands for SP/replay or connected not spectators
-function TKMGame.GetActiveHandIDs: TKMByteSet;
+// Get list of hands that can hear the script sounds
+function TKMGame.GetListenersHandIDs: TKMByteSet;
 var
   I: Integer;
   roomSlot: TKMNetRoomSlot;
@@ -3341,7 +3341,7 @@ end;
 // Add remove script sounds request to the script sounds manager
 procedure TKMGame.AddScriptSoundRemoveRequest(aScriptSoundUID: Integer; aHandID: TKMHandID);
 begin
-  gScriptSounds.AddRemoveRequest(aScriptSoundUID, aHandID, GetActiveHandIDs);
+  gScriptSounds.AddRemoveRequest(aScriptSoundUID, aHandID, GetListenersHandIDs);
 end;
 
 
