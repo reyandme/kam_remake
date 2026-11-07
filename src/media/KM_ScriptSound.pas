@@ -33,8 +33,7 @@ type
 
     fSoundRemoveRequests: TDictionary<Integer, TKMByteSet>;
 
-    function CanPlay(aIndex: Integer): Boolean; overload;
-    function CanPlay(const aScriptSound: TKMScriptSound): Boolean; overload;
+    function CanPlay(aIndex: Integer): Boolean;
     function StartSound(aIndex: Integer): Integer;
     procedure StopSound(aIndex: Integer);
     procedure RemoveSoundByIndex(aIndex: Integer);
@@ -178,23 +177,18 @@ end;
 
 function TKMScriptSoundsManager.CanPlay(aIndex: Integer): Boolean;
 begin
-  Result := CanPlay(fScriptSounds[aIndex]);
-end;
+  var scriptSound := fScriptSounds[aIndex];
 
+  Result := ((scriptSound.HandIndex = gMySpectator.HandID) or (scriptSound.HandIndex = HAND_NONE))
+             and (not scriptSound.Attenuate
+                  or (gMySpectator.FogOfWar.CheckTileRevelation(scriptSound.Loc.X, scriptSound.Loc.Y) > 0));
 
-function TKMScriptSoundsManager.CanPlay(const aScriptSound: TKMScriptSound): Boolean;
-var
-  distanceSqr: Single;
-begin
-  Result := ((aScriptSound.HandIndex = gMySpectator.HandID) or (aScriptSound.HandIndex = HAND_NONE))
-             and (not aScriptSound.Attenuate
-                  or (gMySpectator.FogOfWar.CheckTileRevelation(aScriptSound.Loc.X, aScriptSound.Loc.Y) > 0));
   if not Result then Exit;
 
-  if aScriptSound.Attenuate then
+  if scriptSound.Attenuate then
   begin
-    distanceSqr := KMDistanceSqr(KMPointF(aScriptSound.Loc), fListener);
-    Result := Result and (distanceSqr < Sqr(aScriptSound.Radius));
+    var distanceSqr := KMDistanceSqr(KMPointF(scriptSound.Loc), fListener);
+    Result := Result and (distanceSqr < Sqr(scriptSound.Radius));
   end;
 end;
 
