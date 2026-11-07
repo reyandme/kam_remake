@@ -330,11 +330,12 @@ begin
   SaveStream.Write(fSoundRemoveRequests.Count);
 
   keyArray := fSoundRemoveRequests.Keys.ToArray;
-  {$IFNDEF FPC}
-  TArray.Sort<Integer>(keyArray);
-  {$ELSE}
+  {$IFDEF FPC}
   SortCustom(keyArray, Low(keyArray), High(keyArray), SizeOf(keyArray[0]), CompareKeys);
+  {$ELSE}
+  TArray.Sort<Integer>(keyArray);
   {$ENDIF}
+
   for key in keyArray do
   begin
     SaveStream.Write(key);
