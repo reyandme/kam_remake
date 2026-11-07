@@ -49,7 +49,7 @@ type
     procedure RemoveLoopSoundByUID(aScriptIndex: Integer);
     procedure RemoveSoundByUID(aScriptUID: Integer; aLoopedOnly: Boolean = False);
     procedure AddRemoveRequest(aScriptSoundUID: Integer; aHandID: TKMHandID; aActiveHandIDs: TKMByteSet);
-    procedure UpdateListener(X,Y: Single);
+    procedure UpdateListener(aX, aY: Single);
 
     procedure UpdateStateGlobal;
 
@@ -286,10 +286,11 @@ begin
 end;
 
 
-procedure TKMScriptSoundsManager.UpdateListener(X,Y: Single);
+procedure TKMScriptSoundsManager.UpdateListener(aX, aY: Single);
 begin
-  fListener := KMPointF(X, Y);
+  fListener := KMPointF(aX, aY);
 end;
+
 
 function CompareKeys(const aKey1, aKey2): Integer;
 var
@@ -300,6 +301,7 @@ begin
   else if k1 > k2 then Result := +1
   else                 Result :=  0;
 end;
+
 
 procedure TKMScriptSoundsManager.Save(SaveStream: TKMemoryStream);
 var
