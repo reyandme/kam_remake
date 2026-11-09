@@ -33,10 +33,8 @@ type
 
     fSoundRemoveRequests: TDictionary<Integer, TKMByteSet>;
 
-    function CanPlay(aIndex: Integer): Boolean; overload;
-    function CanPlay(const aScriptSound: TKMScriptSound): Boolean; overload;
-    function StartSound(aIndex: Integer): Integer; overload;
-    function StartSound(aScriptSound: TKMScriptSound): Integer; overload;
+    function CanPlay(aIndex: Integer): Boolean;
+    function StartSound(aIndex: Integer): Integer;
     procedure StopSound(aIndex: Integer);
     procedure RemoveSoundByIndex(aIndex: Integer);
   public
@@ -51,7 +49,7 @@ type
     procedure RemoveLoopSoundByUID(aScriptIndex: Integer);
     procedure RemoveSoundByUID(aScriptUID: Integer; aLoopedOnly: Boolean = False);
     procedure AddRemoveRequest(aScriptSoundUID: Integer; aHandID: TKMHandID; aActiveHandIDs: TKMByteSet);
-    procedure UpdateListener(X,Y: Single);
+    procedure UpdateListener(aX, aY: Single);
 
     procedure UpdateStateGlobal;
 
@@ -64,7 +62,7 @@ var
 
 implementation
 uses
-  SysUtils,
+  Math, SysUtils,
   KM_Game,
   KM_HandsCollection, KM_HandTypes,
   KM_Sound
@@ -98,8 +96,8 @@ end;
 destructor TKMScriptSoundsManager.Destroy;
 begin
   gSoundPlayer.AbortAllScriptSounds;
-  fSoundRemoveRequests.Free;
-  fScriptSounds.Free;
+  FreeAndNil(fSoundRemoveRequests);
+  FreeAndNil(fScriptSounds);
 
   inherited;
 end;
@@ -179,45 +177,36 @@ end;
 
 function TKMScriptSoundsManager.CanPlay(aIndex: Integer): Boolean;
 begin
-  Result := CanPlay(fScriptSounds[aIndex]);
-end;
+  var scriptSound := fScriptSounds[aIndex];
 
+  Result := ((scriptSound.HandIndex = gMySpectator.HandID) or (scriptSound.HandIndex = HAND_NONE))
+             and (not scriptSound.Attenuate
+                  or (gMySpectator.FogOfWar.CheckTileRevelation(scriptSound.Loc.X, scriptSound.Loc.Y) > 0));
 
-function TKMScriptSoundsManager.CanPlay(const aScriptSound: TKMScriptSound): Boolean;
-var
-  distanceSqr: Single;
-begin
-  Result := ((aScriptSound.HandIndex = gMySpectator.HandID) or (aScriptSound.HandIndex = HAND_NONE))
-             and (not aScriptSound.Attenuate
-                  or (gMySpectator.FogOfWar.CheckTileRevelation(aScriptSound.Loc.X, aScriptSound.Loc.Y) > 0));
   if not Result then Exit;
 
-  if aScriptSound.Attenuate then
+  if scriptSound.Attenuate then
   begin
-    distanceSqr := KMDistanceSqr(KMPointF(aScriptSound.Loc), fListener);
-    Result := Result and (distanceSqr < Sqr(aScriptSound.Radius));
+    var distanceSqr := KMDistanceSqr(KMPointF(scriptSound.Loc), fListener);
+    Result := Result and (distanceSqr < Sqr(scriptSound.Radius));
   end;
 end;
 
 
 function TKMScriptSoundsManager.StartSound(aIndex: Integer): Integer;
-begin
-  Result := StartSound(fScriptSounds[aIndex]);
-end;
-
-
-function TKMScriptSoundsManager.StartSound(aScriptSound: TKMScriptSound): Integer;
 var
   soundFile: UnicodeString;
 begin
-  Result := -1;
-  soundFile := gGame.GetScriptSoundFilePath(aScriptSound.SoundName, aScriptSound.AudioFormat);
+  var scriptSound := fScriptSounds[aIndex];
 
-  //Silently ignore missing files
-  if not FileExists(soundFile) or not CanPlay(aScriptSound) then
+  Result := -1;
+  soundFile := gGame.GetScriptSoundFilePath(scriptSound.SoundName, scriptSound.AudioFormat);
+
+  // Ignore missing files
+  if not FileExists(soundFile) or not CanPlay(aIndex) then
     Exit;
 
-  with aScriptSound do
+  with scriptSound do
   begin
     PlayingIndex := gSoundPlayer.PlayScriptSound(soundFile, KMPointF(Loc), Attenuate, Volume, Radius, FadeMusic, Looped);
     Result := PlayingIndex;
@@ -238,28 +227,28 @@ function TKMScriptSoundsManager.AddSound(aHandIndex: TKMHandID; const aSoundName
                                          aLoc: TKMPoint; aAttenuate: Boolean; aVolume: Single; aRadius: Single; aFadeMusic, aLooped: Boolean): Integer;
 const
   ERROR_EXIT_CODE = -1;
-var
-  S: TKMScriptSound;
 begin
   if Self = nil then Exit(ERROR_EXIT_CODE);
 
   Inc(fLastScriptUID); // fLastScriptUID always increases
 
-  S := TKMScriptSound.Create;
+  var newSound := TKMScriptSound.Create;
+  newSound.ScriptUID := fLastScriptUID;
+  newSound.PlayingIndex := -1;
+  newSound.Looped := aLooped;
+  newSound.FadeMusic := aFadeMusic;
+  newSound.SoundName := aSoundName;
+  newSound.AudioFormat := aSoundFormat;
+  newSound.Loc := aLoc;
+  newSound.Attenuate := aAttenuate;
+  newSound.Volume := aVolume;
+  newSound.Radius := aRadius;
+  newSound.HandIndex := aHandIndex;
 
-  S.ScriptUID := fLastScriptUID;
-  S.PlayingIndex := -1;
-  S.Looped := aLooped;
-  S.FadeMusic := aFadeMusic;
-  S.SoundName := aSoundName;
-  S.AudioFormat := aSoundFormat;
-  S.Loc := aLoc;
-  S.Attenuate := aAttenuate;
-  S.Volume := aVolume;
-  S.Radius := aRadius;
-  S.HandIndex := aHandIndex;
+  fScriptSounds.Add(newSound);
 
-  StartSound(fScriptSounds.Add(S));
+  // Start playing it immediately
+  StartSound(fScriptSounds.Count - 1);
 
   // Always return ScriptUID, since game logic should not depend on client sound subsystem
   Result := fLastScriptUID;
@@ -297,20 +286,20 @@ begin
 end;
 
 
-procedure TKMScriptSoundsManager.UpdateListener(X,Y: Single);
+procedure TKMScriptSoundsManager.UpdateListener(aX, aY: Single);
 begin
-  fListener := KMPointF(X, Y);
+  fListener := KMPointF(aX, aY);
 end;
+
 
 function CompareKeys(const aKey1, aKey2): Integer;
 var
   k1: Integer absolute aKey1;
   k2: Integer absolute aKey2;
 begin
-  if      k1 < k2 then Result := -1
-  else if k1 > k2 then Result := +1
-  else                 Result :=  0;
+  Result := CompareValue(k1, k2);
 end;
+
 
 procedure TKMScriptSoundsManager.Save(SaveStream: TKMemoryStream);
 var
@@ -341,11 +330,12 @@ begin
   SaveStream.Write(fSoundRemoveRequests.Count);
 
   keyArray := fSoundRemoveRequests.Keys.ToArray;
-  {$IFNDEF FPC}
-  TArray.Sort<Integer>(keyArray);
-  {$ELSE}
+  {$IFDEF FPC}
   SortCustom(keyArray, Low(keyArray), High(keyArray), SizeOf(keyArray[0]), CompareKeys);
+  {$ELSE}
+  TArray.Sort<Integer>(keyArray);
   {$ENDIF}
+
   for key in keyArray do
   begin
     SaveStream.Write(key);
