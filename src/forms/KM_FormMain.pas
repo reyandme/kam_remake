@@ -551,10 +551,11 @@ begin
 
   fMissionDefOpenPath := ExeDir;
 
-  Application.ProcessMessages;
-
   if not fStartVideoPlayed and (gGameSettings <> nil) and gGameSettings.Video.PlayOnStartup then
   begin
+    // Process messages only before the startup video. On every other Show it would process
+    // the deactivation caused by Hide before the form is shown again
+    Application.ProcessMessages;
     gVideoPlayer.AddVideo(CAMPAIGNS_FOLDER_NAME + PathDelim + 'The Peasants Rebellion' + PathDelim + 'Logo', vfkStarting);
     gVideoPlayer.AddVideo('KaM', vfkStarting);
     gVideoPlayer.Play;
