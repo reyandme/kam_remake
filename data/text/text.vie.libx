@@ -86,7 +86,7 @@
 85:Kẻ lang thang
 86:Máy bắn đá
 87:Máy bắn tên
-88:Dân phu cung cấp nguyên liệu thô cần thiết cho các tòa nhà của bạn.||Lưu ý rằng phải có đường nối giữa các tòa nhà.
+88:Dân phu cung cấp nguyên liệu thô cần thiết cho các công trình của bạn.||Lưu ý rằng phải có đường nối giữa các công trình.
 89:Để sản xuất thân cây cho xưởng cưa, bạn cần thợ tiều phu.||Tiều phu tự động thực hiện việc trồng lại rừng.
 90:Thợ mỏ khai thác quặng từ các mỏ than, sắt và vàng.
 91:Người chăn nuôi sử dụng ngô để nuôi lợn trong trang trại lợn và ngựa trong chuồng ngựa.
@@ -95,27 +95,27 @@
 94:Thợ làm bánh xay ngô thành bột mì trong cối xay.||Anh ta cũng nướng bánh mì trong tiệm bánh.
 95:Thợ mổ làm xúc xích ở tiệm thịt và thuộc da ở xưởng thuộc da.
 96:Ngư dân bắt cá ở các vùng nước gần đó.
-97:Thợ xây dựng các tòa nhà và đường đi. Chỉ cần đánh dấu vị trí bạn muốn và anh ta sẽ tự động thực hiện lệnh của bạn.||Anh ta cũng sửa chữa các tòa nhà bị hỏng.
+97:Thợ xây dựng các công trình và đường đi. Chỉ cần đánh dấu vị trí bạn muốn và anh ta sẽ tự động thực hiện lệnh của bạn.||Anh ta cũng sửa chữa các công trình bị hỏng.
 98:Để cung cấp cho thợ xây đủ vật liệu làm đường và nhà cửa, thợ đẽo đá sẽ cắt và đẽo đá.
 99:Thợ rèn rèn vũ khí và áo giáp sắt trong các xưởng vũ khí và áo giáp.
 100:Thợ luyện kim dùng than để tinh luyện quặng vàng và sắt.
 101:Tân binh có thể được trang bị làm binh lính trong trại lính.||Anh ta cũng chiếm giữ tháp canh.
-102:Chọn tòa nhà
+102:Chọn công trình
 103:Phân phối hàng hóa
 104:Thống kê
 105:Tùy chọn
-106:Quay lại
-107:Chọn|tòa nhà
+106:Trở về
+107:Chọn|công trình
 108:Phân phối|hàng hóa
 109:Thống kê
 110:Tùy chọn
 111:Tải trò chơi
 112:Lưu trò chơi
-113:Bạn có chắc chắn muốn|thoát khỏi nhiệm vụ|này không?
-114:Thoát nhiệm vụ
+113:Bạn có chắc chắn muốn|thoát khỏi màn chơi|này không?
+114:Thoát màn chơi
 115:Quay lại
 116:Cài đặt
-117:Thoát trình chỉnh sửa
+117:Thoát chỉnh sửa
 118:Hiệu ứng âm thanh
 119:Thay đổi âm lượng
 120:Thay đổi âm lượng
@@ -126,7 +126,7 @@
 125:Bài trước
 126:Bài tiếp theo
 127:Phá hủy
-128:Xóa tòa nhà/bản thiết kế|Giữ Shift và Ctrl để xóa tòa nhà mà không cần xác nhận
+128:Xóa công trình/bản thiết kế|Giữ Shift và Ctrl để xóa công trình mà không cần xác nhận
 129:Xây đường
 130:Xây đường
 131:Tạo ruộng
@@ -139,8 +139,8 @@
 140:Cung cấp
 141:Nhà đang|xây dựng
 142:Tiêu hủy
-143:Bạn có thực sự muốn|phá hủy tòa nhà này không?
-144:Tiêu hủy tòa nhà đã chọn
+143:Bạn có thực sự muốn|phá hủy công trình này không?
+144:Tiêu hủy công trình đã chọn
 145:Giảm số lượng đặt hàng
 146:Tăng số lượng đặt hàng
 147:Loại binh lính trước. Dùng chuột phải hoặc Alt để về loại lính đầu tiên
@@ -152,7 +152,7 @@
 153:Chuyển đổi chế độ giao hàng: nhu cầu / đóng / cung cấp|Dùng chuột trái/phải để chuyển tới/lui
 154:Chi phí:
 155:Bật/tắt sửa nhà
-156:Tòa nhà hiện chưa mở khóa
+156:Công trình hiện chưa mở khóa
 157:Điều kiện
 158:Quay đội quân sang trái|Nhấp chuột phải hoặc nhấn Alt để xoay 90 độ, nhấn Shift để xoay 180 độ
 159:Quay đội quân sang phải|Nhấp chuột phải hoặc nhấn Alt để xoay 90 độ, nhấn Shift để xoay 180 độ
@@ -225,9 +225,9 @@
 226:Hành trình
 227:Chiến dịch
 228:Chiến dịch
-229:Bắt đầu chiến dịch!
+229:BẮT ĐẦU CHIẾN DỊCH!
 230:Chơi bản đồ đơn
-231:Bắt đầu bản đồ
+231:BẮT ĐẦU!
 232:Quay lại menu
 233:Tải trò chơi đã lưu
 234:Nhiều người chơi
@@ -235,33 +235,33 @@
 236:Giới thiệu
 237:Thoát trò chơi
 238:Tiếp tục
-239:Khởi động lại nhiệm vụ
+239:Khởi động lại màn chơi
 240:Độ phân giải:
 241:Không được hỗ trợ
 242:Không được hỗ trợ
 243:CHIẾN THẮNG!
 244:THẤT BẠI!
-245:Đơn vị mất:
-246:Đơn vị tiêu diệt:
-247:Tòa nhà mất:
-248:Tòa nhà bị phá hủy:
-249:Tòa nhà được xây:
+245:Đơn vị bị thiệt hại:
+246:Đơn vị đã tiêu diệt:
+247:Công trình bị thiệt hại:
+248:Công trình đã phá hủy:
+249:Công trình được xây:
 250:Đơn vị được huấn luyện:
 251:Vũ khí sản xuất:
 252:Lính được trang bị:
 253:Nhiệm vụ hoàn thành trong:
 254:Thống kê
 255:Kinh tế
-256:Dân thường|được huấn luyện
-257:Dân thường|mất
-258:Lính|được trang bị
-259:Lính|mất
-260:Lính|bị tiêu diệt
-261:Tòa nhà|được xây
-262:Tòa nhà|mất
-263:Tòa nhà|bị phá hủy
-264:Hàng hóa|sản xuất
-265:Vũ khí|sản xuất
+256:Dân thường|đã đào tạo
+257:Dân thường|đã mất
+258:Lính|đã đào tạo
+259:Lính|đã mất
+260:Lính|đã tiêu diệt
+261:Công trình|đã xây
+262:Công trình|đã mất
+263:Công trình|đã phá hủy
+264:Sản xuất|hàng hóa
+265:Sản xuất|vũ khí
 266:Quân đội
 267:Dân thường
 268:Nhà cửa
@@ -270,8 +270,8 @@
 271:Không có dữ liệu
 272:Bạn
 273:Người chơi %d
-274:Quay lại mục Nhiều người chơi
-275:Quay lại mục Xem lại
+274:Trở về mục Nhiều người chơi
+275:Trở về mục Xem lại
 276:Tất cả hàng hóa
 277:Chiến trận
 278:Lương thực
@@ -284,13 +284,13 @@
 285:Chỉnh sửa bản đồ
 286:Bắt đầu nhiệm vụ
 287:Tiêu đề
-288:Kích thước
+288:Kích cỡ
 289:Điều kiện thắng:
 290:Điều kiện thua:
 291:Đồng minh:
 292:Kẻ địch:
 293:Thời gian
-294:Kích thước bản đồ mới
+294:Kích cỡ bản đồ mới
 295:Chiều rộng
 296:Chiều cao
 297:Tạo bản đồ mới
@@ -370,8 +370,8 @@
 372:Đối tượng
 373:Độ dốc/Cao độ
 374:Hình dạng cọ vẽ
-375:Kích thước
-376:Trượt để thay đổi kích thước cọ
+375:Kích cỡ
+376:Trượt để thay đổi kích cỡ cọ
 377:Độ dốc
 378:Trượt để thay đổi độ dốc cao độ: 1 = cao nguyên ... 15 = đỉnh núi
 379:Tốc độ
@@ -430,7 +430,7 @@
 435:Tài sản quân sự
 436:Không rõ
 437:Quân đội
-438:Tòa nhà
+438:Công trình
 439:Thời gian
 440:Hướng dẫn xây dựng
 441:Không có
@@ -507,8 +507,8 @@
 517:Mật khẩu
 518:Tên máy chủ
 519:Trạng thái
-520:Người chơi
-521:Độ trễ
+520:Ng. chơi
+521:Ping
 522:Làm mới danh sách máy chủ
 523:CHI TIẾT MÁY CHỦ
 524:Danh sách người chơi:
@@ -516,7 +516,7 @@
 526:Đang kết nối, vui lòng đợi...
 527:Đang tải thông báo...
 528:Đang làm mới...
-529:Danh sách người chơi
+529:D.sách người chơi
 530:Vị trí bắt đầu
 531:Đội
 532:Màu
@@ -524,7 +524,7 @@
 534:Ping
 535:Ping / FPS
 536:Mở
-537:Người chơi AI
+537:AI
 538:Chọn...
 539:Ngẫu nhiên
 540:Không có
@@ -534,7 +534,7 @@
 544:Thoát phòng chờ
 545:Sẵn sàng
 546:Chưa sẵn sàng
-547:Bắt đầu!
+547:BẮT ĐẦU!
 548:Tốc độ trò chơi (PT)
 549:Tốc độ trò chơi
 550:Đồng ý
@@ -584,7 +584,7 @@
 595:-
 596:Phòng chờ
 597:Đang tải
-598:Trò chơi
+598:Đang chơi
 599:Xây dựng và Chiến đấu
 600:Chiến đấu
 601:Sẵn sàng
@@ -620,7 +620,7 @@
 631:đang khởi tạo
 632:kịch bản
 633:đơn vị quân
-634:tòa nhà
+634:công trình
 635:cây cối
 636:định nghĩa
 637:bộ ô bản đồ
@@ -670,7 +670,7 @@
 681:Tắt
 682:Bán kính
 683:Xóa vùng sáng hiện tại
-684:Quay lại trang hiển thị sương mù
+684:Trở về trang hiển thị sương mù
 685:Đóng
 686:Lệnh nhóm
 687:Không có
@@ -679,7 +679,7 @@
 690:Hướng
 693:Bán kính phòng thủ
 694:Xóa vị trí phòng thủ hiện tại
-695:Quay lại trang phòng thủ
+695:Trở về trang phòng thủ
 696:Vị trí phòng thủ
 697:Đơn vị & Động vật
 698:Sói
@@ -747,11 +747,11 @@
 793:Bên phòng thủ
 794:Khán giả
 795:Để chơi một màn chiến dịch đã mở khóa trước đó, hãy chọn cờ nhiệm vụ trên bản đồ tóm tắt chiến dịch
-796:%s đã bỏ phiếu quay lại phòng chờ (cần thêm %s phiếu bầu)
-797:Bỏ phiếu đưa phòng này quay lại phòng chờ. Trò chơi sau đó có thể tiếp tục hoặc thay đổi
-798:Bỏ phiếu Về phòng chờ
-799:%s đã bỏ phiếu quay lại phòng chờ (bỏ phiếu thành công)
-800:Phiếu bầu quay lại phòng chờ đã thất bại
+796:%s đã bỏ phiếu trở về phòng chờ (cần thêm %s phiếu bầu)
+797:Bỏ phiếu đưa phòng này trở về phòng chờ. Trò chơi sau đó có thể tiếp tục hoặc thay đổi
+798:Vote về phòng chờ
+799:%s đã bỏ phiếu trở về phòng chờ (bỏ phiếu thành công)
+800:Phiếu bầu trở về phòng chờ đã thất bại
 801:Xóa bản xem lại cũng sẽ xóa tệp lưu liên quan. Bạn có chắc chắn muốn xóa tệp lưu này không?
 802:Lấy tất cả
 803:Số lượng đơn vị tối thiểu để tấn công
@@ -765,7 +765,7 @@
 811:Trang bị không giới hạn
 812:AI cổ điển: Lính được trang bị nhanh nhất có thể. Tỷ lệ trang bị vẫn ảnh hưởng đến việc quy hoạch làng|AI nâng cao: Không giới hạn trang bị
 813:Áp dụng mặc định của AI
-814:Trình xây dựng nhiều người chơi
+814:Tạo bản đồ nhiều người
 815:Áp dụng cài đặt xây dựng AI hung hăng cho tất cả người chơi (dành cho bản đồ xây dựng nhiều người chơi)
 816:Cảnh báo: Thao tác này sẽ ghi đè lên tất cả cài đặt AI hiện có cho tất cả người chơi. Tiếp tục?
 817:Loại quân đội
@@ -776,7 +776,7 @@
 822:Bản đồ đã tải xuống
 823:Lưu ý: Cuộc tấn công "Lặp lại" đầu tiên sẽ cử tất cả quân mà người chơi AI có tại các tiền tuyến tấn công. Tuy nhiên, đối với mọi cuộc tấn công "Lặp lại" tiếp theo (cũng như "Tấn công đơn lẻ"), AI sẽ cử đủ nhóm để vượt quá "Số lượng đơn vị tối thiểu để tấn công"
 824:Di chuyển
-825:Xem tệp PDF hướng dẫn
+825:Xem PDF hướng dẫn
 826:Không mở được trình xem PDF
 827:Đặt số lượng dân phu trên mỗi 10 ngôi nhà cho người chơi AI được chỉ định. AI được chọn có %d nhà
 828:Lỗi: Tệp tạm dừng của chủ phòng không khớp với tệp tạm dừng cục bộ. Đã xảy ra lỗi hoặc chủ phòng có thể đang gian lận.
@@ -839,7 +839,7 @@
 888:Gỡ lỗi: Thất bại
 889:Gỡ lỗi: Thêm trinh sát
 890:Menu Tiện ích mở rộng
-891:Trình chỉnh sửa địa hình
+891:Chỉnh sửa địa hình
 892:Quy hoạch làng
 893:Kịch bản trực quan
 894:Kịch bản toàn cục
@@ -852,9 +852,9 @@
 901:Menu phụ 6
 902:Ctrl và Shift không thể gán phím
 903:~~~ Giá trị không xác định
-904:Nút chuột trái
-905:Nút chuột giữa
-906:Nút chuột phải
+904:Chuột trái
+905:Chuột giữa
+906:Chuột phải
 907:Break
 908:Backspace
 909:TAB
@@ -871,10 +871,10 @@
 920:Page Down
 921:End
 922:Home
-923:Phím mũi tên trái
-924:Phím mũi tên lên
-925:Phím mũi tên phải
-926:Phím mũi tên xuống
+923:Mũi tên trái
+924:Mũi tên lên
+925:Mũi tên phải
+926:Mũi tên xuống
 927:Select
 928:Print
 929:Execute
@@ -882,21 +882,21 @@
 931:Insert
 932:Delete
 933:Help
-934:Bàn phím số 0
-935:Bàn phím số 1
-936:Bàn phím số 2
-937:Bàn phím số 3
-938:Bàn phím số 4
-939:Bàn phím số 5
-940:Bàn phím số 6
-941:Bàn phím số 7
-942:Bàn phím số 8
-943:Bàn phím số 9
-944:Bàn phím số *
+934:0 (phím số)
+935:1 (phím số)
+936:2 (phím số)
+937:3 (phím số)
+938:4 (phím số)
+939:5 (phím số)
+940:6 (phím số)
+941:7 (phím số)
+942:8 (phím số)
+943:9 (phím số)
+944:* (phím số)
 945:Separator
-946:Bàn phím số -
-947:Bàn phím số .
-948:Bàn phím số /
+946:- (phím số)
+947:. (phím số)
+948:/ (phím số)
 949:Num Lock
 950:Scroll Lock
 951:Shift trái
@@ -907,10 +907,10 @@
 956:Alt phải
 957:Play
 958:Zoom
-960:Bàn phím số +
+960:+ (phím số)
 961:Phím thông dụng
 962:Phím trong trò chơi
-963:Phím trình chỉnh sửa bản đồ
+963:Phím chỉnh sửa bản đồ
 964:Đang đợi dữ liệu người chơi ngắt kết nối:
 965:Ống hút màu: Chọn loại ô dưới con trỏ
 966:Lò rèn giáp này không có người ở
@@ -953,7 +953,7 @@
 1003:Xây đường
 1004:Tạo ruộng
 1005:Lập vườn nho
-1006:Xóa tòa nhà/vùng chọn
+1006:Xóa công trình/vùng chọn
 1007:Chọn nhà/đơn vị tiếp theo có cùng loại
 1008:Cửa sổ gỡ lỗi
 1009:Xem người chơi 1
@@ -993,12 +993,12 @@
 1043:Tổng trang bị
 1044:Bị tiêu diệt
 1045:Mất
-1046:Quay lại kết quả trò chơi
+1046:Trở về kết quả trò chơi
 1047:theo Người chơi
 1048:theo Đội
 1049:Thêm|thống kê
-1050:Quay lại Trình chỉnh sửa bản đồ
-1051:Quay lại Trình chỉnh sửa bản đồ
+1050:Trở về Chỉnh sửa bản đồ
+1051:Trở về Chỉnh sửa bản đồ
 1052:Bạn có chắc chắn muốn|thoát khỏi bản xem lại|này không?
 1053:Bản đồ không hợp lệ
 1054:Bản đồ được chọn không hợp lệ. Vui lòng chọn bản đồ khác
@@ -1015,13 +1015,13 @@
 1065:Đặt điểm chặt cho tiều phu. Hoặc bạn có thể đặt bằng Shift + Nhút chuột phải
 1066:Điểm tập kết
 1067:Đặt điểm tập kết cho %s. Hoặc bạn có thể đặt bằng Shift + Nút chuột phải
-1068:Thay đổi kích thước bản đồ
+1068:Thay đổi kích cỡ bản đồ
 1069:Di chuyển biên giới:
-1070:Thay đổi kích thước và Lưu
-1071:Thay đổi kích thước bản đồ rồi lưu lại
-1072:Thay đổi kích thước bản đồ
-1073:Bạn có chắc chắn muốn thay đổi kích thước bản đồ không?||Thao tác này sẽ tự động ghi đè bản đồ hiện tại
-1074:Thay đổi kích thước không thể thực hiện||Bạn cần lưu bản đồ mới trước
+1070:Thay đổi kích cỡ và Lưu
+1071:Thay đổi kích cỡ bản đồ rồi lưu lại
+1072:Thay đổi kích cỡ bản đồ
+1073:Bạn có chắc chắn muốn thay đổi kích cỡ bản đồ không?||Thao tác này sẽ tự động ghi đè bản đồ hiện tại
+1074:Thay đổi kích cỡ không thể thực hiện||Bạn cần lưu bản đồ mới trước
 1075:Thay đổi chủ sở hữu cho đối tượng
 1076:Chơi nhanh
 1077:Bắt đầu trò chơi chơi đơn trên bản đồ hiện tại
@@ -1057,9 +1057,9 @@
 1107:Xem người chơi 10
 1108:Xem người chơi 11
 1109:Xem người chơi 12
-1110:Kích thước bản đồ hiện tại:|[ %d : %d ]
-1111:Kích thước bản đồ mới:|[ %d : %d ]
-1112:Thay đổi kích thước bản đồ
+1110:Kích cỡ bản đồ hiện tại:|[ %d : %d ]
+1111:Kích cỡ bản đồ mới:|[ %d : %d ]
+1112:Thay đổi kích cỡ bản đồ
 1113:Chủ sở hữu: %s
 1114:Xóa Người chơi %d
 1115:Xóa Người chơi %d
@@ -1074,7 +1074,7 @@
 1124:Có thể chơi đơn
 1125:Cây có thể chặt
 1126:Chặn đi chéo
-1127:Chặn mọi thứ trừ tòa nhà
+1127:Chặn mọi thứ trừ công trình
 1128:Hiển thị đường/ruộng/vườn nho
 1129:Hành động menu phụ 1
 1130:Hành động menu phụ 2
@@ -1126,7 +1126,7 @@
 1176:Khó
 1177:Các mức độ khó
 1178:Thiết lập các mức độ khó khác nhau, có thể dùng trong kịch bản để sửa đổi logic và độ khó nhiệm vụ
-1179:Người chơi AI nâng cao
+1179:AI nâng cao
 1180:AI nâng cao
 1181:AI cổ điển
 1182:Người chiến thắng
@@ -1137,7 +1137,7 @@
 1187:Chế độ màu Đồng minh / Kẻ địch
 1188:Màu Bản thân / Đồng minh / Kẻ địch cho người chơi thay vì màu ban đầu của họ
 1189:[$404040]Chủ phòng đã sẵn sàng bắt đầu. Vui lòng nhấn '[][$0707FF]%s[][$404040]'[]
-1190:Yêu cầu nhấn Sẵn sàng
+1190:Yêu cầu click Sẵn sàng
 1191:Đã gửi cảnh báo chuẩn bị sẵn sàng tới %s người chơi
 1192:Chuyển đổi chế độ màu của người chơi
 1193:Không thể sa thải trong khi đơn vị đang thực hiện hành động
@@ -1158,13 +1158,13 @@
 1211:Sửa cọ địa hình
 1212:Bạn có chắc chắn muốn sửa chữa|tất cả thông tin nội bộ của cọ địa hình không?||Thao tác này sẽ cho phép sử dụng cọ|ở những nơi từng dùng ô thủ công
 1213:Mặc định
-1214:Người chơi người
-1215:Người chơi AI cổ điển %d
-1216:Người chơi AI nâng cao %d
+1214:Người chơi
+1215:AI cổ điển %d
+1216:AI nâng cao %d
 1217:AI cổ điển %d
 1218:AI nâng cao %d
-1219:Người chơi AI cổ điển
-1220:Loại người chơi AI
+1219:AI cổ điển
+1220:Loại AI
 1221:T.động lưu khi k.thúc game
 1222:Không có
 1223:Tài nguyên
@@ -1197,7 +1197,7 @@
 1250:Đồng minh / Kẻ địch
 1251:Đội
 1252:Hiển thị màu người chơi theo lựa chọn của họ trong phòng chờ
-1253:Hiển thị 3 màu khác nhau (của bạn, đồng minh, thù địch) cho dân thường và tòa nhà
+1253:Hiển thị 3 màu khác nhau (của bạn, đồng minh, thù địch) cho dân thường và công trình
 1254:Hiển thị màu theo tư cách thành viên trong đội
 1255:Lỗi: Tên người chơi '%s' đã được đặt trước
 1256:Dân thường (S/L/R)
@@ -1210,13 +1210,13 @@
 1263:Trình tạo bản đồ ngẫu nhiên - Cài đặt
 1264:Cài đặt trình tạo bản đồ ngẫu nhiên
 1265:Cài đặt RMG
-1266:Kích thước bản đồ:
+1266:Kích cỡ:
 1267:Vị trí
 1268:Bật vị trí có tài nguyên
 1269:Số lượng vị trí
 1270:Đặt số lượng vị trí
 1271:Bán kính được bảo vệ
-1272:Chỉ định kích thước khu vực được bảo vệ. Giúp bảo vệ khu vực có thể xây dựng xung quanh mỗi vị trí.
+1272:Chỉ định kích cỡ khu vực được bảo vệ. Giúp bảo vệ khu vực có thể xây dựng xung quanh mỗi vị trí.
 1273:Kết nối các vị trí
 1274:Tạo đường đi bộ giữa các vị trí
 1275:Bố cục
@@ -1235,22 +1235,22 @@
 1288:Số lượng tài nguyên: sắt
 1289:Chướng ngại vật
 1290:Bật chướng ngại vật (núi, sông, đầm lầy, v.v.)
-1291:Kích thước
-1292:Kích thước trung bình của các chướng ngại vật được tạo
+1291:Kích cỡ
+1292:Kích cỡ trung bình của các chướng ngại vật được tạo
 1293:Mật độ
 1294:Mật độ của các chướng ngại vật được tạo
 1295:Độ biến thiên
-1296:Độ biến thiên về kích thước của các chướng ngại vật được tạo
+1296:Độ biến thiên về kích cỡ của các chướng ngại vật được tạo
 1297:Tỷ lệ
 1298:Loại và tỷ lệ của các chướng ngại vật được tạo
-1299:Vàng trống
-1300:Tỷ lệ vàng trống
-1301:Sắt trống
-1302:Tỷ lệ sắt trống
+1299:Hết vàng
+1300:Tỷ lệ hết vàng
+1301:Hết sắt
+1302:Tỷ lệ hết sắt
 1303:Đầm lầy
 1304:Tỷ lệ đầm lầy
-1305:Vùng đất ngập nước
-1306:Tỷ lệ vùng đất ngập nước
+1305:Khu vực ngập nước
+1306:Tỷ lệ khu vực ngập nước
 1307:Nước
 1308:Tỷ lệ nước
 1309:Hệ sinh thái
@@ -1293,12 +1293,12 @@
 1346:Mật độ rừng
 1347:Cây
 1348:Số lượng cây trong rừng
-1349:Hạt giống
+1349:Seed
 1350:Một số được dùng làm định danh để tạo bản đồ với cấu hình cụ thể
-1351:Tạo hạt giống ngẫu nhiên
-1352:Tạo bản đồ với Hạt giống mới
+1351:Seed ngẫu nhiên
+1352:Tạo bản đồ với Seed mới
 1353:Tạo bản đồ
-1354:Tạo bản đồ với Hạt giống hiện tại
+1354:Tạo bản đồ với Seed hiện tại
 1355:Đóng Trình tạo bản đồ ngẫu nhiên
 1356:H
 1357:Phát nhịp tiếp theo trong bản xem lại
@@ -1320,15 +1320,15 @@
 1373:Thấp
 1374:Trung bình
 1375:Cao
-1376:Chọn kích thước của bản đồ
+1376:Chọn kích cỡ của bản đồ
 1377:Thử bắt đầu
 1378:Thử tải bản lưu
 1379:Thử xem bản xem lại
 1380:Lỗi tải tệp lưu phiên bản không được hỗ trợ %s từ %s
 1381:Lỗi tải bản xem lại phiên bản không được hỗ trợ %s từ %s
 1382:Tên bản đồ
-1383:Thời gian
-1384:Phiên bản
+1383:Th. gian
+1384:Version
 1385:Tải phiên bản không được hỗ trợ có thể khiến trò chơi không tải đúng cách hoặc thậm chí gây sự cố trò chơi
 1386:Phiên bản không được hỗ trợ
 1387:Bạn có chắc chắn muốn mở khóa tất cả các chiến dịch không?\nThao tác này không thể hoàn tác.\n\nNếu muốn lưu tiến trình chiến dịch, hãy đảm bảo bạn đã sao lưu tệp 'Campaigns.dat' nằm tại\n'%s'\n\nBạn có xác nhận thao tác này không?
@@ -1383,7 +1383,7 @@
 1436:Hiển thị địa hình bằng phẳng
 1437:Tốc độ trò chơi chỉ có thể được thay đổi bởi chủ phòng nếu không có người chơi hoạt động nào trên bản đồ
 1438:Xuất tài nguyên hoàn tất: [ %s ]
-1439:Quay lại trình duyệt
+1439:Trở về trình duyệt
 1440:Tiến tới trình duyệt
 1441:Làm mới trình duyệt
 1442:Dừng trình duyệt
@@ -1393,10 +1393,10 @@
 1446:Tắt tiếng âm lượng
 1447:Giảm âm lượng
 1448:Tăng âm lượng
-1449:Bài phương tiện tiếp theo
-1450:Bài phương tiện trước
-1451:Dừng phương tiện
-1452:Phát/tạm dừng phương tiện
+1449:Bài tiếp theo
+1450:Bài trước
+1451:Dừng
+1452:Phát/tạm dừng
 1453:Mở thư điện tử
 1454:Mở chọn phương tiện
 1455:Khởi chạy ứng dụng 1
@@ -1477,7 +1477,7 @@
 1530:Làm cho các đỉnh núi mượt mà hơn
 1531:Cài đặt trò chơi
 1532:Cài đặt xem lại
-1533:Cài đặt trình chỉnh sửa bản đồ
+1533:Cài đặt chỉnh sửa bản đồ
 1534:Lưu ý: AI nâng cao sử dụng các tham số đội hình riêng và sẽ bỏ qua các cài đặt này
 1535:Đến bản đồ chiến dịch
 1536:Lấy bất kỳ loại nhóm nào
