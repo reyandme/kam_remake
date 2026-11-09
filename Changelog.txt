@@ -21,6 +21,7 @@ KaM Remake Beta r_____ []
 + Fixed animals blocking units when walking back and forth diagonally
 + Fixed minor flaw in multiplayer latency estimation
 + Fixed crash when toggling fullscreen after opening Multiplayer Lobby or Map Editor menus
++ Improved script sounds handling in single-player
 
 
 KaM Remake Beta r16397 [2026.09.19]

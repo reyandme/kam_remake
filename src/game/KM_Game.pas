@@ -1084,9 +1084,10 @@ begin
     end;
   end
   else
-    for var I := 0 to gHands.Count - 1 do
-      if gHands[I].Enabled then
-        Include(Result, I);
+    //todo -cComplicated: Note that this could be flaky and break in Replays.
+    // Do not keep script sound info in savegame / GIP altogether.
+    // Keep in player-local settings (alongside minimap and viewport)
+    Include(Result, gMySpectator.HandID);
 end;
 
 
