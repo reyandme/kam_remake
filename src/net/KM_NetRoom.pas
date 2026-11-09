@@ -38,6 +38,7 @@ type
     HasMapOrSave: Boolean;
     Connected: Boolean;      //Player is still connected
     Dropped: Boolean;        //Host elected to continue play without this player
+    Kicked: Boolean;         //Host kicked him to drop him and will not take him back. Only the host knows it
     LastSentCommandsTick: Integer; {Last tick when this player sent GIP commands to others} //todo -cComplicated: move it somewhere...?
     DownloadInProgress: Boolean; //Player is in map/save download progress
     VotedYes: Boolean;
@@ -580,6 +581,7 @@ begin
   fSlots[fCount].ReadyToReturnToLobby := False;
   fSlots[fCount].Connected := True;
   fSlots[fCount].Dropped := False;
+  fSlots[fCount].Kicked := False;
   fSlots[fCount].LastSentCommandsTick := LAST_SENT_COMMANDS_TICK_NONE;
   fSlots[fCount].DownloadInProgress := False;
   fSlots[fCount].ResetPingRecord;
@@ -779,7 +781,7 @@ begin
   if fSlots[aSlotIndex].Connected then
     Result := -2 // Silent failure, client should try again
   else
-  if fSlots[aSlotIndex].Dropped then
+  if fSlots[aSlotIndex].Dropped or fSlots[aSlotIndex].Kicked then
     Result := TX_NET_RECONNECTION_DROPPED
   else
     Result := -1; // Success
