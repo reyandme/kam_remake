@@ -71,7 +71,7 @@ const
     49, 50, 51, 52, 53, 54, 55, 56, 57, 48, // Dynamic selection groups 1-10 (1-9, 0)
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0,           // Dynamic selection groups 11-20 (no defaults)
     //Unit keys
-    72, 83, 76, 70, 88,                     // Army commands (Halt/Split/Link/Food/Storm) (H/S/L/F/X)
+    72, 83, 76, 0, 88,                     // Army commands (Halt/Split/Link/Food/Storm) (H/S/L/F/X)
     187, 189, 190, 188,                     // Army commands (Increase form./Decrease form./Turn clockwise/Turn counterclockwise) (=/-/./,)
     //House keys
     65, 83, 68,                             // School/Barracks/TH commands (prev unit / equip unit / next unit)
