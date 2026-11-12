@@ -25,5 +25,6 @@ slv,    Slovenian,            1250,     0,         82,           ,              
 svk,    Slovak,               1250,     0,         52,           cze,             Róbert Marko & Jozef Müller (Launcelot)
 spa,    Spanish,              1252,     0,         53,           ,                Óscar
 swe,    Swedish,              1252,     0,         56,           ,                Edvin Linge
+vie,    Tiếng Việt,           1258,     1,         91,           ,                Tép Lang Thang
 tur,    Turkish,              1254,     0,         76,           ,                Uğur Yıldırım
 ukr,    Ukrainian,            1251,     0,         68,           ,                Mulberry, Lolasik011 & Rey
