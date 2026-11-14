@@ -144,6 +144,10 @@ type
     function GetBriefingAudioFile(aIndex: Byte): string;
     function GetCampaignDataScriptFilePath: UnicodeString;
 
+  public
+    // Mission the campaign map selects next time it opens (after a win), -1 = furthest unlocked
+    MissionToSelect: Integer;
+
     procedure UnlockNextMission(aCurrentMission: Word);
     procedure UnlockAllMissions;
   end;
@@ -887,6 +891,7 @@ begin
 
   fSpec := TKMCampaignSpec.Create;
   fSavedData := TKMCampaignSavedData.Create(fSpec);
+  MissionToSelect := -1;
 
   // 1st map is always unlocked to allow to start campaign
   fSavedData.UnlockedMission := 0;
@@ -992,6 +997,8 @@ begin
   if Self = nil then Exit;
 
   fSavedData.UnlockedMission := aCurrentMission + 1;
+  // Continue goes to the mission after the one just won, also when replaying an earlier one
+  MissionToSelect := Min(aCurrentMission + 1, fSpec.MissionsCount - 1);
   fSavedData.MapsProgressData[aCurrentMission].Completed := True;
   //Update BestDifficulty if we won harder game
   if Ord(fSavedData.MapsProgressData[aCurrentMission].BestCompletedDifficulty) < Ord(gGameParams.MissionDifficulty)  then

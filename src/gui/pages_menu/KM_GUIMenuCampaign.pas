@@ -195,7 +195,12 @@ begin
   end;
 
   //Select last map, no brifing will be played, since its set as
-  SelectMap(fCampaign.SavedData.UnlockedMission);
+  //After a win: the next mission rather than the furthest unlocked one (once)
+  if InRange(fCampaign.MissionToSelect, 0, fCampaign.SavedData.UnlockedMission) then
+    SelectMap(fCampaign.MissionToSelect)
+  else
+    SelectMap(fCampaign.SavedData.UnlockedMission);
+  fCampaign.MissionToSelect := -1;
 end;
 
 
