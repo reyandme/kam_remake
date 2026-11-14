@@ -369,25 +369,27 @@ procedure TKMNavMesh.TieUpTilesWithPolygons();
   end;
   procedure ComputeNearbyPoints(aIdx: Word);
   var
-    SecondPoint: Boolean;
+    shared: Integer;
     K,L,M, ToIdx: Integer;
     P: TKMPoint;
     Indices: array[0..1] of Word;
   begin
     for K := fPolygons[aIdx].NearbyCount - 1 downto 0 do
     begin
-      SecondPoint := False;
+      shared := 0;
       ToIdx := fPolygons[aIdx].Nearby[K];
-      for L := 0 to 2 do
-      for M := 0 to 2 do
-        if fPolygons[aIdx].Indices[L] = fPolygons[ToIdx].Indices[M] then
-        begin
-          Indices[Ord(SecondPoint)] := fPolygons[aIdx].Indices[L];
-          SecondPoint := True;
-          Break;
-        end;
+      if (ToIdx > 0) and (ToIdx < fPolyCount) then // 0. polygon is reserved / unused
+        for L := 0 to 2 do
+        for M := 0 to 2 do
+          if (shared < 2) and (fPolygons[aIdx].Indices[L] = fPolygons[ToIdx].Indices[M]) then
+          begin
+            Indices[shared] := fPolygons[aIdx].Indices[L];
+            Inc(shared);
+            Break;
+          end;
 
-      if SecondPoint then
+      // A neighbour shares an edge (2 nodes). One shared node used to read Indices[1] uninitialized (#298)
+      if shared = 2 then
       begin
         P := KMPointAverage(fNodes[Indices[0]], fNodes[Indices[1]]);
         fPolygons[aIdx].NearbyPoints[K] := KMPoint(Min(fMapX - 1, Max(1, P.X)), Min(fMapY - 1, Max(1, P.Y)));
@@ -401,6 +403,7 @@ procedure TKMNavMesh.TieUpTilesWithPolygons();
       begin
         for L := K to fPolygons[aIdx].NearbyCount - 2 do
         begin
+          fPolygons[aIdx].Nearby[L] := fPolygons[aIdx].Nearby[L+1]; // keep Nearby[] aligned with NearbyPoints[]
           fPolygons[aIdx].NearbyPoints[L] := fPolygons[aIdx].NearbyPoints[L+1];
           fPolygons[aIdx].NearbyLineLength[L] := fPolygons[aIdx].NearbyLineLength[L+1];
         end;
