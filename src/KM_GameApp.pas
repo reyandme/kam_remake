@@ -437,6 +437,7 @@ end;
 
 procedure TKMGameApp.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
+  if fIsExiting then Exit;
   if gVideoPlayer.IsActive then
   begin
     gVideoPlayer.MouseDown(Button, Shift, X, Y);
@@ -455,6 +456,7 @@ var
   ctrl: TKMControl;
   ctrlID: Integer;
 begin
+  if fIsExiting then Exit; // Mouse events can arrive while Destroy frees the UI, e.g. from an error dialog (#367)
   if not InRange(X, 1, gRender.ScreenX - 1)
   or not InRange(Y, 1, gRender.ScreenY - 1) then
     Exit; // Exit if Cursor is outside of frame
@@ -487,6 +489,7 @@ end;
 
 procedure TKMGameApp.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
+  if fIsExiting then Exit;
   if gGame <> nil then
     gGame.ActiveInterface.MouseUp(Button,Shift,X,Y)
   else
@@ -497,7 +500,7 @@ end;
 procedure TKMGameApp.MouseWheel(Shift: TShiftState; WheelSteps: Integer; X, Y: Integer; var aHandled: Boolean);
 begin
   aHandled := False;
-  if Self = nil then Exit;
+  if (Self = nil) or fIsExiting then Exit;
 
   if gGame <> nil then
     gGame.ActiveInterface.MouseWheel(Shift, WheelSteps, X, Y, aHandled)
