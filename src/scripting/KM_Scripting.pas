@@ -1194,6 +1194,7 @@ procedure TKMScripting.LinkRuntime;
   var
     I: Integer;
   begin
+    Result := ''; // FPC does not hand in the caller's empty string as Delphi does: Result would hold a stale temp
     //Check against our set of allowed types
     if not (aType.BaseType in VALID_GLOBAL_VAR_TYPES) then
     begin

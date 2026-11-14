@@ -11,7 +11,8 @@ uses
 
 
 const
-  FLOAT_PARAM_NONE = MaxSingle;
+  // Exact MaxSingle: FPC's MaxSingle (3.4e38) is not a Single, so 'aFloatParam <> FLOAT_PARAM_NONE' was always True
+  FLOAT_PARAM_NONE = 340282346638528859811704183484516925440.0;
 
 type
   TKMScriptEntity = class
